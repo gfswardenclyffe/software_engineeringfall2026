@@ -64,18 +64,26 @@ The project will follow the Agile methodology discussed in class. Development wi
 **Goal:**  
 Create the development environment and initial project structure required to begin development.
 
-**Tasks:**
+**Completed Tasks:**
 
-- Create and organize the GitHub repository.
-- Add all team members as collaborators.
-- Define the project description and initial scope.
-- Create the README file.
-- Define the initial development environment.
-- Review the existing user stories.
-- Establish the initial team responsibilities.
+- Created and organized the GitHub repository.
+- Added the project team members as collaborators.
+- Defined the project description and initial scope.
+- Created and updated the README file.
+- Created a Python virtual environment.
+- Installed Django.
+- Created the `wardenclyffe_portal` Django project.
+- Created the initial `portal` application.
+- Added the `portal` application to the Django project settings.
+- Ran the initial Django migrations.
+- Verified that the Django development server runs successfully.
+- Created the `.gitignore` file.
+- Created `requirements.txt` to document the project dependencies.
+- Reviewed the existing user stories.
+- Established the initial development responsibilities.
 
-**Expected Result:**  
-A functional project repository and development environment that can be used by the team as the foundation for the next Sprint.
+**Sprint Result:**  
+The initial project environment is functional and has been pushed to the shared GitHub repository. The Django development server was successfully tested, and the project is ready for implementation of the first application features.
 
 ### Sprint 2 – Initial Application Structure
 
