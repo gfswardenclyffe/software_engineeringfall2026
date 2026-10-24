@@ -109,3 +109,5 @@ The repository will be used to maintain the project source code, documentation, 
 Git branches and commits will be used throughout the project to document development progress and support collaboration among team members.
 
 Michelle Lopez Dieckmann - Development and UI
+
+Ryan Garza - Development and User Management.
