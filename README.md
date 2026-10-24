@@ -107,3 +107,5 @@ https://github.com/gfswardenclyffe/software_engineeringfall2026
 The repository will be used to maintain the project source code, documentation, version history, and team contributions.
 
 Git branches and commits will be used throughout the project to document development progress and support collaboration among team members.
+
+Michelle Lopez Dieckmann - Development and UI
