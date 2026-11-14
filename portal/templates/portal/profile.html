@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile</title>
+<style>
+body{margin:0;background:#dfe4ea;color:#171717;font-family:Arial,Helvetica,sans-serif}
+.page{max-width:900px;margin:40px auto;border:3px solid #171717;background:#f7f7f7}
+.header{padding:28px;border-bottom:3px solid #171717;background:#ff5a12}
+.content{padding:32px}
+.row{padding:15px 0;border-bottom:1px solid #bbb}
+.label{font-size:12px;color:#666;text-transform:uppercase}
+.value{font-size:18px;margin-top:6px}
+.btn{display:inline-block;margin-top:24px;background:#171717;color:white;padding:14px 20px;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <strong>GALIEL by Wardenclyffe</strong>
+    <h1>My Profile</h1>
+  </div>
+  <div class="content">
+    <div class="row"><div class="label">Username</div><div class="value">{{ user.username }}</div></div>
+    <div class="row"><div class="label">Name</div><div class="value">{{ user.first_name }} {{ user.last_name }}</div></div>
+    <div class="row"><div class="label">Email</div><div class="value">{{ user.email }}</div></div>
+    <div class="row"><div class="label">Phone</div><div class="value">{{ profile.phone|default:"Not added" }}</div></div>
+    <div class="row"><div class="label">Company</div><div class="value">{{ profile.company|default:"Not added" }}</div></div>
+    <div class="row"><div class="label">Address</div><div class="value">{{ profile.address|default:"Not added" }}</div></div>
+    <div class="row"><div class="label">Preferred Service</div><div class="value">{{ profile.get_preferred_service_display|default:"Not selected" }}</div></div>
+    <a class="btn" href="{% url 'edit_profile' %}">Edit Profile</a>
+    <a class="btn" href="{% url 'dashboard' %}">Dashboard</a>
+  </div>
+</div>
+</body>
+</html>

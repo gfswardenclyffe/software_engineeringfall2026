@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Profile</title>
+<style>
+body{margin:0;background:#dfe4ea;color:#171717;font-family:Arial,Helvetica,sans-serif}
+.page{max-width:900px;margin:40px auto;border:3px solid #171717;background:#f7f7f7}
+.header{padding:28px;border-bottom:3px solid #171717;background:#ff5a12}
+.content{padding:32px}
+form p{margin-bottom:20px}
+input,select{width:100%;padding:12px;border:2px solid #171717}
+button{background:#171717;color:white;padding:14px 20px;border:0;font-weight:bold}
+a{margin-left:15px;color:#171717}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <strong>GALIEL by Wardenclyffe</strong>
+    <h1>Edit Profile</h1>
+  </div>
+  <div class="content">
+    <form method="post">
+      {% csrf_token %}
+      {{ user_form.as_p }}
+      {{ profile_form.as_p }}
+      <button type="submit">Save Changes</button>
+      <a href="{% url 'profile' %}">Cancel</a>
+    </form>
+  </div>
+</div>
+</body>
+</html>
