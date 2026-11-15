@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Messages · Galiel</title>
+<style>
+:root{--dark:#173e39;--border:#e5eae4;--muted:#697872}*{box-sizing:border-box}
+body{margin:0;background:#f6f8f5;color:#1d2d2a;font-family:system-ui,-apple-system,sans-serif}
+main{max-width:930px;margin:5vh auto;padding:20px}h1{font:normal clamp(32px,5vw,48px) Georgia,serif}
+a{color:var(--dark)}.back{font-size:14px}.card{background:white;border:1px solid var(--border);border-radius:17px;padding:25px;margin:17px 0}
+label{display:block;font-weight:600;margin:15px 0 7px}input,textarea{width:100%;padding:12px;border:1px solid #bbc8c0;border-radius:9px;font:inherit}
+button{background:var(--dark);border:0;border-radius:24px;color:white;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer}
+.errorlist{color:#a52820}.muted{color:var(--muted)}.item{display:block;padding:17px 0;border-top:1px solid var(--border);text-decoration:none}
+.item strong{display:block}.item small{color:var(--muted)}.item:hover{text-decoration:underline}
+</style></head><body><main><a class="back" href="{% url 'dashboard' %}#messages">← Back to workspace</a>
+<h1>{% if user.is_staff %}Client conversations{% else %}Messages{% endif %}</h1>
+<p class="muted">Messages are saved in Galiel so you can return to your conversation at any time.</p>
+{% if messages %}{% for notice in messages %}<p role="status">{{ notice }}</p>{% endfor %}{% endif %}
+{% if not user.is_staff %}
+<section class="card"><h2>New message to Wardenclyffe</h2>
+<form method="post" action="{% url 'conversation_new' %}">{% csrf_token %}
+{{ form.non_field_errors }}<label for="{{ form.subject.id_for_label }}">Subject</label>{{ form.subject.errors }}{{ form.subject }}
+<label for="{{ form.body.id_for_label }}">Message</label>{{ form.body.errors }}{{ form.body }}
+<p><button type="submit">Send message</button></p></form></section>
+{% endif %}
+<section class="card"><h2>{% if user.is_staff %}All client conversations{% else %}Your conversations{% endif %}</h2>
+{% for conversation in conversations %}
+<a class="item" href="{% url 'conversation_detail' conversation.pk %}"><strong>{{ conversation.subject }}</strong>
+<small>{% if user.is_staff %}{{ conversation.client.email }} · {% endif %}Updated {{ conversation.updated_at|date:"M j, Y, g:i A" }}</small></a>
+{% empty %}<p class="muted">No conversations yet.</p>{% endfor %}
+</section></main></body></html>
