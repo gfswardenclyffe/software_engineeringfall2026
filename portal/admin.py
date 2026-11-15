@@ -5,5 +5,12 @@ from .models import Profile
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "phone", "company")
-    search_fields = ("user__username", "user__email", "company")
+    list_display = ("user", "phone", "company", "country", "preferred_language")
+    search_fields = (
+        "user__username",
+        "user__email",
+        "company",
+        "tax_id",
+        "phone",
+        "country",
+    )
