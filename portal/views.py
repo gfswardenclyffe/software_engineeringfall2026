@@ -1,12 +1,21 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import FileResponse
 from django.shortcuts import redirect, render
+from django.conf import settings
 
 from .forms import GalielRegistrationForm, UserProfileForm
 
 
 def home(request):
     return render(request, "portal/home.html")
+
+
+def wordmark(request):
+    return FileResponse(
+        open(settings.BASE_DIR / "galiel_wordmark_animation.html", "rb"),
+        content_type="text/html; charset=utf-8",
+    )
 
 
 def register(request):
