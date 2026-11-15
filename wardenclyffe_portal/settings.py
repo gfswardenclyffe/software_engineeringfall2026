@@ -108,3 +108,8 @@ DEFAULT_FROM_EMAIL = os.environ.get("DJANGO_DEFAULT_FROM_EMAIL", "Galiel <info@w
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24
 # Production must set DJANGO_SECRET_KEY and DJANGO_DEBUG=False in its environment.
 
+
+# Client files must be outside the application and any public document root.
+MEDIA_ROOT = Path(os.environ.get("DJANGO_PRIVATE_MEDIA_ROOT", str(BASE_DIR.parent / "galiel-private-files"))).resolve()
+if MEDIA_ROOT == BASE_DIR or BASE_DIR in MEDIA_ROOT.parents:
+    raise RuntimeError("Private file storage must not be inside the application directory.")

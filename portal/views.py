@@ -2,19 +2,22 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
-from django.http import FileResponse
+from django.http import FileResponse, Http404
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views.decorators.http import require_POST
 from django.db import transaction
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.conf import settings
 
 from .forms import EmailAuthenticationForm, GalielRegistrationForm, UserProfileForm
 from .verification import send_activation_email
+from .models import ClientDocument
+from .document_forms import ClientDocumentForm
+from pathlib import Path
 
 
 SERVICE_LABELS = {
@@ -183,7 +186,7 @@ def resend_activation(request):
 
 @login_required
 def dashboard(request):
-    return render(request, "portal/dashboard.html")
+    return render(request, "portal/dashboard.html", {"client_documents": ClientDocument.objects.filter(owner=request.user)})
 
 
 @login_required
@@ -220,3 +223,28 @@ def service_start(request):
             "service_label": label,
         },
     )
+
+@login_required
+def document_upload(request):
+    if request.method == "POST":
+        form = ClientDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            document = form.save(commit=False)
+            document.owner = request.user
+            document.original_filename = Path(form.cleaned_data["file"].name).name[:255]
+            document.save()
+            messages.success(request, "Document uploaded successfully.")
+            return redirect(reverse("dashboard") + "#documents")
+    else:
+        form = ClientDocumentForm()
+    return render(request, "portal/document_upload.html", {"form": form})
+
+
+@login_required
+def document_download(request, document_id):
+    document = get_object_or_404(ClientDocument, pk=document_id, owner=request.user)
+    try:
+        stream = document.file.open("rb")
+    except (OSError, ValueError):
+        raise Http404("Document not found")
+    return FileResponse(stream, as_attachment=True, filename=document.original_filename)
