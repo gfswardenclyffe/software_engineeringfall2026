@@ -655,6 +655,21 @@ dd {
     to { width:min(92vw, 420px); }
   }
 }
+
+.catalog-state{display:grid;gap:12px;margin-top:18px}
+.catalog-state details{border:1px solid #cfc9bf;background:#fff}
+.catalog-state summary{cursor:pointer;padding:18px 20px;font-weight:800;font-size:20px;list-style:none}
+.catalog-state summary::-webkit-details-marker{display:none}
+.catalog-state summary:after{content:"+";float:right}
+.catalog-state details[open] summary:after{content:"−"}
+.city-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid #cfc9bf}
+.city-card{padding:20px;border-right:1px solid #cfc9bf;border-bottom:1px solid #cfc9bf}
+.city-card h4{margin:0 0 12px;font-size:20px}
+.service-link{display:block;padding:9px 0;border-top:1px solid #e6e1da;color:inherit;text-decoration:none;font-weight:700}
+.service-link:first-of-type{border-top:0}
+.service-link:hover{text-decoration:underline}
+@media(max-width:800px){.city-grid{grid-template-columns:1fr}.city-card{border-right:0}}
+
 </style>
 </head>
 <body>
@@ -729,24 +744,175 @@ dd {
         </div>
       </div>
 
+      
       <div id="mx" class="drawer">
         <div class="drawer-inner">
           <div class="drawer-title">
-            <h3>Mexico · Current focus by state</h3>
-            <p>Availability depends on the exact municipality and authority.</p>
+            <h3>Mexico · Processes Galiel can assist with</h3>
+            <p>Browse by state and municipality. Select a specific process to continue into your account and purchase/start the service.</p>
           </div>
-          <div class="subgrid">
-            <div class="subitem"><strong>Nuevo León</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
-            <div class="subitem"><strong>Jalisco</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
-            <div class="subitem"><strong>Ciudad de México</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
-            <div class="subitem"><strong>Colima</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
-            <div class="subitem"><strong>Querétaro</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
-            <div class="subitem"><strong>Tamaulipas</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
+
+          <div class="catalog-state">
+            <details open>
+              <summary>Nuevo León</summary>
+              <div class="city-grid">
+                <div class="city-card">
+                  <h4>Monterrey</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-monterrey-licencia-funcionamiento">Licencia / permiso de funcionamiento →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-monterrey-uso-suelo">Uso de suelo →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-monterrey-uso-edificacion">Uso de edificación →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-monterrey-construccion">Licencia de construcción →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-monterrey-demolicion">Demolición →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-monterrey-anuncio">Licencia de anuncio →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-monterrey-numero-oficial">Alineamiento y número oficial →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-monterrey-proteccion-civil">Protección Civil / visto bueno →</a>
+                </div>
+
+                <div class="city-card">
+                  <h4>San Pedro Garza García</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-sanpedro-uso-suelo">Licencia de uso de suelo →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-sanpedro-uso-edificacion">Licencia de uso de edificación →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-sanpedro-construccion-nueva">Construcción de obra nueva →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-sanpedro-ampliacion">Ampliación de construcción →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-sanpedro-demolicion">Demolición →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-sanpedro-prorroga-construccion">Prórroga de licencia de construcción →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-sanpedro-anuncio">Licencia de anuncio →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-sanpedro-proteccion-civil">Resolutivo de Protección Civil →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-sanpedro-subdivision-fusion">Subdivisión / fusión / relotificación →</a>
+                </div>
+
+                <div class="city-card">
+                  <h4>Guadalupe</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-guadalupe-funcionamiento">Licencia de funcionamiento →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-guadalupe-uso-suelo">Uso de suelo →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-guadalupe-construccion">Construcción / regularización →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-guadalupe-anuncio">Anuncios →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-guadalupe-proteccion-civil">Protección Civil →</a>
+                </div>
+
+                <div class="city-card">
+                  <h4>San Nicolás · Apodaca · Santa Catarina · Escobedo</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-metro-funcionamiento">Licencias de funcionamiento →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-metro-uso-suelo">Uso de suelo →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-metro-construccion">Construcción y regularización →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=nl-metro-anuncios">Anuncios →</a>
+                </div>
+              </div>
+            </details>
+
+            <details>
+              <summary>Ciudad de México</summary>
+              <div class="city-grid">
+                <div class="city-card">
+                  <h4>Benito Juárez</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-bj-establecimiento">Establecimiento mercantil / aviso o permiso →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-bj-proteccion-civil">Programa / trámite de Protección Civil →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-bj-construccion">Construcción / manifestación / licencia aplicable →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-bj-anuncio">Anuncios →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-bj-fusion-subdivision">Fusión / subdivisión →</a>
+                </div>
+                <div class="city-card">
+                  <h4>Cuauhtémoc</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-cuauhtemoc-establecimiento">Establecimiento mercantil →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-cuauhtemoc-proteccion-civil">Protección Civil →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-cuauhtemoc-construccion">Construcción / regularización →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-cuauhtemoc-anuncios">Anuncios →</a>
+                </div>
+                <div class="city-card">
+                  <h4>Miguel Hidalgo · Coyoacán · Álvaro Obregón</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-otras-establecimiento">Establecimientos mercantiles →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-otras-proteccion-civil">Protección Civil →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=cdmx-otras-construccion">Construcción y trámites urbanos →</a>
+                </div>
+              </div>
+            </details>
+
+            <details>
+              <summary>Querétaro</summary>
+              <div class="city-grid">
+                <div class="city-card">
+                  <h4>Santiago de Querétaro</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-qro-funcionamiento">Licencia de funcionamiento / apertura →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-qro-sare">SARE / apertura rápida →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-qro-uso-suelo">Uso de suelo / factibilidad de giro →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-qro-construccion">Licencia de construcción →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-qro-anuncio">Anuncios / toldos →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-qro-numero-oficial">Número oficial →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-qro-fusion-subdivision">Fusión / subdivisión →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-qro-terminacion-regularizacion">Terminación / regularización de obra →</a>
+                </div>
+                <div class="city-card">
+                  <h4>Corregidora · El Marqués · San Juan del Río</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-municipios-funcionamiento">Licencias de funcionamiento →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-municipios-uso-suelo">Uso de suelo →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=qro-municipios-construccion">Construcción / regularización →</a>
+                </div>
+              </div>
+            </details>
+
+            <details>
+              <summary>Jalisco</summary>
+              <div class="city-grid">
+                <div class="city-card">
+                  <h4>Guadalajara</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=jal-gdl-giro-a">Licencia de giro Tipo A →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=jal-gdl-giro-b">Licencia de giro Tipo B →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=jal-gdl-giro-c">Licencia de giro Tipo C →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=jal-gdl-giro-d">Licencia de giro Tipo D →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=jal-gdl-uso-suelo">Dictamen / uso de suelo →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=jal-gdl-anuncio">Permiso de anuncio →</a>
+                </div>
+                <div class="city-card">
+                  <h4>Zapopan · Tlaquepaque · Tlajomulco</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=jal-metro-licencia-negocio">Licencias para negocio / giro →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=jal-metro-uso-suelo">Uso de suelo →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=jal-metro-construccion">Construcción / regularización →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=jal-metro-anuncios">Anuncios →</a>
+                </div>
+              </div>
+            </details>
+
+            <details>
+              <summary>Colima</summary>
+              <div class="city-grid">
+                <div class="city-card">
+                  <h4>Colima · Villa de Álvarez · Manzanillo</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=col-funcionamiento">Licencia municipal de funcionamiento →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=col-sare">SARE / apertura de empresa →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=col-uso-suelo">Uso de suelo →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=col-construccion">Construcción →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=col-anuncio">Licencia de anuncio →</a>
+                </div>
+              </div>
+            </details>
+
+            <details>
+              <summary>Tamaulipas</summary>
+              <div class="city-grid">
+                <div class="city-card">
+                  <h4>Reynosa</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-reynosa-funcionamiento">Funcionamiento →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-reynosa-uso-suelo">Uso / cambio de uso de suelo →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-reynosa-construccion">Construcción →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-reynosa-demolicion">Demolición →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-reynosa-numero-oficial">Número oficial →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-reynosa-anuncios">Anuncios →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-reynosa-ambiental">Licencias / trámites ambientales →</a>
+                </div>
+                <div class="city-card">
+                  <h4>Tampico · Ciudad Victoria · Matamoros · Nuevo Laredo</h4>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-otras-funcionamiento">Licencias de funcionamiento →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-otras-uso-suelo">Uso de suelo →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-otras-construccion">Construcción / regularización →</a>
+                  <a class="service-link" href="Galiel_Client_Portal_Live.html?service=tam-otras-anuncios">Anuncios →</a>
+                </div>
+              </div>
+            </details>
           </div>
         </div>
       </div>
 
-      <div id="us" class="drawer">
+<div id="us" class="drawer">
         <div class="drawer-inner single-services">
           <div class="drawer-title">
             <h3>Texas · Available services</h3>
