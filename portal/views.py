@@ -130,13 +130,18 @@ def dashboard(request):
 
 
 @login_required
+def profile(request):
+    return render(request, "portal/profile.html")
+
+
+@login_required
 def profile_edit(request):
     if request.method == "POST":
         form = UserProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            messages.success(request, "Profile updated.")
-            return redirect("dashboard")
+            messages.success(request, "Your profile has been updated.")
+            return redirect("profile")
     else:
         form = UserProfileForm(instance=request.user)
 
