@@ -10,7 +10,7 @@ urlpatterns = [
     path("register/complete/", views.registration_complete, name="registration_complete"),
     path(
         "login/",
-        auth_views.LoginView.as_view(template_name="portal/login.html"),
+        views.ServiceAwareLoginView.as_view(),
         name="login",
     ),
     path(
@@ -19,5 +19,6 @@ urlpatterns = [
         name="logout",
     ),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path("services/start/", views.service_start, name="service_start"),
     path("profile/edit/", views.profile_edit, name="profile_edit"),
 ]
