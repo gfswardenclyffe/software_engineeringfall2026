@@ -12,9 +12,9 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     phone = models.CharField(max_length=40, blank=True)
     company = models.CharField(max_length=180, blank=True)
-    tax_id = models.CharField(max_length=80, blank=True)
+    tax_id = models.CharField(max_length=80, blank=True, default="")
     address = models.CharField(max_length=300, blank=True)
-    country = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True, default="")
     preferred_language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default="en")
 
     def __str__(self):
