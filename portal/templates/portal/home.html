@@ -655,6 +655,39 @@ dd {
     to { width:min(92vw, 420px); }
   }
 }
+
+/* Mobile navigation and responsive layout refinements */
+@media(max-width:920px){
+ .nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;min-height:0}
+ .brand{min-width:0;flex:1;padding:12px 16px;border-right:0;gap:10px}
+ .menu{display:flex;min-width:0;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+ .menu>a.signin{display:inline-flex;min-height:44px;padding:8px 13px!important;border-left:1px solid var(--line)!important;font-size:12px}
+ .langs{min-height:44px;border-left:0}.langs button{min-width:34px;padding:0 7px}
+ .hero-grid{gap:18px}.hero-art{min-height:200px}.galiel-animation{height:250px;max-width:100%}
+ .footer-main{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .contact-grid{gap:20px}
+}
+@media(max-width:650px){
+ .nav{display:block}
+ .brand{padding:12px 16px;min-height:52px;max-width:100%;border-bottom:1px solid var(--line)}
+ .brand img{width:78px}.brand small{font-size:10px;white-space:normal;letter-spacing:.1em}
+ .menu{display:flex;width:100%;justify-content:space-between;align-items:center;flex-wrap:nowrap}
+ .menu>a.signin{flex:1;font-size:12px;text-align:center;padding:9px 6px!important;border-right:0!important;border-left:1px solid var(--line)!important;min-width:0}
+ .langs{flex:0 0 auto}.langs button{font-size:11px;min-width:29px;padding:0 4px}
+ .hero h1{font-size:clamp(42px,11vw,64px);line-height:1.02}
+ .hero-grid{padding:34px 0;grid-template-columns:minmax(0,1fr)}
+ .hero-art{min-height:150px}.galiel-animation{height:190px;width:100%}
+ .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.actions .btn{min-width:0;padding:12px 9px;font-size:12px;min-height:50px}
+ .location-grid,.subgrid,.steps,.quick,.contact-grid{grid-template-columns:1fr}
+ .location{min-height:0;padding:22px}.location h3{font-size:27px}
+ .section-pad{padding:46px 0}.head h2{line-height:1.06}
+ .footer-main{grid-template-columns:1fr;gap:22px;padding:35px 0}
+ .drawer-inner{padding:16px}.drawer-title{display:block}.drawer-title p{margin-top:9px}
+ .cookie{left:10px;right:10px;bottom:10px;padding:14px;max-height:75dvh;overflow-y:auto}
+ .cookie-actions{display:flex}
+ .contact-card{padding:18px}
+}
+@media(prefers-reduced-motion:reduce){.wordmark-reveal,.wordmark-reveal::after{animation:none!important}.wordmark-reveal{width:100%!important}}
 </style>
 </head>
 <body>
