@@ -38,5 +38,7 @@ urlpatterns = [
     path("dashboard/", views.dashboard, name="dashboard"),
     path("services/start/", views.service_start, name="service_start"),
     path("profile/", views.profile, name="profile"),
+    path("documents/upload/", views.document_upload, name="document_upload"),
+    path("documents/<int:document_id>/download/", views.document_download, name="document_download"),
     path("profile/edit/", views.profile_edit, name="profile_edit"),
 ]
