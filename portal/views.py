@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_str
@@ -15,8 +15,9 @@ from django.conf import settings
 
 from .forms import EmailAuthenticationForm, GalielRegistrationForm, UserProfileForm
 from .verification import send_activation_email
-from .models import ClientDocument
+from .models import ClientDocument, ClientConversation, ClientMessage
 from .document_forms import ClientDocumentForm
+from .message_forms import NewConversationForm, ReplyForm
 from pathlib import Path
 
 
@@ -186,7 +187,10 @@ def resend_activation(request):
 
 @login_required
 def dashboard(request):
-    return render(request, "portal/dashboard.html", {"client_documents": ClientDocument.objects.filter(owner=request.user)})
+    return render(request, "portal/dashboard.html", {
+        "client_documents": ClientDocument.objects.filter(owner=request.user),
+        "client_conversations": ClientConversation.objects.filter(client=request.user)[:10],
+    })
 
 
 @login_required
@@ -248,3 +252,59 @@ def document_download(request, document_id):
     except (OSError, ValueError):
         raise Http404("Document not found")
     return FileResponse(stream, as_attachment=True, filename=document.original_filename)
+
+
+@login_required
+def messages_inbox(request):
+    if request.user.is_staff:
+        conversations = ClientConversation.objects.select_related("client").all()
+    else:
+        conversations = ClientConversation.objects.filter(client=request.user)
+    return render(request, "portal/messages.html", {
+        "conversations": conversations,
+        "form": NewConversationForm(),
+    })
+
+
+@login_required
+@require_POST
+def conversation_new(request):
+    if request.user.is_staff:
+        return HttpResponseForbidden("Staff should reply to existing client conversations.")
+    form = NewConversationForm(request.POST)
+    if not form.is_valid():
+        conversations = ClientConversation.objects.filter(client=request.user)
+        return render(request, "portal/messages.html", {
+            "form": form, "conversations": conversations,
+        })
+    with transaction.atomic():
+        conversation = ClientConversation.objects.create(
+            client=request.user, subject=form.cleaned_data["subject"],
+        )
+        ClientMessage.objects.create(
+            conversation=conversation, sender=request.user, body=form.cleaned_data["body"],
+        )
+    return redirect("conversation_detail", conversation_id=conversation.pk)
+
+
+@login_required
+def conversation_detail(request, conversation_id):
+    visible = ClientConversation.objects.select_related("client").prefetch_related("entries__sender")
+    if not request.user.is_staff:
+        visible = visible.filter(client=request.user)
+    conversation = get_object_or_404(visible, pk=conversation_id)
+    if request.method == "POST":
+        form = ReplyForm(request.POST)
+        if form.is_valid():
+            with transaction.atomic():
+                ClientMessage.objects.create(
+                    conversation=conversation, sender=request.user,
+                    body=form.cleaned_data["body"],
+                )
+                conversation.save(update_fields=["updated_at"])
+            return redirect("conversation_detail", conversation_id=conversation.pk)
+    else:
+        form = ReplyForm()
+    return render(request, "portal/conversation_detail.html", {
+        "conversation": conversation, "form": form,
+    })
