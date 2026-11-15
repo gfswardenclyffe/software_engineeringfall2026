@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.http import FileResponse
+from django.db import transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.conf import settings
@@ -82,7 +83,8 @@ def register(request):
     if request.method == "POST":
         form = GalielRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            with transaction.atomic():
+                user = form.save()
             request.session["registered_email"] = user.email
             return redirect("registration_complete")
     else:
