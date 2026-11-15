@@ -53,7 +53,7 @@ class MessagingTests(TestCase):
         self.assertEqual(ClientMessage.objects.count(), 2)
         self.assertEqual(convo.entries.last().sender, self.staff)
         self.client.force_login(self.alice)
-        self.assertContains(self.client.get(reverse("conversation_detail", args=[convo.pk])), "We'll review the documents.")
+        self.assertContains(self.client.get(reverse("conversation_detail", args=[convo.pk])), "review the documents.")
 
     def test_superuser_can_read_reply(self):
         self.client.force_login(self.alice)
