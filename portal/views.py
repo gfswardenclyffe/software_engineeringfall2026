@@ -1,13 +1,20 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.contrib.auth import login
 from django.http import FileResponse
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
+from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.conf import settings
 
 from .forms import EmailAuthenticationForm, GalielRegistrationForm, UserProfileForm
+from .verification import send_activation_email
 
 
 SERVICE_LABELS = {
@@ -35,7 +42,7 @@ SERVICE_LABELS = {
 
 def _capture_pending_service(request):
     service = (request.GET.get("service") or request.POST.get("service") or "").strip()
-    if service:
+    if service in SERVICE_LABELS:
         request.session["pending_service"] = service
     return request.session.get("pending_service", "")
 
@@ -83,10 +90,21 @@ def register(request):
     if request.method == "POST":
         form = GalielRegistrationForm(request.POST)
         if form.is_valid():
-            with transaction.atomic():
-                user = form.save()
-            request.session["registered_email"] = user.email
-            return redirect("registration_complete")
+            try:
+                with transaction.atomic():
+                    user = form.save(commit=False)
+                    user.is_active = False
+                    user.save()
+                    profile = user.profile
+                    for field in ("phone", "company", "tax_id", "address", "country", "preferred_language"):
+                        setattr(profile, field, form.cleaned_data[field].strip())
+                    profile.save()
+                    send_activation_email(request, user)
+            except Exception:
+                form.add_error(None, "We couldn't send your confirmation email. Please try again later.")
+            else:
+                request.session["registered_email"] = user.email
+                return redirect("registration_complete")
     else:
         initial_language = request.GET.get("lang")
         form = GalielRegistrationForm(
@@ -122,6 +140,45 @@ def registration_complete(request):
             "pending_service_label": label,
         },
     )
+
+
+def activate_account(request, uidb64, token):
+    """Single-use, time-limited email confirmation."""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is None or not default_token_generator.check_token(user, token):
+        return render(request, "portal/activation_invalid.html", status=400)
+    if not user.is_active:
+        user.is_active = True
+        user.save(update_fields=["is_active"])
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    messages.success(request, "Your email is confirmed. Welcome to Galiel!")
+    return redirect("service_start" if request.session.get("pending_service") else "dashboard")
+
+
+@require_POST
+def resend_activation(request):
+    """Throttle repeated requests and avoid account enumeration."""
+    from django.utils import timezone
+    email = (request.POST.get("email") or "").strip().lower()
+    last = request.session.get("activation_resend_at", 0)
+    now = int(timezone.now().timestamp())
+    if now - last < 120:
+        messages.info(request, "Please wait before requesting another link.")
+        return redirect("registration_complete")
+    request.session["activation_resend_at"] = now
+    user = User.objects.filter(email__iexact=email, is_active=False).first()
+    if user:
+        try:
+            send_activation_email(request, user)
+        except Exception:
+            messages.error(request, "Email delivery is unavailable. Please try again later.")
+            return redirect("registration_complete")
+    messages.info(request, "If this email has an unverified account, a new link has been sent.")
+    return redirect("registration_complete")
 
 
 @login_required
