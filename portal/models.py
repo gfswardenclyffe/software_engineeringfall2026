@@ -38,3 +38,29 @@ class ClientDocument(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class ClientConversation(models.Model):
+    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name="galiel_conversations")
+    subject = models.CharField(max_length=160)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        return self.subject
+
+
+class ClientMessage(models.Model):
+    conversation = models.ForeignKey(ClientConversation, on_delete=models.CASCADE, related_name="entries")
+    sender = models.ForeignKey(User, on_delete=models.PROTECT, related_name="galiel_sent_messages")
+    body = models.TextField(max_length=5000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
+
+    def __str__(self):
+        return f"Message in {self.conversation_id} from {self.sender_id}"
