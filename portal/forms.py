@@ -87,8 +87,8 @@ class UserProfileForm(forms.ModelForm):
     phone = forms.CharField(max_length=40, required=False)
     company = forms.CharField(max_length=180, required=False, label="Company / legal name")
     tax_id = forms.CharField(max_length=80, required=False, label="RFC / Tax ID")
-    address = forms.CharField(max_length=300, required=True, widget=forms.Textarea(attrs={"rows": 3}))
-    country = forms.CharField(max_length=100, required=True)
+    address = forms.CharField(max_length=300, required=False, widget=forms.Textarea(attrs={"rows": 3}))
+    country = forms.CharField(max_length=100, required=False)
     preferred_language = forms.ChoiceField(
         choices=(("en", "English"), ("es", "Español"), ("fr", "Français")),
         label="Preferred language",
