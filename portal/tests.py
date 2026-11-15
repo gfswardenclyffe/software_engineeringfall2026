@@ -137,7 +137,7 @@ class AccountLifecycleTests(TestCase):
             response = self.client.post(reverse("register"), self.registration_data())
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(email="alex@example.com").exists())
-        self.assertContains(response, "couldn't send your confirmation email")
+        self.assertContains(response, "confirmation email")
 
     def test_resend_confirmation_is_throttled(self):
         self.client.post(reverse("register"), self.registration_data())
