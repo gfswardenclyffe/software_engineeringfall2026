@@ -84,7 +84,7 @@ class GalielRegistrationForm(UserCreationForm):
 
 
 class UserProfileForm(forms.ModelForm):
-    phone = forms.CharField(max_length=40, required=True)
+    phone = forms.CharField(max_length=40, required=False)
     company = forms.CharField(max_length=180, required=False, label="Company / legal name")
     tax_id = forms.CharField(max_length=80, required=False, label="RFC / Tax ID")
     address = forms.CharField(max_length=300, required=True, widget=forms.Textarea(attrs={"rows": 3}))
