@@ -6,8 +6,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.conf import settings
 
-from .forms import GalielRegistrationForm, UserProfileForm
-
+from .forms import EmailAuthenticationForm, GalielRegistrationForm, UserProfileForm
 
 
 SERVICE_LABELS = {
@@ -42,6 +41,7 @@ def _capture_pending_service(request):
 
 class ServiceAwareLoginView(LoginView):
     template_name = "portal/login.html"
+    authentication_form = EmailAuthenticationForm
 
     def dispatch(self, request, *args, **kwargs):
         _capture_pending_service(request)
@@ -51,7 +51,9 @@ class ServiceAwareLoginView(LoginView):
         context = super().get_context_data(**kwargs)
         code = self.request.session.get("pending_service", "")
         context["pending_service"] = code
-        context["pending_service_label"] = SERVICE_LABELS.get(code, code.replace("-", " ").title() if code else "")
+        context["pending_service_label"] = SERVICE_LABELS.get(
+            code, code.replace("-", " ").title() if code else ""
+        )
         return context
 
     def get_success_url(self):
@@ -80,21 +82,44 @@ def register(request):
     if request.method == "POST":
         form = GalielRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            request.session["registered_username"] = form.cleaned_data["username"]
+            user = form.save()
+            request.session["registered_email"] = user.email
             return redirect("registration_complete")
     else:
-        form = GalielRegistrationForm()
+        initial_language = request.GET.get("lang")
+        form = GalielRegistrationForm(
+            initial={"preferred_language": initial_language}
+            if initial_language in {"en", "es", "fr"}
+            else None
+        )
 
-    label = SERVICE_LABELS.get(pending_service, pending_service.replace("-", " ").title() if pending_service else "")
-    return render(request, "portal/register.html", {"form": form, "pending_service": pending_service, "pending_service_label": label})
+    label = SERVICE_LABELS.get(
+        pending_service, pending_service.replace("-", " ").title() if pending_service else ""
+    )
+    return render(
+        request,
+        "portal/register.html",
+        {
+            "form": form,
+            "pending_service": pending_service,
+            "pending_service_label": label,
+        },
+    )
 
 
 def registration_complete(request):
-    username = request.session.pop("registered_username", "")
+    email = request.session.pop("registered_email", "")
     code = request.session.get("pending_service", "")
     label = SERVICE_LABELS.get(code, code.replace("-", " ").title() if code else "")
-    return render(request, "portal/registration_complete.html", {"registered_username": username, "pending_service": code, "pending_service_label": label})
+    return render(
+        request,
+        "portal/registration_complete.html",
+        {
+            "registered_email": email,
+            "pending_service": code,
+            "pending_service_label": label,
+        },
+    )
 
 
 @login_required
@@ -108,11 +133,6 @@ def profile_edit(request):
         form = UserProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            profile = request.user.profile
-            profile.phone = request.POST.get("phone", "").strip()
-            profile.company = request.POST.get("company", "").strip()
-            profile.address = request.POST.get("address", "").strip()
-            profile.save()
             messages.success(request, "Profile updated.")
             return redirect("dashboard")
     else:
