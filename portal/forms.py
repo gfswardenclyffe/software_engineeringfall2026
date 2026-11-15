@@ -24,16 +24,16 @@ class GalielRegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=150, required=True, label="First name")
     last_name = forms.CharField(max_length=150, required=True, label="Last name")
     email = forms.EmailField(max_length=150, required=True, label="Email")
-    phone = forms.CharField(max_length=40, required=True, label="Phone")
+    phone = forms.CharField(max_length=40, required=False, label="Phone (optional)")
     company = forms.CharField(max_length=180, required=False, label="Company / legal name")
     tax_id = forms.CharField(max_length=80, required=False, label="RFC / Tax ID")
     address = forms.CharField(
         max_length=300,
-        required=True,
-        label="Address",
+        required=False,
+        label="Address (optional)",
         widget=forms.Textarea(attrs={"rows": 3}),
     )
-    country = forms.CharField(max_length=100, required=True, label="Country")
+    country = forms.CharField(max_length=100, required=False, label="Country (optional)")
     preferred_language = forms.ChoiceField(
         choices=(("en", "English"), ("es", "Español"), ("fr", "Français")),
         initial="en",
@@ -96,7 +96,7 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "email")
+        fields = ("first_name", "last_name")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -108,12 +108,6 @@ class UserProfileForm(forms.ModelForm):
             self.fields["address"].initial = profile.address
             self.fields["country"].initial = profile.country
             self.fields["preferred_language"].initial = profile.preferred_language
-
-    def clean_email(self):
-        email = self.cleaned_data["email"].lower().strip()
-        if User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk).exists():
-            raise forms.ValidationError("Another account already uses this email.")
-        return email
 
     def save(self, commit=True):
         user = super().save(commit=commit)
