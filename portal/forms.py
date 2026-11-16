@@ -26,7 +26,7 @@ class GalielRegistrationForm(UserCreationForm):
     email = forms.EmailField(max_length=150, required=True, label="Email")
     phone = forms.CharField(max_length=40, required=False, label="Phone (optional)")
     company = forms.CharField(max_length=180, required=False, label="Company / legal name")
-    tax_id = forms.CharField(max_length=80, required=False, label="RFC / Tax ID")
+    tax_id = forms.CharField(max_length=80, required=False, label="Tax ID (if applicable)")
     address = forms.CharField(
         max_length=300,
         required=False,
@@ -86,8 +86,13 @@ class GalielRegistrationForm(UserCreationForm):
 class UserProfileForm(forms.ModelForm):
     phone = forms.CharField(max_length=40, required=False)
     company = forms.CharField(max_length=180, required=False, label="Company / legal name")
-    tax_id = forms.CharField(max_length=80, required=False, label="RFC / Tax ID")
-    address = forms.CharField(max_length=300, required=False, widget=forms.Textarea(attrs={"rows": 3}))
+    tax_id = forms.CharField(max_length=80, required=False, label="Tax ID (if applicable)")
+    street = forms.CharField(max_length=180, required=False, label="Street")
+    street_number = forms.CharField(max_length=30, required=False, label="Street number")
+    unit = forms.CharField(max_length=60, required=False, label="Apartment / Suite (optional)")
+    city = forms.CharField(max_length=100, required=False, label="City")
+    state_region = forms.CharField(max_length=100, required=False, label="State / Province / Region")
+    postal_code = forms.CharField(max_length=30, required=False, label="ZIP / Postal code")
     country = forms.CharField(max_length=100, required=False)
     preferred_language = forms.ChoiceField(
         choices=(("en", "English"), ("es", "Español"), ("fr", "Français")),
@@ -105,7 +110,8 @@ class UserProfileForm(forms.ModelForm):
             self.fields["phone"].initial = profile.phone
             self.fields["company"].initial = profile.company
             self.fields["tax_id"].initial = profile.tax_id
-            self.fields["address"].initial = profile.address
+            for field in ("street", "street_number", "unit", "city", "state_region", "postal_code"):
+                self.fields[field].initial = getattr(profile, field)
             self.fields["country"].initial = profile.country
             self.fields["preferred_language"].initial = profile.preferred_language
 
@@ -116,7 +122,8 @@ class UserProfileForm(forms.ModelForm):
             profile.phone = self.cleaned_data["phone"].strip()
             profile.company = self.cleaned_data["company"].strip()
             profile.tax_id = self.cleaned_data["tax_id"].strip()
-            profile.address = self.cleaned_data["address"].strip()
+            for field in ("street", "street_number", "unit", "city", "state_region", "postal_code"):
+                setattr(profile, field, self.cleaned_data[field].strip())
             profile.country = self.cleaned_data["country"].strip()
             profile.preferred_language = self.cleaned_data["preferred_language"]
             profile.save()
