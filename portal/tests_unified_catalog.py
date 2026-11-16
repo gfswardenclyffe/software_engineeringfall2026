@@ -73,20 +73,21 @@ class UnifiedCatalogTests(TestCase):
             o["code"] for o in self.client.get(reverse("catalog_api")).json()["offerings"]
         ])
 
-    def test_start_service_requires_login_and_opens_real_intake(self):
+    def test_start_service_requires_login_and_opens_saved_draft(self):
+        from .models import ServiceApplication
         offering = ServiceOffering.objects.get(service__slug="nl-monterrey-uso-suelo")
         url = reverse("service_intake", args=[offering.pk])
         self.assertEqual(self.client.get(url).status_code, 302)
         self.client.force_login(self.user)
         page = self.client.get(url)
         self.assertEqual(page.status_code, 200)
-        self.assertContains(page, "Start service inquiry")
-        result = self.client.post(url, {"details": "Please help me with the property paperwork."})
-        thread = ClientConversation.objects.get()
-        self.assertEqual(thread.client, self.user)
-        self.assertContains(self.client.get(reverse("conversation_detail", args=[thread.pk])), "property paperwork")
-        self.assertEqual(ClientMessage.objects.count(), 1)
+        self.assertContains(page, "Start service")
+        result = self.client.post(reverse("application_start", args=[offering.pk]))
         self.assertEqual(result.status_code, 302)
+        application = ServiceApplication.objects.get()
+        self.assertEqual(application.client, self.user)
+        self.assertEqual(application.status, "draft")
+        self.assertIn("/step/1/", result.url)
 
     def test_no_intake_for_unpublished_offering(self):
         offering = ServiceOffering.objects.get(service__slug="nl-monterrey-uso-suelo")
