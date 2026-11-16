@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="{{ locale }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ application.number }} · Galiel</title>
 <style>
@@ -24,9 +25,10 @@ input[type=checkbox]{width:auto}.btn{border:0;background:#201d1a;color:white;bor
 .status{font-size:12px;color:#276647}.errors,.errorlist{color:#a52b1b}
 .notice{padding:14px;border-left:4px solid var(--orange);background:#fff3ea;line-height:1.6}
 @media(max-width:650px){.progress a{font-size:10px;overflow-wrap:anywhere}.top{flex-wrap:wrap}}
-</style></head><body>
-<header class="top"><a class="brand" href="{% url 'dashboard' %}">Galiel <small>by Wardenclyffe</small></a>
-<a href="{% url 'dashboard' %}#processes">{% if locale == 'es' %}Mis trámites{% elif locale == 'fr' %}Mes démarches{% else %}My processes{% endif %}</a></header>
+</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
+</head><body>
+{% include 'portal/_site_header.html' %}
 <main>
 <div class="eyebrow">{{ application.number }} · {{ application.get_status_display }} · {{ user.get_full_name|default:user.email }}</div>
 <h1>{{ service_name }}</h1><p class="muted">{{ place_name }} · {{ application.currency }}</p>
