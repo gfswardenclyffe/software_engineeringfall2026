@@ -17,7 +17,7 @@ from django.conf import settings
 
 from .forms import EmailAuthenticationForm, GalielRegistrationForm, UserProfileForm
 from .verification import send_activation_email
-from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCountry, CatalogRegion, CatalogMunicipality, ServiceOffering
+from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCountry, CatalogRegion, CatalogMunicipality, ServiceOffering, ServiceApplication, ApplicationDocument
 from .document_forms import ClientDocumentForm
 from .message_forms import NewConversationForm, ReplyForm
 from pathlib import Path
@@ -230,9 +230,17 @@ def resend_activation(request):
 @never_cache
 @login_required
 def dashboard(request):
+    applications = ServiceApplication.objects.filter(client=request.user).select_related(
+        "offering__service", "conversation"
+    )
+    paid_statuses = ("paid", "under_review", "missing_documents", "submitted", "in_process", "ready")
     return render(request, "portal/dashboard.html", {
         "client_documents": ClientDocument.objects.filter(owner=request.user),
+        "case_documents": ApplicationDocument.objects.filter(application__client=request.user).select_related("application"),
         "client_conversations": ClientConversation.objects.filter(client=request.user)[:10],
+        "applications": applications,
+        "active_count": applications.filter(status__in=paid_statuses).count(),
+        "paid_applications": applications.filter(payment_confirmed_at__isnull=False),
         "service_groups": workspace_service_groups(),
     })
 
