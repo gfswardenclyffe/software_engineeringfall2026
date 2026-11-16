@@ -207,7 +207,7 @@ class CheckoutFlowTests(TestCase):
         self.assertEqual(app.status, "draft")
 
     def test_unsigned_webhook_is_rejected(self):
-        with patch.dict("os.environ", {"GALIEL_STRIPE_WEBHOOK_SECRET": "whsec_testing"}):
+        with patch.dict("os.environ", {"GALIEL_STRIPE_WEBHOOK_SECRET": "whsec_PLACEHOLDER"}):
             response = self.client.post(reverse("stripe_webhook"), data="invalid", content_type="application/json")
         self.assertEqual(response.status_code, 400)
 
