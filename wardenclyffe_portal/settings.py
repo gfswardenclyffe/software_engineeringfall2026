@@ -3,17 +3,22 @@
 import os
 from pathlib import Path
 
+from galiel_env_loader import load_env
+
+load_env()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-jdg^51c^p5j66wn#@$pgd&!qd7@++a@d54)&47dr1h3jw#$6l@",
-)
-
-DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
+# Fail closed: there is no development key, DEBUG mode, or old-key fallback.
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
+if not SECRET_KEY or len(SECRET_KEY) < 50:
+    raise RuntimeError("DJANGO_SECRET_KEY is missing or too short")
+SECRET_KEY_FALLBACKS = []
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "galiel.wardenclyffefirm.com",
+    "galiel-staging.wardenclyffefirm.com",
     "www.galiel.wardenclyffefirm.com",
     "localhost",
     "127.0.0.1",
@@ -21,6 +26,7 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "https://galiel.wardenclyffefirm.com",
+    "https://galiel-staging.wardenclyffefirm.com",
 ]
 
 INSTALLED_APPS = [
@@ -65,7 +71,7 @@ WSGI_APPLICATION = "wardenclyffe_portal.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": Path(os.environ.get("DJANGO_DB_PATH", str(BASE_DIR / "db.sqlite3"))).resolve(),
     }
 }
 
@@ -106,7 +112,7 @@ EMAIL_USE_TLS = os.environ.get("DJANGO_EMAIL_USE_TLS", "True").lower() == "true"
 EMAIL_USE_SSL = os.environ.get("DJANGO_EMAIL_USE_SSL", "False").lower() == "true"
 DEFAULT_FROM_EMAIL = os.environ.get("DJANGO_DEFAULT_FROM_EMAIL", "Galiel <info@wardenclyffefirm.com>")
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24
-# Production must set DJANGO_SECRET_KEY and DJANGO_DEBUG=False in its environment.
+# Production requires DJANGO_SECRET_KEY; DEBUG is always disabled.
 
 
 # Client files must be outside the application and any public document root.
