@@ -95,6 +95,10 @@ class ServiceAwareLoginView(LoginView):
         return context
 
     def get_success_url(self):
+        # Respect Django's validated ?next= parameter after login.
+        safe_next = self.get_redirect_url()
+        if safe_next:
+            return safe_next
         code = self.request.session.get("pending_service", "")
         if code:
             return reverse("service_start")
@@ -261,6 +265,12 @@ def service_start(request):
     if not code:
         return redirect("dashboard")
 
+    offering = ServiceOffering.objects.filter(
+        service__slug=code, is_published=True,
+    ).first()
+    if offering:
+        request.session.pop("pending_service", None)
+        return redirect("service_intake", offering_id=offering.pk)
     label = SERVICE_LABELS.get(code, code.replace("-", " ").title())
     return render(
         request,
