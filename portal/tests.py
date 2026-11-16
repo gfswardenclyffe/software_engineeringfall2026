@@ -215,3 +215,47 @@ class LogoutCsrfTests(TestCase):
         page = self.csrf_client.get(reverse("profile"))
         self.assertEqual(page.status_code, 200)
         self.assertIn("no-store", page["Cache-Control"])
+
+
+class WorkspaceServicesTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="services-test@example.com", email="services-test@example.com",
+            password="StrongTestingPass123!",
+        )
+
+    def test_services_are_inside_client_workspace(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("dashboard"))
+        self.assertContains(response, 'id="services"')
+        self.assertContains(response, 'href="#services"')
+        self.assertNotContains(response, 'href="/#services"')
+        self.assertContains(response, "Licencia / permiso de funcionamiento")
+        self.assertContains(response, "Apostille coordination")
+
+    def test_service_inquiry_prefills_message_subject(self):
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("messages_inbox"),
+            {"service": "tx-apostille"},
+        )
+        self.assertContains(response, "Inquiry: Apostille coordination")
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_service_does_not_prefill_message(self):
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("messages_inbox"),
+            {"service": "unknown-service"},
+        )
+        self.assertNotContains(response, "Inquiry:")
+        self.assertEqual(response.status_code, 200)
+
+    def test_staff_can_browse_catalog_without_client_message_form(self):
+        self.user.is_staff = True
+        self.user.save(update_fields=["is_staff"])
+        self.client.force_login(self.user)
+        dashboard = self.client.get(reverse("dashboard"))
+        self.assertContains(dashboard, "View client messages")
+        messages_page = self.client.get(reverse("messages_inbox"), {"service": "tx-apostille"})
+        self.assertNotContains(messages_page, "New message to Wardenclyffe")
