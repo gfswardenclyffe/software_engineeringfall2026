@@ -57,7 +57,7 @@ class AccountEntrypointsTests(TestCase):
 
     def test_sign_out_requires_post(self):
         self.client.force_login(self.user)
-        response = self.client.get(reverse("logout"))
-        self.assertEqual(response.status_code, 405)
+        response = self.client.get(reverse("login"))
+        self.assertContains(response, 'method="post" action="/logout/"')
         response = self.client.post(reverse("logout"))
         self.assertEqual(response.status_code, 302)
