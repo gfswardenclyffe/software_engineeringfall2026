@@ -8,6 +8,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
 from django.db import transaction
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
@@ -185,6 +186,7 @@ def resend_activation(request):
     return redirect("registration_complete")
 
 
+@never_cache
 @login_required
 def dashboard(request):
     return render(request, "portal/dashboard.html", {
@@ -193,11 +195,13 @@ def dashboard(request):
     })
 
 
+@never_cache
 @login_required
 def profile(request):
     return render(request, "portal/profile.html")
 
 
+@never_cache
 @login_required
 def profile_edit(request):
     if request.method == "POST":
@@ -212,6 +216,7 @@ def profile_edit(request):
     return render(request, "portal/profile_edit.html", {"form": form})
 
 
+@never_cache
 @login_required
 def service_start(request):
     code = request.session.get("pending_service", "")
@@ -228,6 +233,7 @@ def service_start(request):
         },
     )
 
+@never_cache
 @login_required
 def document_upload(request):
     if request.method == "POST":
@@ -244,6 +250,7 @@ def document_upload(request):
     return render(request, "portal/document_upload.html", {"form": form})
 
 
+@never_cache
 @login_required
 def document_download(request, document_id):
     document = get_object_or_404(ClientDocument, pk=document_id, owner=request.user)
@@ -254,6 +261,7 @@ def document_download(request, document_id):
     return FileResponse(stream, as_attachment=True, filename=document.original_filename)
 
 
+@never_cache
 @login_required
 def messages_inbox(request):
     if request.user.is_staff:
@@ -287,6 +295,7 @@ def conversation_new(request):
     return redirect("conversation_detail", conversation_id=conversation.pk)
 
 
+@never_cache
 @login_required
 def conversation_detail(request, conversation_id):
     visible = ClientConversation.objects.select_related("client").prefetch_related("entries__sender")
