@@ -494,7 +494,11 @@ def catalog_api(request):
             "is_temporary_price": item.is_temporary_price,
             "pricing_review_required": item.pricing_review_required,
             "price_unit": item.price_unit,
-            "estimated_price_note": item.estimated_price_note if item.is_temporary_price else "",
+            "estimated_price_note": (
+                item.estimated_price_note_es if locale == "es"
+                else item.estimated_price_note_fr if locale == "fr"
+                else item.estimated_price_note
+            ) if item.is_temporary_price else "",
 
             "price": str(item.price) if item.price is not None else None,
             "currency": item.currency,
