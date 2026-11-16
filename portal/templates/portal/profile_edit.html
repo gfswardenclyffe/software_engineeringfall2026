@@ -5,7 +5,12 @@
 <div class="fields-two"><p>{{ form.first_name.label_tag }}{{ form.first_name }}{{ form.first_name.errors }}</p><p>{{ form.last_name.label_tag }}{{ form.last_name }}{{ form.last_name.errors }}</p></div>
 <p>{{ form.phone.label_tag }}{{ form.phone }}{{ form.phone.errors }}</p>
 <div class="fields-two"><p>{{ form.company.label_tag }}{{ form.company }}{{ form.company.errors }}</p><p>{{ form.tax_id.label_tag }}{{ form.tax_id }}{{ form.tax_id.errors }}</p></div>
-<p>{{ form.address.label_tag }}{{ form.address }}{{ form.address.errors }}</p>
-<div class="fields-two"><p>{{ form.country.label_tag }}{{ form.country }}{{ form.country.errors }}</p><p>{{ form.preferred_language.label_tag }}{{ form.preferred_language }}{{ form.preferred_language.errors }}</p></div>
+<h2 style="font-size:18px;margin:24px 0 8px">Address</h2>
+{% if user.profile.address and not user.profile.street %}<div class="notice">Previously saved address: {{ user.profile.address }}. Please enter its details in the separate fields below when convenient.</div>{% endif %}
+<div class="fields-two"><p>{{ form.street.label_tag }}{{ form.street }}{{ form.street.errors }}</p><p>{{ form.street_number.label_tag }}{{ form.street_number }}{{ form.street_number.errors }}</p></div>
+<p>{{ form.unit.label_tag }}{{ form.unit }}{{ form.unit.errors }}</p>
+<div class="fields-two"><p>{{ form.city.label_tag }}{{ form.city }}{{ form.city.errors }}</p><p>{{ form.state_region.label_tag }}{{ form.state_region }}{{ form.state_region.errors }}</p></div>
+<div class="fields-two"><p>{{ form.postal_code.label_tag }}{{ form.postal_code }}{{ form.postal_code.errors }}</p><p>{{ form.country.label_tag }}{{ form.country }}{{ form.country.errors }}</p></div>
+<p>{{ form.preferred_language.label_tag }}{{ form.preferred_language }}{{ form.preferred_language.errors }}</p>
 <button class="action" type="submit">Save changes →</button></form><p class="links"><a href="{% url 'profile' %}">← Cancel and return to profile</a></p>
 {% endblock %}

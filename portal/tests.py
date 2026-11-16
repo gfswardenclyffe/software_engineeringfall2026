@@ -215,3 +215,80 @@ class LogoutCsrfTests(TestCase):
         page = self.csrf_client.get(reverse("profile"))
         self.assertEqual(page.status_code, 200)
         self.assertIn("no-store", page["Cache-Control"])
+
+
+class WorkspaceServicesTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="services-test@example.com", email="services-test@example.com",
+            password="StrongTestingPass123!",
+        )
+
+    def test_services_are_inside_client_workspace(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("dashboard"))
+        self.assertContains(response, 'id="services"')
+        self.assertContains(response, 'href="#services"')
+        self.assertNotContains(response, 'href="/#services"')
+        self.assertContains(response, "Licencia / permiso de funcionamiento")
+        self.assertContains(response, "Apostille coordination")
+
+    def test_service_inquiry_prefills_message_subject(self):
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("messages_inbox"),
+            {"service": "tx-apostille"},
+        )
+        self.assertContains(response, "Inquiry: Apostille coordination")
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_service_does_not_prefill_message(self):
+        self.client.force_login(self.user)
+        response = self.client.get(
+            reverse("messages_inbox"),
+            {"service": "unknown-service"},
+        )
+        self.assertNotContains(response, "Inquiry:")
+        self.assertEqual(response.status_code, 200)
+
+    def test_staff_can_browse_catalog_without_client_message_form(self):
+        self.user.is_staff = True
+        self.user.save(update_fields=["is_staff"])
+        self.client.force_login(self.user)
+        dashboard = self.client.get(reverse("dashboard"))
+        self.assertContains(dashboard, "View client messages")
+        messages_page = self.client.get(reverse("messages_inbox"), {"service": "tx-apostille"})
+        self.assertNotContains(messages_page, "New message to Wardenclyffe")
+
+
+class StructuredProfileAddressTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="address@example.com", email="address@example.com", password="StrongPass123!")
+        self.user.profile.address = "Previous address 44, Some City"
+        self.user.profile.save()
+
+    def test_legacy_address_visible_until_user_updates(self):
+        self.client.force_login(self.user)
+        self.assertContains(self.client.get(reverse("profile")), "Previous address 44")
+        self.assertContains(self.client.get(reverse("profile_edit")), "Previously saved address")
+
+    def test_structured_address_is_saved_without_erasing_previous_address(self):
+        self.client.force_login(self.user)
+        result = self.client.post(reverse("profile_edit"), {
+            "first_name": "Address", "last_name": "Tester", "phone": "",
+            "company": "", "tax_id": "AB-123", "street": "Main Street",
+            "street_number": "123", "unit": "Suite 4", "city": "Edinburg",
+            "state_region": "Texas", "postal_code": "78539",
+            "country": "United States", "preferred_language": "en",
+        })
+        self.assertRedirects(result, reverse("profile"))
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.street, "Main Street")
+        self.assertEqual(self.user.profile.postal_code, "78539")
+        self.assertEqual(self.user.profile.address, "Previous address 44, Some City")
+
+    def test_tax_id_label(self):
+        self.client.force_login(self.user)
+        page = self.client.get(reverse("profile_edit"))
+        self.assertContains(page, "Tax ID (if applicable)")
+        self.assertNotContains(page, "RFC / Tax ID")
