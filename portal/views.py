@@ -93,6 +93,12 @@ def _pending_service_label(code):
 class ServiceAwareLoginView(LoginView):
     template_name = "portal/login.html"
     authentication_form = EmailAuthenticationForm
+    redirect_authenticated_user = False
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return self.get(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
         _capture_pending_service(request)
@@ -143,7 +149,11 @@ def wordmark(request):
 def register(request):
     pending_service = _capture_pending_service(request)
     if request.user.is_authenticated:
-        return redirect("service_start" if pending_service else "dashboard")
+        return render(request, "portal/register.html", {
+            "already_signed_in": True,
+            "pending_service": pending_service,
+            "pending_service_label": _pending_service_label(pending_service),
+        })
 
     if request.method == "POST":
         form = GalielRegistrationForm(request.POST)
