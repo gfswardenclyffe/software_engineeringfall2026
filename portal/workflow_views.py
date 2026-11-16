@@ -191,6 +191,12 @@ def application_step(request, application_id, step):
     paid = app.status in PAYMENT_STATUSES
     if paid and step != 6:
         return redirect("application_track", application_id=app.pk)
+    if app.status != "draft" and not paid and step not in (5, 6):
+        # An accepted/requested quotation is immutable. Clients can pay or contact staff,
+        # but must not silently change answers after staff set the price.
+        return redirect("application_track", application_id=app.pk)
+    if app.status == "cancelled":
+        return redirect("application_track", application_id=app.pk)
     if step == 6 and not paid:
         # Stripe may return before the verified webhook has arrived.
         if app.stripe_checkout_session and request.GET.get("session_id") == app.stripe_checkout_session:
