@@ -144,7 +144,7 @@ def _notify_client(app, subject, summary):
     html = (
         '<div style="background:#F2F1EC;padding:32px;font:15px Arial,sans-serif;color:#211c19">'
         '<div style="max-width:600px;margin:auto;background:#fffdf9;border:1px solid #e9dbcf;padding:30px">'
-        '<div style="display:flex;align-items:center;gap:12px"><img src="https://galiel.wardenclyffefirm.com/static/portal/galiel-signature.svg" width="96" height="60" alt="Galiel" style="display:inline-block"><span style="font:700 11px Arial,sans-serif;letter-spacing:2px;color:#161616">by WARDENCLYFFE</span></div>'
+        '<div style="display:flex;align-items:center;gap:12px"><img src="https://galiel.wardenclyffefirm.com/brand/galiel-signature.png" width="96" height="60" alt="Galiel" style="display:inline-block"><span style="font:700 11px Arial,sans-serif;letter-spacing:2px;color:#161616">by WARDENCLYFFE</span></div>'
         '<p style="font-size:20px;margin-top:28px">' + escape(subject) + '</p>'
         '<p>Hello ' + escape(_full_name(app.client)) + ',</p>'
         '<p>' + escape(summary) + '</p>'
