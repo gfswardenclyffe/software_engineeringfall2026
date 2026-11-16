@@ -1,8 +1,9 @@
+{% load static %}
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Terms of service · Galiel</title><style>
 body{background:#f6f1ea;color:#241b17;font:15px Arial,sans-serif;margin:0}main{max-width:810px;margin:40px auto;padding:0 22px 70px}
 h1{font:normal 40px Georgia,serif}.brand{font:italic 32px Georgia,serif}.brand small{font:12px Arial}
 section{background:#fffdf9;border:1px solid #e9dbcf;border-radius:16px;padding:32px}p{line-height:1.72}a{color:#a74c25}
-</style></head><body><main><div class="brand">Galiel <small>by Wardenclyffe</small></div><p><a href="javascript:history.back()">← Back</a></p>
+</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}"><link rel="icon" href="{% static 'portal/galiel-signature.svg' %}" type="image/svg+xml"></head><body>{% include 'portal/_site_header.html' %}<main><p><a href="javascript:history.back()">← Back</a></p>
 <section><h1>Galiel Terms of Service</h1><p><strong>Effective date:</strong> November 14, 2026</p>
 <p>Galiel is a Wardenclyffe Inc. platform for selected permits, filings, document services, and administrative processes.</p>
 <h2>1. Scope</h2><p>Services depend on jurisdiction, authority, complexity, applicable professional regulations and availability. Submitting an application does not guarantee acceptance of a professional engagement.</p>
