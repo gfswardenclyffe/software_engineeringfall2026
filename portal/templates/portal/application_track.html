@@ -21,15 +21,27 @@ h1{font:normal 44px Georgia,serif;margin:12px 0}.sub{color:#74675d}
 {% for event in events %}<li><strong>{{ event.get_status_display }}</strong><small>{{ event.created_at|date:"M j, Y g:i A" }}</small>{% if event.note %}<p>{{ event.note }}</p>{% endif %}</li>{% empty %}<li>Draft created</li>{% endfor %}
 </ul></section>
 <section class="panel"><h2>Documents</h2>
-{% for doc in application.documents.all %}<p><a href="{% url 'application_download' application.pk doc.pk %}">{{ doc.original_filename }}</a> {% if doc.is_deliverable %} · Final document{% else %} · Submitted{% endif %}</p>{% empty %}<p>Documents will appear here when uploaded.</p>{% endfor %}
-</section></div>
+{% for doc in application.documents.all %}<p><a href="{% url 'application_download' application.pk doc.pk %}">{{ doc.original_filename }}</a> {% if doc.is_invoice %} · Invoice{% elif doc.is_deliverable %} · Final document{% else %} · {{ doc.get_review_status_display }}{% endif %} {% if doc.staff_note %}<small>{{ doc.staff_note }}</small>{% endif %}</p>{% empty %}<p>Documents will appear here when uploaded.</p>{% endfor %}
+</section>
+{% if application.status == "missing_documents" %}
+<section class="panel"><h2>Upload requested documents</h2><p>Galiel has asked for additional or replacement files. PDF, JPG, PNG, up to 10 MB.</p>
+{% for req,doc in requirements %}
+<div style="padding:12px 0;border-top:1px solid var(--line)">
+<strong>{{ req.label_en }}</strong> · {% if doc %}{{ doc.get_review_status_display }}{% else %}Missing{% endif %}
+{% if doc and doc.staff_note %}<p>{{ doc.staff_note }}</p>{% endif %}
+<form method="post" action="{% url 'application_upload' application.pk req.pk %}" enctype="multipart/form-data">{% csrf_token %}
+<p><input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required></p>
+<button type="submit" class="btn">Upload / replace →</button></form></div>
+{% endfor %}</section>
+{% endif %}
+</div>
 <div><section class="panel"><h2>Order details</h2>
 <p>Client: {{ application.client.get_full_name|default:application.client.email }}</p><p>Email: {{ application.client.email }}</p>
-<p>Estimated delivery: {{ application.estimated_delivery|default:"To be confirmed" }}</p>
+<p>Estimated delivery: {{ application.estimated_delivery|default:"To be confirmed" }} <small>(excluding holidays and authority delays)</small></p>
 {% if application.payment_confirmed_at %}<p>Payment confirmed: {{ application.payment_confirmed_at|date:"M j, Y" }}</p><p>Amount paid: {{ application.currency }} {{ application.total }}</p>{% endif %}
 {% if application.stripe_receipt_url %}<p><a href="{{ application.stripe_receipt_url }}" rel="noopener noreferrer" target="_blank">Payment receipt</a></p>{% endif %}
 {% if application.status == 'draft' or application.status == 'quoted' or application.status == 'awaiting_payment' %}
-<a class="btn" href="{% url 'application_step' application.pk 1 %}">Resume application →</a>
+<a class="btn" href="{% if application.status == 'quoted' %}{% url 'application_step' application.pk 5 %}{% else %}{% url 'application_step' application.pk 1 %}{% endif %}">{% if application.status == 'quoted' %}Pay now →{% else %}Resume application →{% endif %}</a>
 {% elif application.status == 'quote_requested' %}<p>The Galiel team is preparing your quotation.</p>{% endif %}
 </section><section class="panel"><h2>Messages</h2>
 {% if application.conversation_id %}<p><a class="btn" href="{% url 'conversation_detail' application.conversation_id %}">View case conversation →</a></p>
