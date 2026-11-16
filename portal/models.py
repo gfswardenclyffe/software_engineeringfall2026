@@ -294,3 +294,48 @@ class ApplicationEvent(models.Model):
 
     class Meta:
         ordering = ["created_at", "pk"]
+
+
+def lead_attachment_path(instance, filename):
+    suffix = Path(filename).suffix.lower()
+    return f"contact_leads/{instance.pk}/{uuid.uuid4().hex}{suffix}"
+
+
+class ContactLead(models.Model):
+    STATUSES = [
+        ("new", "New"),
+        ("contacted", "Contacted"),
+        ("converted", "Converted to client"),
+        ("closed", "Closed"),
+    ]
+    COUNTRIES = [
+        ("MX", "Mexico"),
+        ("US-TX", "United States – Texas"),
+        ("FR", "France"),
+    ]
+    full_name = models.CharField(max_length=180)
+    email = models.EmailField()
+    phone_code = models.CharField(max_length=6, default="+52", blank=True)
+    phone = models.CharField(max_length=32, blank=True)
+    country = models.CharField(max_length=5, choices=COUNTRIES)
+    state_city = models.CharField(max_length=150)
+    request_type = models.CharField(max_length=190)
+    message = models.TextField(max_length=5000)
+    attachment = models.FileField(upload_to=lead_attachment_path, blank=True)
+    attachment_filename = models.CharField(max_length=255, blank=True)
+    privacy_consent_at = models.DateTimeField()
+    status = models.CharField(max_length=12, choices=STATUSES, default="new", db_index=True)
+    language = models.CharField(max_length=2, default="en")
+    client = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="galiel_contact_leads")
+    conversation = models.OneToOneField(ClientConversation, null=True, blank=True, on_delete=models.SET_NULL, related_name="contact_lead")
+    ip_digest = models.CharField(max_length=64, blank=True, db_index=True)
+    visitor_notified = models.BooleanField(default=False)
+    team_notified = models.BooleanField(default=False)
+    delivery_error = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Lead #{self.pk} · {self.full_name} · {self.get_status_display()}"

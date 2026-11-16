@@ -2,7 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 from django.views.generic import TemplateView
 
-from . import views, workflow_views
+from . import views, workflow_views, contact_views
 
 urlpatterns = [
     path("", views.home, name="home"),
@@ -39,6 +39,8 @@ urlpatterns = [
     path("dashboard/", views.dashboard, name="dashboard"),
     path("services/start/", views.service_start, name="service_start"),
     path("services/", views.service_catalog, name="service_catalog"),
+    path("services/contact/submit/", contact_views.contact_submit, name="contact_submit"),
+    path("services/contact/staff/attachment/<int:lead_id>/", contact_views.staff_lead_attachment, name="staff_lead_attachment"),
     path("services/terms/", TemplateView.as_view(template_name="portal/application_terms.html"), name="application_terms"),
     path("services/api/catalog/", views.catalog_api, name="catalog_api"),
     path("services/<int:offering_id>/intake/", views.service_intake, name="service_intake"),

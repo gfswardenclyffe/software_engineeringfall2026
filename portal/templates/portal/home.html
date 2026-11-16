@@ -406,6 +406,38 @@ section {
   line-height:1.65;
   font-size:16px;
 }
+
+/* Galiel contact lead form — uses existing paper/ink/accent tokens */
+.contact-intro{min-width:0}
+.contact-lead-form{margin-top:30px;background:var(--paper);border:1px solid var(--ink);padding:28px}
+.contact-lead-form .form-title{font-size:12px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;margin:0 0 20px}
+.contact-lead-form .form-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.contact-lead-form .form-field{margin-bottom:16px;min-width:0}
+.contact-lead-form label.field-label{display:block;font-size:12px;font-weight:750;margin:0 0 8px;letter-spacing:.02em}
+.contact-lead-form input:not([type=checkbox]),.contact-lead-form select,.contact-lead-form textarea{width:100%;display:block;background:#fff;border:1px solid var(--ink);border-radius:0;min-height:44px;padding:11px 12px;color:var(--ink);font:inherit;font-size:14px}
+.contact-lead-form textarea{min-height:125px;resize:vertical;line-height:1.5}
+.contact-lead-form input:focus-visible,.contact-lead-form textarea:focus-visible,.contact-lead-form select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.contact-lead-form .phone-row{display:grid;grid-template-columns:106px minmax(0,1fr);gap:8px}
+.contact-lead-form .form-error{min-height:0;color:#a5251f;font-size:12px;line-height:1.45;margin:5px 0 0}
+.contact-lead-form .form-field [aria-invalid=true]{border-color:#a5251f}
+.contact-lead-form .form-hint{display:block;color:#5d554c;font-size:12px;margin-top:7px;line-height:1.5}
+.contact-lead-form .form-privacy{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.55;margin:12px 0}
+.contact-lead-form .form-privacy input{width:17px;height:17px;margin-top:3px;accent-color:var(--accent)}
+.contact-lead-form .form-privacy button{border:0;background:none;text-decoration:underline;font:inherit;cursor:pointer;padding:0;color:inherit}
+.contact-lead-form .contact-submit{min-height:48px;background:var(--ink);border:1px solid var(--ink);border-radius:0;color:#fff;padding:12px 25px;font:inherit;font-weight:800;cursor:pointer}
+.contact-lead-form .contact-submit:hover{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.contact-lead-form .contact-submit:disabled{opacity:.55;cursor:wait}
+.contact-lead-form .form-feedback{display:none;padding:14px;border:1px solid var(--ink);margin:16px 0;line-height:1.55;font-size:14px}
+.contact-lead-form .form-feedback.visible{display:block}
+.contact-lead-form .form-feedback.ok{background:#e5eee6}
+.contact-lead-form .form-feedback.fail{background:#fae7e4}
+.contact-lead-form .anti-spam-field{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+.contact-card .office-phone-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.contact-card .office-phone-actions a{display:inline-flex;align-items:center;text-decoration:none;border:1px solid var(--ink);font-size:12px;font-weight:800;padding:9px 12px;margin:0}
+.contact-card .office-phone-actions a:hover{background:var(--ink);color:#fff}
+@media(max-width:920px){.contact-grid{grid-template-columns:1fr;gap:26px}.contact-lead-form{margin-top:24px}}
+@media(max-width:540px){.contact-lead-form{padding:18px}.contact-lead-form .form-row{grid-template-columns:1fr}.contact-grid{gap:18px}}
+
 .contact-card {
   background:#fff;
   border:1px solid var(--ink);
@@ -803,7 +835,7 @@ dd {
 
       <div class="general" id="general">
         <p><strong><span data-i18n="notListed">Do not see your process?</span></strong> <span data-i18n="notListedCopy"><span data-i18n="send">Send</span> a general inquiry. If Galiel does not currently handle it, we will tell you clearly and, when appropriate, refer you to another professional or resource.</span></p>
-        <a href="mailto:info@wardenclyffefirm.com?subject=Galiel%20General%20Inquiry"><span data-i18n="generalInquiry">General inquiry</span> →</a>
+        <a href="#contact"><span data-i18n="generalInquiry">General inquiry</span> →</a>
       </div>
     </div>
   </section>
@@ -845,6 +877,58 @@ dd {
         <p class="eyebrow">Wardenclyffe · Galiel</p>
         <h2><span data-i18n="questions">Questions about a process?</span></h2>
         <p><span data-i18n="questionsCopy">Tell us what you need and where. If it is not a process currently listed on Galiel, send a general inquiry and we will let you know whether we can assist or point you in the right direction.</span></p>
+
+        <form id="galiel-contact-form" class="contact-lead-form" method="post" action="{% url 'contact_submit' %}" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="language" id="galiel-contact-language" value="en">
+          <h3 class="form-title" data-i18n="contactFormTitle">Send us a message</h3>
+          <div class="anti-spam-field" aria-hidden="true"><label for="contact-website">Website</label><input id="contact-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+          <div id="galiel-contact-feedback" class="form-feedback" role="status" tabindex="-1" aria-live="polite"></div>
+          <div class="form-row">
+            <div class="form-field"><label class="field-label" for="contact-name" data-i18n="contactFullName">Full name *</label>
+              <input id="contact-name" name="full_name" type="text" autocomplete="name" maxlength="180" value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.email }}{% endif %}" required aria-describedby="contact-name-error">
+              <div class="form-error" id="contact-name-error" data-error-for="full_name" aria-live="polite"></div></div>
+            <div class="form-field"><label class="field-label" for="contact-email" data-i18n="contactEmail">Email *</label>
+              <input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" required aria-describedby="contact-email-error">
+              <div class="form-error" id="contact-email-error" data-error-for="email" aria-live="polite"></div></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label class="field-label" for="contact-phone" data-i18n="contactPhone">Phone (optional)</label>
+              <div class="phone-row"><select id="contact-phone-code" name="phone_code" aria-label="Country calling code">
+                <option value="+52" selected>+52 MX</option><option value="+1">+1 US</option><option value="+33">+33 FR</option></select>
+                <input id="contact-phone" name="phone" type="tel" maxlength="32" autocomplete="tel-national" value="" aria-describedby="contact-phone-error"></div>
+              <div class="form-error" id="contact-phone-error" data-error-for="phone" aria-live="polite"></div></div>
+            <div class="form-field"><label class="field-label" for="contact-country" data-i18n="contactCountry">Country *</label>
+              <select id="contact-country" name="country" required aria-describedby="contact-country-error">
+                <option value="" data-i18n="contactChoose">Select a country</option>
+                <option value="MX" data-i18n="contactMexico">Mexico</option>
+                <option value="US-TX" data-i18n="contactTexas">United States – Texas</option>
+                <option value="FR" data-i18n="contactFrance">France</option>
+              </select><div class="form-error" id="contact-country-error" data-error-for="country" aria-live="polite"></div></div>
+          </div>
+          <div class="form-field"><label class="field-label" for="contact-city" data-i18n="contactStateCity">State or city *</label>
+            <input id="contact-city" name="state_city" type="text" autocomplete="address-level2" maxlength="150" required aria-describedby="contact-city-error">
+            <div class="form-error" id="contact-city-error" data-error-for="state_city" aria-live="polite"></div></div>
+          <div class="form-field"><label class="field-label" for="contact-request" data-i18n="contactType">Type of request *</label>
+            <select id="contact-request" name="request_type" required aria-describedby="contact-request-error">
+              <option value="" data-i18n="contactChooseService">Select a service</option>
+              {% for service in contact_services %}<option value="{{ service.slug }}" data-catalog-localized data-en="{{ service.title_en }}" data-es="{{ service.title_es }}" data-fr="{{ service.title_fr }}">{{ service.title_en }}</option>{% endfor %}
+              <option value="other" data-i18n="contactOther">Other / not listed</option>
+            </select><div class="form-error" id="contact-request-error" data-error-for="request_type" aria-live="polite"></div></div>
+          <div class="form-field"><label class="field-label" for="contact-message" data-i18n="contactMessage">Message *</label>
+            <textarea id="contact-message" name="message" maxlength="5000" required aria-describedby="contact-message-error"></textarea>
+            <div class="form-error" id="contact-message-error" data-error-for="message" aria-live="polite"></div></div>
+          <div class="form-field"><label class="field-label" for="contact-attachment" data-i18n="contactAttachment">Attachment (optional)</label>
+            <input id="contact-attachment" name="attachment" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" aria-describedby="contact-file-hint contact-attachment-error">
+            <span class="form-hint" id="contact-file-hint" data-i18n="contactFileHint">PDF, JPG or PNG. Maximum 10 MB.</span>
+            <div class="form-error" id="contact-attachment-error" data-error-for="attachment" aria-live="polite"></div></div>
+          <div class="form-privacy"><input id="contact-consent" name="privacy_consent" type="checkbox" value="on" required aria-describedby="contact-consent-error">
+            <label for="contact-consent"><span data-i18n="contactConsent">I have read and agree to the privacy notice.</span>
+              <button type="button" data-modal="privacy" data-i18n="contactReadPrivacy">Read privacy notice</button></label></div>
+          <div class="form-error" id="contact-consent-error" data-error-for="privacy_consent" aria-live="polite"></div>
+          <button class="contact-submit" type="submit" data-i18n="contactSend">Send message</button>
+        </form>
+
       </div>
       <div class="contact-card">
         <dl>
@@ -855,7 +939,9 @@ dd {
           <dd><a href="mailto:info@wardenclyffefirm.com">info@wardenclyffefirm.com</a></dd>
 
           <dt><span data-i18n="phone">Phone</span></dt>
-          <dd><a href="tel:+525537272307">+52 55 3727 2307</a></dd>
+          <dd><a href="tel:+525537272307">+52 55 3727 2307</a>
+            <div class="office-phone-actions"><a href="tel:+525537272307" data-i18n="contactCall">Call</a>
+            <a href="https://wa.me/525537272307" target="_blank" rel="noopener noreferrer" data-i18n="contactWhatsApp">WhatsApp</a></div></dd>
 
           <dt>Social</dt>
           <dd>
@@ -938,12 +1024,65 @@ dd {
 
 <script>
 const UI={
-en:{services:"Services",how:"How it works",contact:"Contact",createAccount:"Create account",signIn:"Sign in",heroTitle:"Business permits and legal processes, handled clearly.",heroCopy:"For selected matters in Mexico, the United States and France. We help you understand what is needed, what it may cost, and where your process stands.",findService:"Find a service →",generalInquiry:"General inquiry",mxQuick:"Selected states and local processes",usQuick:"Texas-focused document services",frQuick:"Selected administrative and document matters",startWhere:"Start with where you need help.",startCopy:"Choose a location first. The submenu opens only for the place you select, so the navigation stays simple and clear.",mxDesc:"Permits, licenses and selected administrative processes.",viewStates:"View states +",usDesc:"Notarization, translations, apostilles and selected business filings.",viewServices:"View services +",frDesc:"Selected document and administrative matters.",mxStates:"Mexico · Current focus by state",availability:"Availability depends on the exact municipality and authority.",texasServices:"Texas · Available services",franceServices:"France · Available services",notListed:"Do not see your process?",notListedCopy:"Send a general inquiry. If Galiel does not currently handle it, we will tell you clearly and, when appropriate, refer you to another professional or resource.",simpleStart:"Simple from the start.",simpleCopy:"Choose the service, review the basic requirements and estimated cost, send the documents, and follow the status from your account.",choose:"Choose",review:"Review",send:"Send",track:"Track",questions:"Questions about a process?",questionsCopy:"Tell us what you need and where. If it is not a process currently listed on Galiel, send a general inquiry and we will let you know whether we can assist or point you in the right direction.",mexOffice:"Mexico office",phone:"Phone",explore:"Explore",reachOut:"Reach out",legal:"Legal",footerNote:"Business permits, filings and selected administrative processes presented through Galiel, a platform by Wardenclyffe.",cookieText:"Galiel uses essential cookies to operate the site and may use optional analytics cookies to understand how the site is used. You can accept optional cookies, reject them, or review the Cookie Policy.",rejectOptional:"Reject optional",accept:"Accept"},
-es:{services:"Servicios",how:"Cómo funciona",contact:"Contacto",createAccount:"Crear cuenta",signIn:"Ingresar",heroTitle:"Permisos comerciales y trámites legales, con claridad.",heroCopy:"Para asuntos seleccionados en México, Estados Unidos y Francia. Te ayudamos a entender qué necesitas, cuánto puede costar y en qué etapa se encuentra tu trámite.",findService:"Buscar un servicio →",generalInquiry:"Consulta general",mxQuick:"Estados y trámites seleccionados",usQuick:"Servicios documentales con enfoque en Texas",frQuick:"Asuntos administrativos y documentales seleccionados",startWhere:"Empieza por donde necesitas ayuda.",startCopy:"Elige primero una ubicación. El submenú se abre solo para el lugar que selecciones, para mantener la navegación simple y clara.",mxDesc:"Permisos, licencias y trámites administrativos seleccionados.",viewStates:"Ver estados +",usDesc:"Notarizaciones, traducciones, apostillas y trámites empresariales seleccionados.",viewServices:"Ver servicios +",frDesc:"Asuntos documentales y administrativos seleccionados.",mxStates:"México · Enfoque actual por estado",availability:"La disponibilidad depende del municipio y la autoridad correspondiente.",texasServices:"Texas · Servicios disponibles",franceServices:"Francia · Servicios disponibles",notListed:"¿No ves tu trámite?",notListedCopy:"Envía una consulta general. Si Galiel no maneja actualmente ese trámite, te lo diremos claramente y, cuando corresponda, podremos referirte con otro profesional o recurso.",simpleStart:"Simple desde el inicio.",simpleCopy:"Elige el servicio, revisa requisitos básicos y costo estimado, envía los documentos y sigue el estado desde tu cuenta.",choose:"Elige",review:"Revisa",send:"Envía",track:"Sigue",questions:"¿Preguntas sobre un trámite?",questionsCopy:"Dinos qué necesitas y dónde. Si no aparece en Galiel, envía una consulta general y te diremos si podemos ayudarte o orientarte.",mexOffice:"Oficina México",phone:"Teléfono",explore:"Explorar",reachOut:"Contacto",legal:"Legal",footerNote:"Permisos, trámites y procesos administrativos seleccionados a través de Galiel, una plataforma de Wardenclyffe.",cookieText:"Galiel utiliza cookies esenciales para operar el sitio y puede utilizar cookies analíticas opcionales para entender su uso. Puedes aceptar las opcionales, rechazarlas o revisar la Política de Cookies.",rejectOptional:"Rechazar opcionales",accept:"Aceptar"},
-fr:{services:"Services",how:"Fonctionnement",contact:"Contact",createAccount:"Créer un compte",signIn:"Connexion",heroTitle:"Permis commerciaux et démarches juridiques, en toute clarté.",heroCopy:"Pour certains dossiers au Mexique, aux États-Unis et en France. Nous vous aidons à comprendre ce qui est nécessaire, le coût estimatif et l’état d’avancement de votre démarche.",findService:"Trouver un service →",generalInquiry:"Demande générale",mxQuick:"États et démarches sélectionnés",usQuick:"Services documentaires centrés sur le Texas",frQuick:"Démarches administratives et documentaires sélectionnées",startWhere:"Commencez par le lieu où vous avez besoin d’aide.",startCopy:"Choisissez d’abord un lieu. Le sous-menu s’ouvre uniquement pour le lieu sélectionné afin de garder la navigation simple.",mxDesc:"Permis, licences et démarches administratives sélectionnées.",viewStates:"Voir les États +",usDesc:"Notarisation, traductions, apostilles et dépôts commerciaux sélectionnés.",viewServices:"Voir les services +",frDesc:"Démarches documentaires et administratives sélectionnées.",mxStates:"Mexique · Présence actuelle par État",availability:"La disponibilité dépend de la commune et de l’autorité concernée.",texasServices:"Texas · Services disponibles",franceServices:"France · Services disponibles",notListed:"Vous ne trouvez pas votre démarche ?",notListedCopy:"Envoyez une demande générale. Si Galiel ne la traite pas actuellement, nous vous le dirons clairement et pourrons, le cas échéant, vous orienter vers un autre professionnel ou une ressource.",simpleStart:"Simple dès le départ.",simpleCopy:"Choisissez le service, consultez les exigences et le coût estimatif, envoyez les documents et suivez l’état depuis votre compte.",choose:"Choisir",review:"Vérifier",send:"Envoyer",track:"Suivre",questions:"Une question sur une démarche ?",questionsCopy:"Indiquez-nous ce dont vous avez besoin et où. Si la démarche n’est pas listée sur Galiel, envoyez une demande générale et nous vous dirons si nous pouvons vous aider ou vous orienter.",mexOffice:"Bureau au Mexique",phone:"Téléphone",explore:"Explorer",reachOut:"Nous contacter",legal:"Mentions",footerNote:"Permis, dépôts et démarches administratives sélectionnées via Galiel, une plateforme de Wardenclyffe.",cookieText:"Galiel utilise des cookies essentiels au fonctionnement du site et peut utiliser des cookies analytiques optionnels pour comprendre son utilisation. Vous pouvez les accepter, les refuser ou consulter la Politique relative aux cookies.",rejectOptional:"Refuser les optionnels",accept:"Accepter"}};
-function setLang(l){localStorage.setItem("galiel_lang",l);document.documentElement.lang=l;document.querySelectorAll("[data-catalog-localized]").forEach(e=>{e.textContent=e.dataset[l]||e.dataset.en;});document.querySelectorAll("[data-i18n]").forEach(e=>{const k=e.dataset.i18n;if(UI[l]&&UI[l][k])e.textContent=UI[l][k]});document.querySelectorAll(".langs button").forEach(b=>b.classList.toggle("active",b.dataset.lang===l))}
+en:{contactFormTitle:"Send us a message",contactFullName:"Full name *",contactEmail:"Email *",contactPhone:"Phone (optional)",contactCountry:"Country *",contactChoose:"Select a country",contactMexico:"Mexico",contactTexas:"United States – Texas",contactFrance:"France",contactStateCity:"State or city *",contactType:"Type of request *",contactChooseService:"Select a service",contactOther:"Other / not listed",contactMessage:"Message *",contactAttachment:"Attachment (optional)",contactFileHint:"PDF, JPG or PNG. Maximum 10 MB.",contactConsent:"I have read and agree to the privacy notice.",contactReadPrivacy:"Read privacy notice",contactSend:"Send message",contactSending:"Sending…",contactRequired:"Please complete this field.",contactValidEmail:"Enter a valid email address.",contactFileError:"Only PDF, JPG or PNG files up to 10 MB are accepted.",contactConsentError:"Please accept the privacy notice.",contactNetworkError:"We could not send your message. Please try again.",contactSuccess:"Thanks — we received your message and will reply within 1 business day.",contactCall:"Call",contactWhatsApp:"WhatsApp",services:"Services",how:"How it works",contact:"Contact",createAccount:"Create account",signIn:"Sign in",heroTitle:"Business permits and legal processes, handled clearly.",heroCopy:"For selected matters in Mexico, the United States and France. We help you understand what is needed, what it may cost, and where your process stands.",findService:"Find a service →",generalInquiry:"General inquiry",mxQuick:"Selected states and local processes",usQuick:"Texas-focused document services",frQuick:"Selected administrative and document matters",startWhere:"Start with where you need help.",startCopy:"Choose a location first. The submenu opens only for the place you select, so the navigation stays simple and clear.",mxDesc:"Permits, licenses and selected administrative processes.",viewStates:"View states +",usDesc:"Notarization, translations, apostilles and selected business filings.",viewServices:"View services +",frDesc:"Selected document and administrative matters.",mxStates:"Mexico · Current focus by state",availability:"Availability depends on the exact municipality and authority.",texasServices:"Texas · Available services",franceServices:"France · Available services",notListed:"Do not see your process?",notListedCopy:"Send a general inquiry. If Galiel does not currently handle it, we will tell you clearly and, when appropriate, refer you to another professional or resource.",simpleStart:"Simple from the start.",simpleCopy:"Choose the service, review the basic requirements and estimated cost, send the documents, and follow the status from your account.",choose:"Choose",review:"Review",send:"Send",track:"Track",questions:"Questions about a process?",questionsCopy:"Tell us what you need and where. If it is not a process currently listed on Galiel, send a general inquiry and we will let you know whether we can assist or point you in the right direction.",mexOffice:"Mexico office",phone:"Phone",explore:"Explore",reachOut:"Reach out",legal:"Legal",footerNote:"Business permits, filings and selected administrative processes presented through Galiel, a platform by Wardenclyffe.",cookieText:"Galiel uses essential cookies to operate the site and may use optional analytics cookies to understand how the site is used. You can accept optional cookies, reject them, or review the Cookie Policy.",rejectOptional:"Reject optional",accept:"Accept"},
+es:{contactFormTitle:"Envíanos un mensaje",contactFullName:"Nombre completo *",contactEmail:"Correo electrónico *",contactPhone:"Teléfono (opcional)",contactCountry:"País *",contactChoose:"Selecciona un país",contactMexico:"México",contactTexas:"Estados Unidos – Texas",contactFrance:"Francia",contactStateCity:"Estado o ciudad *",contactType:"Tipo de solicitud *",contactChooseService:"Selecciona un servicio",contactOther:"Otro / no incluido",contactMessage:"Mensaje *",contactAttachment:"Archivo adjunto (opcional)",contactFileHint:"PDF, JPG o PNG. Máximo 10 MB.",contactConsent:"He leído y acepto el aviso de privacidad.",contactReadPrivacy:"Leer aviso de privacidad",contactSend:"Enviar mensaje",contactSending:"Enviando…",contactRequired:"Completa este campo.",contactValidEmail:"Escribe un correo electrónico válido.",contactFileError:"Solo PDF, JPG o PNG de hasta 10 MB.",contactConsentError:"Acepta el aviso de privacidad.",contactNetworkError:"No pudimos enviar tu mensaje. Inténtalo de nuevo.",contactSuccess:"Gracias. Recibimos tu mensaje y responderemos en un día hábil.",contactCall:"Llamar",contactWhatsApp:"WhatsApp",services:"Servicios",how:"Cómo funciona",contact:"Contacto",createAccount:"Crear cuenta",signIn:"Ingresar",heroTitle:"Permisos comerciales y trámites legales, con claridad.",heroCopy:"Para asuntos seleccionados en México, Estados Unidos y Francia. Te ayudamos a entender qué necesitas, cuánto puede costar y en qué etapa se encuentra tu trámite.",findService:"Buscar un servicio →",generalInquiry:"Consulta general",mxQuick:"Estados y trámites seleccionados",usQuick:"Servicios documentales con enfoque en Texas",frQuick:"Asuntos administrativos y documentales seleccionados",startWhere:"Empieza por donde necesitas ayuda.",startCopy:"Elige primero una ubicación. El submenú se abre solo para el lugar que selecciones, para mantener la navegación simple y clara.",mxDesc:"Permisos, licencias y trámites administrativos seleccionados.",viewStates:"Ver estados +",usDesc:"Notarizaciones, traducciones, apostillas y trámites empresariales seleccionados.",viewServices:"Ver servicios +",frDesc:"Asuntos documentales y administrativos seleccionados.",mxStates:"México · Enfoque actual por estado",availability:"La disponibilidad depende del municipio y la autoridad correspondiente.",texasServices:"Texas · Servicios disponibles",franceServices:"Francia · Servicios disponibles",notListed:"¿No ves tu trámite?",notListedCopy:"Envía una consulta general. Si Galiel no maneja actualmente ese trámite, te lo diremos claramente y, cuando corresponda, podremos referirte con otro profesional o recurso.",simpleStart:"Simple desde el inicio.",simpleCopy:"Elige el servicio, revisa requisitos básicos y costo estimado, envía los documentos y sigue el estado desde tu cuenta.",choose:"Elige",review:"Revisa",send:"Envía",track:"Sigue",questions:"¿Preguntas sobre un trámite?",questionsCopy:"Dinos qué necesitas y dónde. Si no aparece en Galiel, envía una consulta general y te diremos si podemos ayudarte o orientarte.",mexOffice:"Oficina México",phone:"Teléfono",explore:"Explorar",reachOut:"Contacto",legal:"Legal",footerNote:"Permisos, trámites y procesos administrativos seleccionados a través de Galiel, una plataforma de Wardenclyffe.",cookieText:"Galiel utiliza cookies esenciales para operar el sitio y puede utilizar cookies analíticas opcionales para entender su uso. Puedes aceptar las opcionales, rechazarlas o revisar la Política de Cookies.",rejectOptional:"Rechazar opcionales",accept:"Aceptar"},
+fr:{contactFormTitle:"Envoyez-nous un message",contactFullName:"Nom complet *",contactEmail:"E-mail *",contactPhone:"Téléphone (facultatif)",contactCountry:"Pays *",contactChoose:"Choisissez un pays",contactMexico:"Mexique",contactTexas:"États-Unis – Texas",contactFrance:"France",contactStateCity:"État ou ville *",contactType:"Type de demande *",contactChooseService:"Choisissez un service",contactOther:"Autre / non répertorié",contactMessage:"Message *",contactAttachment:"Pièce jointe (facultative)",contactFileHint:"PDF, JPG ou PNG. Maximum 10 Mo.",contactConsent:"J'ai lu et j'accepte la politique de confidentialité.",contactReadPrivacy:"Lire la politique de confidentialité",contactSend:"Envoyer le message",contactSending:"Envoi…",contactRequired:"Veuillez renseigner ce champ.",contactValidEmail:"Saisissez une adresse e-mail valide.",contactFileError:"PDF, JPG ou PNG uniquement, 10 Mo maximum.",contactConsentError:"Acceptez la politique de confidentialité.",contactNetworkError:"Impossible d'envoyer le message. Veuillez réessayer.",contactSuccess:"Merci — nous avons reçu votre message et répondrons sous un jour ouvré.",contactCall:"Appeler",contactWhatsApp:"WhatsApp",services:"Services",how:"Fonctionnement",contact:"Contact",createAccount:"Créer un compte",signIn:"Connexion",heroTitle:"Permis commerciaux et démarches juridiques, en toute clarté.",heroCopy:"Pour certains dossiers au Mexique, aux États-Unis et en France. Nous vous aidons à comprendre ce qui est nécessaire, le coût estimatif et l’état d’avancement de votre démarche.",findService:"Trouver un service →",generalInquiry:"Demande générale",mxQuick:"États et démarches sélectionnés",usQuick:"Services documentaires centrés sur le Texas",frQuick:"Démarches administratives et documentaires sélectionnées",startWhere:"Commencez par le lieu où vous avez besoin d’aide.",startCopy:"Choisissez d’abord un lieu. Le sous-menu s’ouvre uniquement pour le lieu sélectionné afin de garder la navigation simple.",mxDesc:"Permis, licences et démarches administratives sélectionnées.",viewStates:"Voir les États +",usDesc:"Notarisation, traductions, apostilles et dépôts commerciaux sélectionnés.",viewServices:"Voir les services +",frDesc:"Démarches documentaires et administratives sélectionnées.",mxStates:"Mexique · Présence actuelle par État",availability:"La disponibilité dépend de la commune et de l’autorité concernée.",texasServices:"Texas · Services disponibles",franceServices:"France · Services disponibles",notListed:"Vous ne trouvez pas votre démarche ?",notListedCopy:"Envoyez une demande générale. Si Galiel ne la traite pas actuellement, nous vous le dirons clairement et pourrons, le cas échéant, vous orienter vers un autre professionnel ou une ressource.",simpleStart:"Simple dès le départ.",simpleCopy:"Choisissez le service, consultez les exigences et le coût estimatif, envoyez les documents et suivez l’état depuis votre compte.",choose:"Choisir",review:"Vérifier",send:"Envoyer",track:"Suivre",questions:"Une question sur une démarche ?",questionsCopy:"Indiquez-nous ce dont vous avez besoin et où. Si la démarche n’est pas listée sur Galiel, envoyez une demande générale et nous vous dirons si nous pouvons vous aider ou vous orienter.",mexOffice:"Bureau au Mexique",phone:"Téléphone",explore:"Explorer",reachOut:"Nous contacter",legal:"Mentions",footerNote:"Permis, dépôts et démarches administratives sélectionnées via Galiel, une plateforme de Wardenclyffe.",cookieText:"Galiel utilise des cookies essentiels au fonctionnement du site et peut utiliser des cookies analytiques optionnels pour comprendre son utilisation. Vous pouvez les accepter, les refuser ou consulter la Politique relative aux cookies.",rejectOptional:"Refuser les optionnels",accept:"Accepter"}};
+function setLang(l){const contactLang=document.getElementById("galiel-contact-language");if(contactLang)contactLang.value=l;localStorage.setItem("galiel_lang",l);document.documentElement.lang=l;document.querySelectorAll("[data-catalog-localized]").forEach(e=>{e.textContent=e.dataset[l]||e.dataset.en;});document.querySelectorAll("[data-i18n]").forEach(e=>{const k=e.dataset.i18n;if(UI[l]&&UI[l][k])e.textContent=UI[l][k]});document.querySelectorAll(".langs button").forEach(b=>b.classList.toggle("active",b.dataset.lang===l))}
 document.querySelectorAll(".langs button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
 setLang(localStorage.getItem("galiel_lang")||"en");
+
+
+const contactForm=document.getElementById("galiel-contact-form");
+if(contactForm){
+  const feedback=document.getElementById("galiel-contact-feedback");
+  const submit=contactForm.querySelector(".contact-submit");
+  const clearErrors=()=>{
+    contactForm.querySelectorAll("[data-error-for]").forEach(el=>el.textContent="");
+    contactForm.querySelectorAll("[aria-invalid]").forEach(el=>el.removeAttribute("aria-invalid"));
+  };
+  const fieldError=(name,text)=>{
+    const err=contactForm.querySelector('[data-error-for="'+name+'"]');
+    const input=contactForm.elements.namedItem(name);
+    if(err)err.textContent=text;
+    if(input&&input.setAttribute)input.setAttribute("aria-invalid","true");
+  };
+  contactForm.addEventListener("submit",async event=>{
+    event.preventDefault();
+    clearErrors();feedback.className="form-feedback";feedback.textContent="";
+    const lang=document.documentElement.lang in UI?document.documentElement.lang:"en";
+    const words=UI[lang];
+    let invalid=false;
+    for(const input of contactForm.querySelectorAll("[required]")){
+      if(input.type==="checkbox"?!input.checked:!input.value.trim()){
+        fieldError(input.name,input.name==="privacy_consent"?words.contactConsentError:words.contactRequired);
+        invalid=true;
+      }
+    }
+    const email=contactForm.elements.namedItem("email");
+    if(email.value&& !email.checkValidity()){fieldError("email",words.contactValidEmail);invalid=true;}
+    const file=contactForm.elements.namedItem("attachment").files[0];
+    if(file&&(file.size>10*1024*1024||!(/\.(pdf|jpg|jpeg|png)$/i).test(file.name))){
+      fieldError("attachment",words.contactFileError);invalid=true;
+    }
+    if(invalid){contactForm.querySelector("[aria-invalid=true]")?.focus();return;}
+    submit.disabled=true;submit.textContent=words.contactSending;
+    try{
+      const response=await fetch(contactForm.action,{method:"POST",body:new FormData(contactForm),credentials:"same-origin",headers:{"Accept":"application/json"}});
+      const data=await response.json();
+      if(!response.ok||!data.ok){
+        for(const [field,items] of Object.entries(data.errors||{}))fieldError(field,(items||[]).join(" "));
+        throw new Error(data.message||words.contactNetworkError);
+      }
+      feedback.className="form-feedback visible ok";feedback.textContent=data.message||words.contactSuccess;
+      contactForm.reset();
+      contactForm.elements.namedItem("phone_code").value="+52";
+      contactForm.elements.namedItem("language").value=lang;
+      feedback.focus();
+    }catch(error){
+      feedback.className="form-feedback visible fail";feedback.textContent=error.message||words.contactNetworkError;
+    }finally{submit.disabled=false;submit.textContent=words.contactSend;}
+  });
+}
 
 document.querySelectorAll('.location').forEach(card => {
   card.addEventListener('click', () => {
