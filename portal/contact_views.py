@@ -273,3 +273,20 @@ def contact_submit(request):
     # Persist the lead first: outbound SMTP failures never lose an inquiry.
     _record_and_notify(lead)
     return JsonResponse({"ok": True, "message": l["sent"], "reference": f"GL-{lead.pk:06d}"})
+
+
+@never_cache
+def staff_lead_attachment(request, lead_id):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        raise Http404
+    lead = get_object_or_404(ContactLead, pk=lead_id)
+    if not lead.attachment:
+        raise Http404
+    try:
+        stream = lead.attachment.open("rb")
+    except (OSError, ValueError):
+        raise Http404
+    response = FileResponse(stream, as_attachment=True, filename=lead.attachment_filename)
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Cache-Control"] = "private, no-store"
+    return response
