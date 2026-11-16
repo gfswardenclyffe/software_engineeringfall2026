@@ -1,0 +1,21 @@
+#!/bin/python
+# Template for the LIVE FastCGI document root; NOT executed from GitHub.
+# Install only during an explicitly approved live rotation window.
+import os
+import sys
+
+APP_ROOT = "/home2/gfrancossh/galiel"
+sys.path.insert(0, APP_ROOT)
+os.chdir(APP_ROOT)
+
+from wardenclyffe_portal.private_env import load_private_env
+load_private_env()
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wardenclyffe_portal.settings")
+
+from django.core.wsgi import get_wsgi_application
+from flup.server.fcgi import WSGIServer
+
+application = get_wsgi_application()
+if __name__ == "__main__":
+    WSGIServer(application).run()
