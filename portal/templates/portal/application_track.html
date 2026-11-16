@@ -14,40 +14,97 @@ h1{font:normal 44px Georgia,serif;margin:12px 0}.sub{color:#74675d}
 .timeline strong{display:block}.timeline small{color:#70655e}.btn{display:inline-block;background:var(--ink);color:white;text-decoration:none;padding:13px 18px;border-radius:24px;font-weight:700}
 @media(max-width:680px){.grid{grid-template-columns:1fr}}
 </style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
-<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
-</head><body>{% include 'portal/_site_header.html' %}
-<main><div class="sub">{{ application.number }} · {{ application.client.get_full_name|default:application.client.email }} ({{ application.client.email }})</div>
+<link rel="stylesheet" href="{% static 'portal/galiel-workspace.css' %}"><link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
+</head><body class="workspace-redesign">{% include 'portal/_workspace_header.html' %}<div class="ws-current"><span><strong>{{ application.number }}</strong> · {{ application.service_title }} · {{ application.get_status_display }}</span><a href="{% url 'dashboard' %}#processes">All processes →</a></div><div class="ws-layout"><aside class="ws-sidebar"><div class="mini">Your workspace</div><div class="user-name">{{ user.get_full_name|default:user.email }}</div><nav aria-label="Workspace navigation"><a href="{% url 'dashboard' %}#overview"><span class="ws-num">01</span>Overview</a><a href="{% url 'dashboard' %}#processes" class="active" aria-current="page"><span class="ws-num">02</span>My processes</a><a href="{% url 'dashboard' %}#services"><span class="ws-num">03</span>Services</a><a href="{% url 'dashboard' %}#documents"><span class="ws-num">04</span>Documents</a><a href="{% url 'dashboard' %}#invoices"><span class="ws-num">05</span>Invoices & payments</a><a href="{% url 'dashboard' %}#messages"><span class="ws-num">06</span>Messages</a><a href="{% url 'profile' %}"><span class="ws-num">07</span>My profile</a></nav><div class="ws-sidebar-footer"><img class="ws-logo" src="{% static 'portal/galiel-signature.svg' %}" alt="Galiel"><small>by WARDENCLYFFE</small></div></aside>
+<main class="ws-main"><div class="sub">{{ application.number }} · {{ application.client.get_full_name|default:application.client.email }} ({{ application.client.email }})</div>
 <h1>{{ application.service_title }}</h1>
 <p class="sub">{{ application.location_label }} · <strong>{{ application.get_status_display }}</strong></p>
-<div class="grid"><div>
-<section class="panel"><h2>Process status</h2><ul class="timeline">
-{% for event in events %}<li><strong>{{ event.get_status_display }}</strong><small>{{ event.created_at|date:"M j, Y g:i A" }}</small>{% if event.note %}<p>{{ event.note }}</p>{% endif %}</li>{% empty %}<li>Draft created</li>{% endfor %}
-</ul></section>
-<section class="panel"><h2>Documents</h2>
-{% for doc in application.documents.all %}<p><a href="{% url 'application_download' application.pk doc.pk %}">{{ doc.original_filename }}</a> {% if doc.is_invoice %} · Invoice{% elif doc.is_deliverable %} · Final document{% else %} · {{ doc.get_review_status_display }}{% endif %} {% if doc.staff_note %}<small>{{ doc.staff_note }}</small>{% endif %}</p>{% empty %}<p>Documents will appear here when uploaded.</p>{% endfor %}
-</section>
-{% if application.status == "missing_documents" %}
-<section class="panel"><h2>Upload requested documents</h2><p>Galiel has asked for additional or replacement files. PDF, JPG, PNG, up to 10 MB.</p>
-{% for req,doc in requirements %}
-<div style="padding:12px 0;border-top:1px solid var(--line)">
-<strong>{{ req.label_en }}</strong> · {% if doc %}{{ doc.get_review_status_display }}{% else %}Missing{% endif %}
-{% if doc and doc.staff_note %}<p>{{ doc.staff_note }}</p>{% endif %}
-<form method="post" action="{% url 'application_upload' application.pk req.pk %}" enctype="multipart/form-data">{% csrf_token %}
-<p><input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" required></p>
-<button type="submit" class="btn">Upload / replace →</button></form></div>
-{% endfor %}</section>
-{% endif %}
+
+{# Presentation-only status mapping. Does not modify backend statuses. #}
+<div class="ws-step-track" aria-label="Process progress">
+  <div class="ws-step is-complete"><span class="ws-step-num">01</span><span class="ws-step-label">Choose</span></div>
+  <div class="ws-step {% if application.status == 'draft' or application.status == 'quote_requested' or application.status == 'quoted' or application.status == 'awaiting_payment' %}is-current{% else %}is-complete{% endif %}"><span class="ws-step-num">02</span><span class="ws-step-label">Review</span></div>
+  <div class="ws-step {% if application.status == 'paid' or application.status == 'under_review' or application.status == 'missing_documents' %}is-current{% elif application.status == 'submitted' or application.status == 'in_process' or application.status == 'ready' %}is-complete{% endif %}"><span class="ws-step-num">03</span><span class="ws-step-label">Send</span></div>
+  <div class="ws-step {% if application.status == 'submitted' or application.status == 'in_process' or application.status == 'ready' %}is-current{% endif %}"><span class="ws-step-num">04</span><span class="ws-step-label">Track</span></div>
 </div>
-<div><section class="panel"><h2>Order details</h2>
-<p>Client: {{ application.client.get_full_name|default:application.client.email }}</p><p>Email: {{ application.client.email }}</p>
-<p>Estimated delivery: {{ application.estimated_delivery|default:"To be confirmed" }} <small>(excluding holidays and authority delays)</small></p>
-{% if application.payment_confirmed_at %}<p>Payment confirmed: {{ application.payment_confirmed_at|date:"M j, Y" }}</p><p>Amount paid: {{ application.currency }} {{ application.total }}</p>{% endif %}
-{% if application.stripe_receipt_url %}<p><a href="{{ application.stripe_receipt_url }}" rel="noopener noreferrer" target="_blank">Payment receipt</a></p>{% endif %}
-{% if application.status == 'draft' or application.status == 'quoted' or application.status == 'awaiting_payment' %}
-<a class="btn" href="{% if application.status == 'quoted' %}{% url 'application_step' application.pk 5 %}{% else %}{% url 'application_step' application.pk 1 %}{% endif %}">{% if application.status == 'quoted' %}Pay now →{% else %}Resume application →{% endif %}</a>
-{% elif application.status == 'quote_requested' %}<p>The Galiel team is preparing your quotation.</p>{% endif %}
-</section><section class="panel"><h2>Messages</h2>
-{% if application.conversation_id %}<p><a class="btn" href="{% url 'conversation_detail' application.conversation_id %}">View case conversation →</a></p>
-{% else %}<p>A process conversation will appear after payment or quotation request.</p>{% endif %}
-</section></div></div>
-</main></body></html>
+{% if application.status == 'cancelled' %}<p class="sub">This process has been cancelled.</p>{% endif %}
+<div class="ws-detail-grid"><div>
+<section class="panel"><h2>Required documents</h2>
+<p class="sub">Your files stay private. Only documents requested for this process can be uploaded here.</p>
+{% if application.status == 'missing_documents' %}
+{% for req,doc in requirements %}
+<div class="ws-document-row">
+  <div><strong>{{ req.label_en }}</strong><small>{% if doc %}{{ doc.get_review_status_display }}{% else %}Missing{% endif %}</small>{% if doc and doc.staff_note %}<small>{{ doc.staff_note }}</small>{% endif %}</div>
+  <form class="ws-upload-form" method="post" action="{% url 'application_upload' application.pk req.pk %}" enctype="multipart/form-data">{% csrf_token %}
+    <input id="upload-{{ req.pk }}" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Choose file for {{ req.label_en }}" required>
+    <button type="submit" class="btn">Upload →</button>
+  </form>
+</div>
+{% empty %}<p>No further documents have been requested.</p>{% endfor %}
+<div class="ws-dropzone" id="ws-dropzone" role="group" aria-label="Document drop zone" tabindex="0">Drop a file here to select it for the first requested document, then confirm Upload above. PDF, JPG or PNG, up to 10 MB. <strong id="ws-drop-feedback" aria-live="polite"></strong></div>
+{% elif application.status == 'draft' or application.status == 'quote_requested' or application.status == 'quoted' or application.status == 'awaiting_payment' %}
+<p>Upload requirements are available in the application steps. Final requirements will be confirmed during review.</p>
+<a class="secondary" href="{% url 'application_step' application.pk 3 %}">Review document checklist →</a>
+{% else %}<p>Additional document requests from the Galiel team will appear here.</p>{% endif %}
+<h3>Files on this process</h3>
+{% for doc in application.documents.all %}
+<div class="ws-document-row"><div><strong>{{ doc.original_filename }}</strong><small>{% if doc.is_invoice %}Invoice{% elif doc.is_deliverable %}Final document{% else %}{{ doc.get_review_status_display }}{% endif %}</small>{% if doc.staff_note %}<small>{{ doc.staff_note }}</small>{% endif %}</div><a class="secondary" href="{% url 'application_download' application.pk doc.pk %}">Download</a></div>
+{% empty %}<p>No documents uploaded yet.</p>{% endfor %}
+</section>
+<section class="panel"><h2>Activity</h2><ol class="ws-activity">
+{% for event in events reversed %}<li><strong>{{ event.get_status_display }}</strong><small>{{ event.created_at|date:"M j, Y g:i A" }}</small>{% if event.note %}<p>{{ event.note }}</p>{% endif %}</li>
+{% empty %}<li><strong>Application created</strong><small>Status updates will appear here.</small></li>{% endfor %}
+</ol></section>
+</div><div>
+<section class="panel"><h2>Process summary</h2>
+<p>Reference: <strong>{{ application.number }}</strong></p>
+<p>Client: {{ application.client.get_full_name|default:application.client.email }}</p>
+<p>Email: {{ application.client.email }}</p>
+<p>Location: {{ application.location_label }}</p>
+<p>Status: {{ application.get_status_display }}</p>
+<p>Estimated delivery: {{ application.estimated_delivery|default:"To be confirmed" }}</p>
+<div class="ws-payment-box"><h3>Payment</h3>
+{% if application.payment_confirmed_at %}
+<p>Payment confirmed: {{ application.payment_confirmed_at|date:"M j, Y" }}</p><p>{{ application.currency }} {{ application.total }}</p>
+{% if application.stripe_receipt_url %}<a href="{{ application.stripe_receipt_url }}" rel="noopener noreferrer" target="_blank">Payment receipt →</a>{% endif %}
+{% elif application.status == 'quoted' or application.status == 'awaiting_payment' %}
+<p>Your approved quotation can be reviewed at checkout. Complete required documentation before paying.</p>
+<a class="btn" href="{% url 'application_step' application.pk 5 %}">Review payment →</a>
+{% elif application.status == 'draft' %}
+<p>Complete the application and upload the requested files before payment.</p>
+<a class="secondary" href="{% url 'application_step' application.pk 1 %}">Continue application →</a>
+{% else %}<p>Payment details will appear here once available.</p>{% endif %}
+<p class="ws-placeholder">Fees and per-service document lists are pending confirmation.</p></div>
+</section>
+<section class="panel"><h2>Messages</h2>
+{% if application.conversation_id %}<a class="secondary" href="{% url 'conversation_detail' application.conversation_id %}">View case conversation →</a>
+{% else %}<p>A conversation will appear when one is available for this process.</p>{% endif %}
+</section>
+</div></div>
+</main></div>
+<script>
+(() => {
+  const zone = document.getElementById('ws-dropzone');
+  if (!zone) return;
+  const target = document.querySelector('.ws-upload-form input[type="file"]');
+  const feedback = document.getElementById('ws-drop-feedback');
+  if (!target) return;
+  for (const type of ['dragenter','dragover']) zone.addEventListener(type, e => { e.preventDefault(); zone.classList.add('is-dragging'); });
+  for (const type of ['dragleave','drop']) zone.addEventListener(type, e => { e.preventDefault(); zone.classList.remove('is-dragging'); });
+  zone.addEventListener('drop', e => {
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+    const allowed = ['application/pdf','image/jpeg','image/png'];
+    if (!allowed.includes(file.type) || file.size > 10 * 1024 * 1024) {
+      feedback.textContent = 'Unsupported file or larger than 10 MB.';
+      return;
+    }
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    target.files = dt.files;
+    feedback.textContent = file.name + ' selected. Confirm with Upload.';
+    target.focus();
+  });
+})();
+</script>
+</body></html>
