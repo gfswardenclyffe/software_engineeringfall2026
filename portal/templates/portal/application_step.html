@@ -87,7 +87,7 @@ input[type=checkbox]{width:auto}.btn{border:0;background:#201d1a;color:white;bor
 <div class="row"><strong>Configured tax (IVA where applicable)</strong><strong>{% if tax != None %}{{ application.currency }} {{ tax }}{% else %}To be quoted{% endif %}</strong></div>
 <div class="row"><strong>Total due today</strong><strong>{% if total != None %}{{ application.currency }} {{ total }}{% else %}Quote required{% endif %}</strong></div>
 <form method="post">{% csrf_token %}
-<label><input type="checkbox" name="terms" value="yes" required> I agree to Galiel's <a href="{% url 'home' %}#legal">terms and processing estimates</a>.</label>
+<label><input type="checkbox" name="terms" value="yes" required> I agree to Galiel's <a href="{% url 'application_terms' %}" target="_blank" rel="noopener">terms and processing estimates</a>.</label>
 <div class="actions"><a class="btn outline" href="{% url 'application_step' application.pk 3 %}">← Back</a><button class="btn orange">Accept & continue →</button></div></form></section>
 {% elif step == 5 %}
 {% if checkout_cancelled %}<div class="notice" role="alert">Checkout was cancelled or not completed. No payment has been confirmed. You can retry securely.</div>{% endif %}
