@@ -169,6 +169,8 @@ def application_step(request, application_id, step):
         return redirect("application_track", application_id=app.pk)
     if step == 6 and not paid:
         return redirect("application_step", application_id=app.pk, step=5)
+    if step > app.step and step != 6:
+        return redirect("application_step", application_id=app.pk, step=app.step)
     if request.method == "POST":
         if step == 1:
             app.step = max(app.step, 2)
@@ -201,7 +203,7 @@ def application_step(request, application_id, step):
                 app.step = max(app.step, 5)
                 app.save(update_fields=["subtotal", "tax_amount", "total", "currency", "terms_accepted_at", "step", "updated_at"])
                 return redirect("application_step", application_id=app.pk, step=5)
-        if step == 5 and request.POST.get("action") == "quote" and app.total is None:
+        if step == 5 and request.POST.get("action") == "quote" and app.total is None and app.terms_accepted_at:
             _set_status(app, "quote_requested", "Client requested a quote")
             _ensure_conversation(app)
             messages.success(request, "Your quotation request has been saved. You can track it in My processes.")
@@ -249,9 +251,9 @@ def _verify_file(file):
     file.seek(0)
     if extension == ".pdf" and head.startswith(b"%PDF-"):
         return "application/pdf"
-    if extension == ".png" and head.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+    if extension == ".png" and head.startswith(b"\x89PNG\r\n\x1a\n"):
         return "image/png"
-    if extension in (".jpg", ".jpeg") and head.startswith(b"\\xff\\xd8\\xff"):
+    if extension in (".jpg", ".jpeg") and head.startswith(b"\xff\xd8\xff"):
         return "image/jpeg"
     raise forms.ValidationError("Only valid PDF, JPG and PNG files are accepted.")
 
@@ -260,8 +262,8 @@ def _verify_file(file):
 @require_POST
 def application_upload(request, application_id, requirement_id):
     app = _application(request, application_id)
-    if app.status not in ("draft", "quote_requested", "quoted"):
-        return HttpResponseForbidden("Files cannot be replaced during processing.")
+    if app.status != "draft":
+        return HttpResponseForbidden("Files cannot be replaced once a quote is requested or payment begins.")
     req = get_object_or_404(ServiceRequirement, pk=requirement_id, offering=app.offering, kind="document")
     file = request.FILES.get("file")
     if not file:
@@ -289,7 +291,7 @@ def application_upload(request, application_id, requirement_id):
 @require_POST
 def application_delete_file(request, application_id, document_id):
     app = _application(request, application_id)
-    if app.status not in ("draft", "quote_requested", "quoted"):
+    if app.status != "draft":
         return HttpResponseForbidden()
     doc = get_object_or_404(ApplicationDocument, application=app, pk=document_id, is_deliverable=False)
     doc.file.delete(save=False)
@@ -360,7 +362,9 @@ def application_checkout(request, application_id):
         messages.error(request, "Secure payment could not be started. Please try again later.")
         return redirect("application_step", application_id=app.pk, step=5)
     app.stripe_checkout_session = stripe_session.id
-    app.save(update_fields=["stripe_checkout_session", "updated_at"])
+    app.subtotal, app.tax_amount, app.total = base, tax, total
+    app.currency = app.offering.currency
+    app.save(update_fields=["stripe_checkout_session", "subtotal", "tax_amount", "total", "currency", "updated_at"])
     return redirect(stripe_session.url)
 
 
@@ -412,7 +416,7 @@ def stripe_webhook(request):
     try:
         import stripe
         event = stripe.Webhook.construct_event(request.body, request.META.get("HTTP_STRIPE_SIGNATURE", ""), secret)
-    except (ValueError, Exception):
+    except Exception:
         logger.warning("Stripe webhook signature or payload rejected")
         return HttpResponseBadRequest("Invalid Stripe webhook")
     if event["type"] == "checkout.session.completed":
