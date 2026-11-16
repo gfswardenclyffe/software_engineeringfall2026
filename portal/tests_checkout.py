@@ -263,3 +263,19 @@ class CheckoutFlowTests(TestCase):
         self.assertContains(response, "Payment verification in progress")
         app.refresh_from_db()
         self.assertEqual(app.status, "draft")
+
+    def test_only_staff_can_view_private_file_via_staff_preview(self):
+        app = self.start()
+        document = ApplicationDocument.objects.create(
+            application=app, requirement=self.document,
+            file=SimpleUploadedFile("private.pdf", b"%PDF-1.4 test"),
+            original_filename="private.pdf", content_type="application/pdf", size=13,
+        )
+        url = reverse("staff_document_download", args=[document.pk])
+        self.assertEqual(self.client.get(url).status_code, 403)
+        staff = User.objects.create_user(
+            username="reviewer@example.com", email="reviewer@example.com",
+            password="a-strong-staff-password", is_staff=True,
+        )
+        self.client.force_login(staff)
+        self.assertEqual(self.client.get(url).status_code, 200)
