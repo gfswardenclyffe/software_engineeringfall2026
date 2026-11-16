@@ -2,18 +2,18 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My workspace · Galiel</title>
 <style>
-:root{--ink:#1d2d2a;--muted:#697872;--line:#e5eae4;--paper:#f6f8f5;--orange:#ed7545;--dark:#173e39}
+:root{--ink:#211c19;--muted:#74685f;--line:#e9dbcf;--paper:#f6f1ea;--orange:#e96c3c;--dark:#211c19}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}
 button{font:inherit;cursor:pointer}a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
-.top{height:76px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,3vw,44px)}
-.brand{font-size:31px;letter-spacing:-.07em;font-weight:790}.brand span{color:var(--orange)}.top-right{display:flex;gap:20px;align-items:center}
+.top{height:76px;background:#fffaf5;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,3vw,44px)}
+.brand{font:italic 31px Georgia,serif;letter-spacing:-.03em}.brand span{font:12px Arial,system-ui,sans-serif;letter-spacing:.01em;color:var(--ink)}.top-right{display:flex;gap:20px;align-items:center}
 .account{font-size:13px;color:var(--muted);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .out{border:1px solid var(--line);background:#fff;padding:9px 13px;border-radius:20px;font-size:12px;font-weight:700}
 .layout{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:calc(100dvh - 76px)}
-aside{background:#fff;border-right:1px solid var(--line);padding:32px 17px}
+aside{background:#fffaf5;border-right:1px solid var(--line);padding:32px 17px}
 .mini{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:800}
 .user-name{font-family:Georgia,serif;font-size:25px;line-height:1.15;margin:9px 0 24px;overflow-wrap:anywhere}
-nav{display:grid;gap:4px}nav a{padding:13px 15px;border-radius:12px;color:#52615a;font-size:14px;font-weight:600}nav a:hover,nav a.active{background:#f9ece5;color:#a2512d}
+nav{display:grid;gap:4px}nav a{padding:13px 15px;border-radius:12px;color:#52615a;font-size:14px;font-weight:600}nav a:hover,nav a.active{background:#ffeadb;color:#9e431d}
 main{padding:clamp(22px,4vw,64px);width:100%;max-width:1340px;margin:0 auto;min-width:0}
 .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:800;color:#a45833}
 h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;margin:12px 0}
@@ -39,7 +39,7 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 @media(max-width:950px){.layout{display:block}aside{border-right:0;border-bottom:1px solid var(--line);padding:12px 16px}.user-name,aside .mini{display:none}nav{display:flex;overflow-x:auto;gap:3px;scrollbar-width:thin}nav a{white-space:nowrap;padding:11px 13px}.grid{grid-template-columns:1fr}}
 @media(max-width:600px){.top{height:64px}.brand{font-size:26px}.account{display:none}.stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat{padding:13px}.stat strong{font-size:30px}.stat span{font-size:11px}.card{border-radius:15px}.empty{padding:15px 0}.subtitle{font-size:14px}}
 </style></head><body>
-<header class="top"><a href="{% url 'dashboard' %}" class="brand">galiel<span>.</span></a><div class="top-right"><span class="account">{{ user.email }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="out" type="submit">Sign out</button></form></div></header>
+<header class="top"><a href="{% url 'dashboard' %}" class="brand">Galiel <span>by Wardenclyffe</span></a><div class="top-right"><span class="account">{{ user.get_full_name|default:user.email }} · {{ user.email }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="out" type="submit">Sign out</button></form></div></header>
 <div class="layout"><aside><div class="mini">Your workspace</div><div class="user-name">{{ user.get_full_name|default:user.email }}</div><nav aria-label="Workspace navigation">
 <a href="#overview" data-page="overview" class="active">Overview</a>
 <a href="#processes" data-page="processes">My processes</a>
@@ -52,18 +52,51 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 <main>
 {% if messages %}{% for message in messages %}<div role="status" style="background:#e7f3ea;padding:14px 18px;border-radius:12px;margin-bottom:20px">{{ message }}</div>{% endfor %}{% endif %}
 <section id="overview" class="page active"><div class="eyebrow">Galiel / Client workspace</div><h1>Welcome, {{ user.first_name|default:"there" }}.</h1><p class="subtitle">Your private place to manage services with Wardenclyffe.</p>
-<div class="stats"><div class="stat"><strong>0</strong><span>Active processes</span></div><div class="stat"><strong>{{ client_documents|length }}</strong><span>Documents</span></div><div class="stat"><strong>0</strong><span>Open invoices</span></div></div>
-<div class="grid"><article class="card"><h2>Your processes</h2><div class="empty"><div class="empty-icon">✦</div><h3>Your workspace is ready.</h3><p>There are no processes linked to your account yet. Browse services within Galiel to ask Wardenclyffe about starting your first process.</p><a class="action" href="#services">Explore services →</a></div></article>
+<div class="stats"><div class="stat"><strong>{{ active_count }}</strong><span>Active processes</span></div><div class="stat"><strong>{{ client_documents|length }}</strong><span>Documents</span></div><div class="stat"><strong>0</strong><span>Open invoices</span></div></div>
+<div class="grid"><article class="card"><h2>Your processes</h2>
+{% for app in applications|slice:":4" %}
+<p style="padding:13px 0;border-bottom:1px solid var(--line)">
+<a href="{% url 'application_track' app.pk %}"><strong>{{ app.number }} · {{ app.service_title }}</strong></a><br>
+<small>{{ app.get_status_display }} · {{ app.location_label }} · {{ app.updated_at|date:"M j, Y" }}</small></p>
+{% empty %}
+<div class="empty"><div class="empty-icon">✦</div><h3>Your workspace is ready.</h3>
+<p>No processes yet. Choose a service and save your application as a draft.</p>
+<a class="action" href="#services">Explore services →</a></div>
+{% endfor %}</article>
 <article class="card"><h2>Account & assistance</h2><p class="contact">Your profile stores the contact details you provided when registering. You can review or update them at any time.</p><a class="secondary" href="{% url 'profile' %}">Open my profile →</a><div style="height:1px;background:var(--line);margin:25px 0"></div><h2>Need help?</h2><p class="contact">Contact Wardenclyffe at <a href="mailto:info@wardenclyffefirm.com">info@wardenclyffefirm.com</a>.</p></article></div>
 </section>
-<section id="processes" class="page"><div class="eyebrow">Your activity</div><h1>My processes</h1><p class="subtitle">See the progress of your services when they are added to your account.</p><div class="card"><div class="empty"><div class="empty-icon">01</div><h3>No processes yet</h3><p>No service requests are associated with this account. Case tracking is being prepared for Galiel.</p><a href="#services" class="action">Explore services →</a></div></div></section>
+<section id="processes" class="page">
+<div class="eyebrow">Your activity</div><h1>My processes</h1>
+<p class="subtitle">Resume a saved draft, respond to a quotation, or follow an active process.</p>
+<div class="card">{% for app in applications %}
+<div style="padding:18px 0;border-bottom:1px solid var(--line)">
+<strong><a href="{% url 'application_track' app.pk %}">{{ app.number }} · {{ app.service_title }}</a></strong>
+<p>{{ app.location_label }} · {{ app.get_status_display }}</p>
+<p style="color:var(--muted)">Estimated delivery: {{ app.estimated_delivery|default:"To be confirmed" }}</p>
+{% if app.status == 'draft' or app.status == 'quoted' or app.status == 'awaiting_payment' %}
+<a class="action" href="{% url 'application_step' app.pk 1 %}">{% if app.status == 'quoted' %}Pay now / Review quote{% else %}Resume draft{% endif %} →</a>
+{% else %}<a class="secondary" href="{% url 'application_track' app.pk %}">Track process →</a>{% endif %}
+</div>
+{% empty %}<div class="empty"><h3>No processes yet</h3><p>Your applications and drafts will appear here.</p>
+<a href="#services" class="action">Explore services →</a></div>{% endfor %}
+</div></section>
 <section id="services" class="page">
 <div class="eyebrow">Explore within your workspace</div><h1>Services</h1>
-<p class="subtitle">Find services by location, review published fees and estimates, and ask Wardenclyffe about requirements without leaving your workspace.</p><p><a class="action" href="{% url 'service_catalog' %}">Browse services by location →</a></p>
+<p class="subtitle">Find services by location, review published fees and estimates, and start a saved application without leaving your workspace.</p><p><a class="action" href="{% url 'service_catalog' %}">Browse services by location →</a></p>
 
 </section>
 <section id="documents" class="page"><div class="eyebrow">Your files</div><h1>Documents</h1><p class="subtitle">Upload PDF documents securely and download your existing files.</p><p><a class="action" href="{% url 'document_upload' %}">Upload PDF document →</a></p><div class="card">{% if client_documents %}<ul style="list-style:none;padding:0;margin:0">{% for document in client_documents %}<li style="display:flex;gap:15px;justify-content:space-between;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:15px 0"><span><strong>{{ document.title }}</strong><br><small>{{ document.uploaded_at|date:"M j, Y" }}</small></span><a class="secondary" href="{% url 'document_download' document.id %}">Download PDF</a></li>{% endfor %}</ul>{% else %}<div class="empty"><div class="empty-icon">◇</div><h3>No documents yet</h3><p>Your uploaded documents will appear here.</p></div>{% endif %}</div></section>
-<section id="invoices" class="page"><div class="eyebrow">Payments</div><h1>Invoices & payments</h1><p class="subtitle">Billing and payment records associated with your services.</p><div class="card"><div class="empty"><div class="empty-icon">$</div><h3>No invoices yet</h3><p>Invoices will appear here once billing is connected to your account.</p></div></div></section>
+<div class="card"><h2>Case documents</h2>{% for doc in case_documents %}
+<p><a href="{% url 'application_download' doc.application_id doc.pk %}">{{ doc.original_filename }}</a>
+<small> · {{ doc.application.number }} · {% if doc.is_deliverable %}Final document{% else %}Submitted document{% endif %}</small></p>
+{% empty %}<p>No documents uploaded for a process yet.</p>{% endfor %}</div><section id="invoices" class="page"><div class="eyebrow">Payments</div><h1>Invoices & payments</h1>
+<p class="subtitle">Verified payments and receipt links. Tax invoices are issued separately when applicable.</p>
+<div class="card">{% for app in paid_applications %}
+<p><strong>{{ app.number }} · {{ app.service_title }}</strong><br>
+{{ app.currency }} {{ app.total }} · Paid {{ app.payment_confirmed_at|date:"M j, Y" }}<br>
+{% if app.stripe_receipt_url %}<a href="{{ app.stripe_receipt_url }}">Open Stripe receipt</a>{% else %}Receipt pending{% endif %}
+</p>{% empty %}<div class="empty"><h3>No paid invoices or receipts yet</h3><p>Verified payment records will appear here.</p></div>{% endfor %}
+</div></section>
 <section id="messages" class="page"><div class="eyebrow">Communication</div><h1>Messages</h1><p class="subtitle">Conversations with Wardenclyffe, saved to your account.</p><p><a class="action" href="{% url 'messages_inbox' %}">Open messages →</a></p><div class="card">{% for thread in client_conversations %}<p><a href="{% url 'conversation_detail' thread.pk %}"><strong>{{ thread.subject }}</strong></a><br><small>{{ thread.updated_at|date:"M j, Y" }}</small></p>{% empty %}<div class="empty"><div class="empty-icon">✉</div><h3>No messages yet</h3><p>Send Wardenclyffe a message to start a conversation.</p></div>{% endfor %}</div></section>
 </main></div>
 <script>
