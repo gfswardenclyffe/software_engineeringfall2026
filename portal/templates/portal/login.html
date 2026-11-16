@@ -1,4 +1,6 @@
-{% extends "portal/auth_base.html" %}{% block title %}Sign in · Galiel{% endblock %}{% block content %}
+{% extends "portal/auth_base.html" %}{% block title %}Sign in · Galiel
+{% endif %}{% endblock %}{% block content %}{% if user.is_authenticated %}{% include "portal/_already_signed_in.html" %}{% else %}
+
 <div class="eyebrow">Your client space / Sign in</div><h1>Welcome back.</h1><p class="sub">Sign in to access your account, documents, and service updates.</p>
 {% if pending_service_label %}<div class="notice"><strong>Selected service:</strong> {{ pending_service_label }}</div>{% endif %}
 <form method="post" autocomplete="on">{% csrf_token %}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}{% if pending_service %}<input type="hidden" name="service" value="{{ pending_service }}">{% endif %}{{ form.as_p }}
