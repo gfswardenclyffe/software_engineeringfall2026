@@ -61,8 +61,8 @@ input[type=checkbox]{width:auto}.btn{border:0;background:#201d1a;color:white;bor
 {% for requirement,document in requirements %}
 <div class="doc"><strong>☐ {% if locale == 'es' %}{{ requirement.label_es }}{% elif locale == 'fr' %}{{ requirement.label_fr }}{% else %}{{ requirement.label_en }}{% endif %}{% if requirement.is_required %} *{% endif %}</strong>
 {% if document %}
-<p class="status">✓ Uploaded · {{ document.original_filename }} · {{ document.size|filesizeformat }}</p>
-<a href="{% url 'application_download' application.pk document.pk %}">Preview / download</a>
+<p class="status">✓ Uploaded · {{ document.original_filename }} · {{ document.size|filesizeformat }} · {{ document.get_review_status_display }}</p>{% if document.staff_note %}<p class="muted">{{ document.staff_note }}</p>{% endif %}
+<a href="{% url 'application_download' application.pk document.pk %}" target="_blank" rel="noopener">Preview / download</a>
 <form method="post" action="{% url 'application_delete_file' application.pk document.pk %}">{% csrf_token %}<button class="btn outline" type="submit">Delete</button></form>
 {% endif %}
 <form method="post" enctype="multipart/form-data" action="{% url 'application_upload' application.pk requirement.pk %}" class="upload-form">
@@ -90,6 +90,7 @@ input[type=checkbox]{width:auto}.btn{border:0;background:#201d1a;color:white;bor
 <label><input type="checkbox" name="terms" value="yes" required> I agree to Galiel's <a href="{% url 'home' %}#legal">terms and processing estimates</a>.</label>
 <div class="actions"><a class="btn outline" href="{% url 'application_step' application.pk 3 %}">← Back</a><button class="btn orange">Accept & continue →</button></div></form></section>
 {% elif step == 5 %}
+{% if checkout_cancelled %}<div class="notice" role="alert">Checkout was cancelled or not completed. No payment has been confirmed. You can retry securely.</div>{% endif %}
 <section class="panel"><h2>{% if locale == 'es' %}Pago seguro{% elif locale == 'fr' %}Paiement sécurisé{% else %}Secure payment{% endif %}</h2>
 {% if is_quote %}
 <div class="notice">This service requires a confirmed quotation before checkout. No card payment will be requested yet.</div>
