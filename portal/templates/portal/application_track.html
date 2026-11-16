@@ -41,7 +41,7 @@ h1{font:normal 44px Georgia,serif;margin:12px 0}.sub{color:#74675d}
   </form>
 </div>
 {% empty %}<p>No further documents have been requested.</p>{% endfor %}
-<div class="ws-dropzone">Select a document above to upload or replace a requested file. PDF, JPG or PNG, up to 10 MB.</div>
+<div class="ws-dropzone" id="ws-dropzone" role="group" aria-label="Document drop zone" tabindex="0">Drop a file here to select it for the first requested document, then confirm Upload above. PDF, JPG or PNG, up to 10 MB. <strong id="ws-drop-feedback" aria-live="polite"></strong></div>
 {% elif application.status == 'draft' or application.status == 'quote_requested' or application.status == 'quoted' or application.status == 'awaiting_payment' %}
 <p>Upload requirements are available in the application steps. Final requirements will be confirmed during review.</p>
 <a class="secondary" href="{% url 'application_step' application.pk 3 %}">Review document checklist →</a>
@@ -81,4 +81,30 @@ h1{font:normal 44px Georgia,serif;margin:12px 0}.sub{color:#74675d}
 {% else %}<p>A conversation will appear when one is available for this process.</p>{% endif %}
 </section>
 </div></div>
-</main></div></body></html>
+</main></div>
+<script>
+(() => {
+  const zone = document.getElementById('ws-dropzone');
+  if (!zone) return;
+  const target = document.querySelector('.ws-upload-form input[type="file"]');
+  const feedback = document.getElementById('ws-drop-feedback');
+  if (!target) return;
+  for (const type of ['dragenter','dragover']) zone.addEventListener(type, e => { e.preventDefault(); zone.classList.add('is-dragging'); });
+  for (const type of ['dragleave','drop']) zone.addEventListener(type, e => { e.preventDefault(); zone.classList.remove('is-dragging'); });
+  zone.addEventListener('drop', e => {
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+    const allowed = ['application/pdf','image/jpeg','image/png'];
+    if (!allowed.includes(file.type) || file.size > 10 * 1024 * 1024) {
+      feedback.textContent = 'Unsupported file or larger than 10 MB.';
+      return;
+    }
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    target.files = dt.files;
+    feedback.textContent = file.name + ' selected. Confirm with Upload.';
+    target.focus();
+  });
+})();
+</script>
+</body></html>
