@@ -47,6 +47,7 @@ urlpatterns = [
     path("services/applications/<int:application_id>/remove/<int:document_id>/", workflow_views.application_delete_file, name="application_delete_file"),
     path("services/applications/<int:application_id>/download/<int:document_id>/", workflow_views.application_download, name="application_download"),
     path("services/applications/<int:application_id>/track/", workflow_views.application_track, name="application_track"),
+    path("services/applications/<int:application_id>/receipt/", workflow_views.application_receipt, name="application_receipt"),
     path("services/applications/<int:application_id>/checkout/", workflow_views.application_checkout, name="application_checkout"),
     path("services/payment/webhook/", workflow_views.stripe_webhook, name="stripe_webhook"),
     path("profile/", views.profile, name="profile"),
