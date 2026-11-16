@@ -15,7 +15,13 @@ class Profile(models.Model):
     phone = models.CharField(max_length=40, blank=True)
     company = models.CharField(max_length=180, blank=True)
     tax_id = models.CharField(max_length=80, blank=True, default="")
-    address = models.CharField(max_length=300, blank=True)
+    address = models.CharField(max_length=300, blank=True)  # Preserve legacy address
+    street = models.CharField(max_length=180, blank=True, default="")
+    street_number = models.CharField(max_length=30, blank=True, default="")
+    unit = models.CharField(max_length=60, blank=True, default="")
+    city = models.CharField(max_length=100, blank=True, default="")
+    state_region = models.CharField(max_length=100, blank=True, default="")
+    postal_code = models.CharField(max_length=30, blank=True, default="")
     country = models.CharField(max_length=100, blank=True, default="")
     preferred_language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default="en")
 
