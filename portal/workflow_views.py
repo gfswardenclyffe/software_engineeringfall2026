@@ -262,8 +262,8 @@ def _verify_file(file):
 @require_POST
 def application_upload(request, application_id, requirement_id):
     app = _application(request, application_id)
-    if app.status != "draft":
-        return HttpResponseForbidden("Files cannot be replaced once a quote is requested or payment begins.")
+    if app.status not in ("draft", "missing_documents"):
+        return HttpResponseForbidden("Files can be changed only in a draft or when documents are requested.")
     req = get_object_or_404(ServiceRequirement, pk=requirement_id, offering=app.offering, kind="document")
     file = request.FILES.get("file")
     if not file:
@@ -284,19 +284,19 @@ def application_upload(request, application_id, requirement_id):
                 old.file.delete(save=False)
                 old.delete()
             messages.success(request, f"Uploaded {doc.original_filename}")
-    return redirect("application_step", application_id=app.pk, step=3)
+    return redirect("application_track", application_id=app.pk) if app.status == "missing_documents" else redirect("application_step", application_id=app.pk, step=3)
 
 
 @login_required
 @require_POST
 def application_delete_file(request, application_id, document_id):
     app = _application(request, application_id)
-    if app.status != "draft":
+    if app.status not in ("draft", "missing_documents"):
         return HttpResponseForbidden()
     doc = get_object_or_404(ApplicationDocument, application=app, pk=document_id, is_deliverable=False)
     doc.file.delete(save=False)
     doc.delete()
-    return redirect("application_step", application_id=app.pk, step=3)
+    return redirect("application_track", application_id=app.pk) if app.status == "missing_documents" else redirect("application_step", application_id=app.pk, step=3)
 
 
 @never_cache
@@ -308,8 +308,9 @@ def application_download(request, application_id, document_id):
         stream = doc.file.open("rb")
     except (ValueError, OSError):
         raise Http404
-    response = FileResponse(stream, as_attachment=True, filename=doc.original_filename)
+    response = FileResponse(stream, as_attachment=False, filename=doc.original_filename)
     response["X-Content-Type-Options"] = "nosniff"
+    response["Content-Security-Policy"] = "sandbox"
     return response
 
 
@@ -317,7 +318,11 @@ def application_download(request, application_id, document_id):
 @login_required
 def application_track(request, application_id):
     app = _application(request, application_id)
-    return render(request, "portal/application_track.html", {"application": app, "events": app.events.all()})
+    requirements = [(req, app.documents.filter(requirement=req).first())
+                    for req in _requirements(app, "document")]
+    return render(request, "portal/application_track.html", {
+        "application": app, "events": app.events.all(), "requirements": requirements,
+    })
 
 
 @login_required
@@ -368,6 +373,19 @@ def application_checkout(request, application_id):
     return redirect(stripe_session.url)
 
 
+def _estimated_delivery(max_business_days):
+    """Provisional business-day estimate, excluding weekends (not holidays)."""
+    if max_business_days is None:
+        return None
+    day = timezone.localdate()
+    remaining = max_business_days
+    while remaining > 0:
+        day += timedelta(days=1)
+        if day.weekday() < 5:
+            remaining -= 1
+    return day
+
+
 def _confirm_paid(app, session):
     """Idempotently activate the case after a verified, paid Checkout Session."""
     with transaction.atomic():
@@ -386,9 +404,7 @@ def _confirm_paid(app, session):
             raise ValueError("Checkout currency mismatch")
         app.payment_confirmed_at = timezone.now()
         app.stripe_payment_intent = session.get("payment_intent") or ""
-        if app.offering.estimated_max_business_days is not None:
-            # Calendar-day upper bound is provisional; authority estimates are not guaranteed.
-            app.estimated_delivery = timezone.localdate() + timedelta(days=app.offering.estimated_max_business_days * 2)
+        app.estimated_delivery = _estimated_delivery(app.offering.estimated_max_business_days)
         app.save(update_fields=["payment_confirmed_at", "stripe_payment_intent", "estimated_delivery", "updated_at"])
         _set_status(app, "paid", "Stripe payment confirmed")
         conversation = _ensure_conversation(app)
