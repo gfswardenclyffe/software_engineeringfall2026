@@ -52,6 +52,7 @@ urlpatterns = [
     path("services/applications/<int:application_id>/receipt/", workflow_views.application_receipt, name="application_receipt"),
     path("services/applications/<int:application_id>/checkout/", workflow_views.application_checkout, name="application_checkout"),
     path("services/payment/webhook/", workflow_views.stripe_webhook, name="stripe_webhook"),
+    path("services/staff/documents/<int:document_id>/download/", workflow_views.staff_document_download, name="staff_document_download"),
     path("profile/", views.profile, name="profile"),
     path("messages/", views.messages_inbox, name="messages_inbox"),
     path("messages/new/", views.conversation_new, name="conversation_new"),
