@@ -61,7 +61,7 @@ let sign=item.currency==="EUR"?"€": "$";let price=item.price_type==="quote"||!
 meta.append(el("strong","",price));if(item.price_unit&&item.price_type!=="quote")meta.append(el("span","muted",item.price_unit));
 let duration=(item.estimated_min_business_days!==null&&item.estimated_max_business_days!==null)
 ?item.estimated_min_business_days+"–"+item.estimated_max_business_days+" "+w.days:w.unknown;
-meta.append(el("div","muted",duration));if(item.is_temporary_price){const disclosure=el("small","muted",w.estimate);meta.append(disclosure)}
+meta.append(el("div","muted",duration));if(item.is_temporary_price){const disclosure=el("small","muted",item.estimated_price_note||w.estimate);meta.append(disclosure)}
 const link=el("a","btn",w.start+" →");link.href=item.start_url;
 card.append(location,title,meta,link);cards.append(card);
 });}
