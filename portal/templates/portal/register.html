@@ -1,4 +1,6 @@
-{% extends "portal/auth_base.html" %}{% block title %}Create an account · Galiel{% endblock %}{% block content %}
+{% extends "portal/auth_base.html" %}{% block title %}Create an account · Galiel
+{% endif %}{% endblock %}{% block content %}{% if user.is_authenticated %}{% include "portal/_already_signed_in.html" %}{% else %}
+
 <div class="eyebrow">New account / Step 1 of 2</div><h1>Let's get started.</h1><p class="sub">Create your client account. We'll email you a confirmation link before you can access your private workspace.</p>
 {% if pending_service_label %}<div class="notice"><strong>Your selected service:</strong> {{ pending_service_label }}</div>{% endif %}
 <form method="post" autocomplete="on">{% csrf_token %}{% if pending_service %}<input type="hidden" name="service" value="{{ pending_service }}">{% endif %}
