@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="{{ locale }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Explore services · Galiel</title>
@@ -16,9 +17,10 @@ label{display:block;font-size:12px;font-weight:750;margin-bottom:8px}select{widt
 .card .btn{margin-top:20px}.count{font-size:14px;color:var(--muted);margin-bottom:16px}
 #error{border:1px solid #d39898;background:#fff1f1;color:#8c2424;border-radius:12px;padding:15px;margin:15px 0}
 @media(max-width:760px){.filters,.cards{grid-template-columns:1fr}.top{flex-wrap:wrap}}
-</style></head><body>
-<header class="top"><a class="brand" href="{% url 'dashboard' %}">galiel<span>.</span></a>
-<a href="{% url 'dashboard' %}#services">← {% if locale == 'es' %}Mi espacio{% elif locale == 'fr' %}Mon espace{% else %}My workspace{% endif %}</a></header>
+</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
+</head><body>
+{% include 'portal/_site_header.html' %}
 <main>
 <div class="eyebrow">Galiel / {% if locale == 'es' %}Servicios{% else %}Services{% endif %}</div>
 <h1>{% if locale == 'es' %}Explorar servicios{% elif locale == 'fr' %}Explorer les services{% else %}Explore services{% endif %}</h1>
