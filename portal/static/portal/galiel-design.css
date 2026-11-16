@@ -1,0 +1,40 @@
+/* Galiel visual tokens — homepage is the canonical reference, 2026-11 */
+:root {
+  --galiel-cream:#F2F1EC;--galiel-ink:#161616;--galiel-white:#FFFFFF;
+  --galiel-orange:#D9714A;--galiel-muted:#666666;--galiel-line:#BDBDB9;
+  --paper:var(--galiel-cream);--cream:var(--galiel-cream);--ink:var(--galiel-ink);
+  --black:var(--galiel-ink);--dark:var(--galiel-ink);--forest:var(--galiel-ink);
+  --green:var(--galiel-ink);--orange:var(--galiel-orange);--accent:var(--galiel-orange);
+  --muted:var(--galiel-muted);--line:var(--galiel-line);--border:var(--galiel-line);
+  --card:var(--galiel-white);
+}
+body {background:var(--galiel-cream)!important;color:var(--galiel-ink)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif!important}
+h1,h2,h3,h4,.user-name,.service-group h2,.empty h3,.stat strong,.card h2,.panel h2{
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif!important;
+  letter-spacing:-.038em;line-height:1.12;font-weight:800
+}
+.eyebrow,.mini,.by{font-family:inherit!important;letter-spacing:.16em!important;text-transform:uppercase;font-size:11px!important;font-weight:800!important;color:var(--galiel-muted)!important}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--galiel-orange)!important;outline-offset:3px}
+a{color:inherit}
+.card,.panel,.stat,.filters,.paper,.notice{background:var(--galiel-white)!important;border:1px solid var(--galiel-line)!important;border-radius:3px!important;box-shadow:none!important}
+button,.btn,.action,.button,.secondary,.out{font-family:inherit!important;border-radius:2px!important}
+.btn,.action,.button,button.action,.contact-submit{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid var(--galiel-orange)!important;background:var(--galiel-orange)!important;color:var(--galiel-ink)!important;font-size:13px;font-weight:800;text-decoration:none;padding:11px 18px}
+.btn:hover,.action:hover,.button:hover,button.action:hover{background:var(--galiel-ink)!important;border-color:var(--galiel-ink)!important;color:white!important}
+.btn.outline,.secondary,.out{background:transparent!important;border:1px solid var(--galiel-ink)!important;color:var(--galiel-ink)!important;border-radius:2px!important}
+input:not([type=checkbox]):not([type=radio]),textarea,select{font:inherit;border:1px solid var(--galiel-line)!important;border-radius:2px!important;background:white!important;color:var(--galiel-ink);min-height:44px}
+nav a.active,nav a:hover{background:transparent!important;color:var(--galiel-ink)!important;border-radius:0!important}
+nav a.active{border-bottom:2px solid var(--galiel-orange)!important}
+.top,.galiel-top,header.top{background:var(--galiel-white)!important;border-bottom:1px solid var(--galiel-ink)!important}
+.galiel-top{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px clamp(16px,3vw,44px)}
+.galiel-brand{display:inline-flex;align-items:center;gap:11px;flex-shrink:0;text-decoration:none!important;color:var(--galiel-ink)!important}
+.galiel-brand .galiel-signature{display:block;width:96px;height:58px;object-fit:contain}
+.galiel-brand .galiel-by{font-size:10px;font-weight:700;white-space:nowrap;letter-spacing:.17em;line-height:1.25}
+.galiel-brand .galiel-by span{font-weight:400;letter-spacing:.02em;text-transform:lowercase}
+.galiel-top-right{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap}
+.galiel-user{font-size:12px;color:var(--galiel-muted);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.galiel-languages{display:flex;gap:3px;border:1px solid var(--galiel-line);padding:2px}
+.galiel-languages a{font:800 11px Inter,system-ui,sans-serif;padding:8px;color:var(--galiel-muted);text-decoration:none;min-width:33px;text-align:center}
+.galiel-languages a[aria-current=page]{background:var(--galiel-ink);color:white}
+.galiel-signout{font-size:12px;font-weight:800;display:inline-flex;align-items:center;border:1px solid var(--galiel-ink);border-radius:2px;padding:10px 13px;text-decoration:none}
+.galiel-signout:hover{background:var(--galiel-ink);color:white}
+@media(max-width:600px){.galiel-top{flex-wrap:wrap;gap:9px;padding:10px 16px}.galiel-top-right{justify-content:flex-start}.galiel-user{max-width:150px}.galiel-brand .galiel-signature{width:76px;height:48px}.galiel-brand .galiel-by{font-size:9px}}
