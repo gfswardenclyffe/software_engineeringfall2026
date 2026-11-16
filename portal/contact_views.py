@@ -4,6 +4,7 @@ import hmac
 import logging
 import re
 from pathlib import Path
+from datetime import timedelta
 
 from django import forms
 from django.conf import settings
@@ -163,11 +164,7 @@ def _send_mail(lead, visitor):
         email.attach_alternative(html, "text/html")
         if lead.attachment:
             with lead.attachment.open("rb") as file:
-                email.attach(
-                    lead.attachment_filename,
-                    file.read(),
-                    lead.attachment.file.content_type if hasattr(lead.attachment.file, "content_type") else _mime(lead.attachment_filename),
-                )
+                email.attach(lead.attachment_filename, file.read(), _mime(lead.attachment_filename))
     email.send(fail_silently=False)
 
 
@@ -206,8 +203,8 @@ def contact_submit(request):
         return JsonResponse({"ok": False, "message": l["file"], "errors": {"attachment": [l["file"]]}}, status=400)
 
     form = ContactForm(request.POST, request.FILES)
-    if form.is_valid() and form.cleaned_data.get("website"):
-        # Invisible honeypot: do not persist or send mail to likely spambots.
+    # Check the honeypot before validating other fields to avoid disclosing bot filters.
+    if (request.POST.get("website") or "").strip():
         return JsonResponse({"ok": True, "message": l["sent"]})
     if not form.is_valid():
         errors = form.errors.get_json_data()
@@ -228,7 +225,7 @@ def contact_submit(request):
         return JsonResponse({"ok": False, "message": l["invalid"], "errors": translated}, status=400)
 
     digest = _ip_digest(request)
-    since = timezone.now() - timezone.timedelta(hours=1)
+    since = timezone.now() - timedelta(hours=1)
     if digest and ContactLead.objects.filter(ip_digest=digest, created_at__gte=since).count() >= MAX_SUBMISSIONS_PER_HOUR:
         return JsonResponse({"ok": False, "message": l["slow"], "errors": {}}, status=429)
 
