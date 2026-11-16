@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ application.number }} · Galiel process</title>
+<style>
+:root{--cream:#f6f1ea;--ink:#211c19;--orange:#e96c3c;--line:#eadfd4}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:15px Arial,system-ui,sans-serif}
+main{max-width:970px;margin:38px auto;padding:0 18px}a{color:inherit}
+.top{padding:22px;background:#fff9f3;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+.brand{font:italic 30px Georgia,serif;text-decoration:none}.brand span{font:12px Arial}
+h1{font:normal 44px Georgia,serif;margin:12px 0}.sub{color:#74675d}
+.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:24px;margin:16px 0}
+.timeline{margin:0;padding:0;list-style:none}.timeline li{border-left:3px solid var(--orange);padding:0 0 22px 18px;margin:0 0 0 5px}
+.timeline strong{display:block}.timeline small{color:#70655e}.btn{display:inline-block;background:var(--ink);color:white;text-decoration:none;padding:13px 18px;border-radius:24px;font-weight:700}
+@media(max-width:680px){.grid{grid-template-columns:1fr}}
+</style></head><body><header class="top"><a class="brand" href="{% url 'dashboard' %}">Galiel <span>by Wardenclyffe</span></a><a href="{% url 'dashboard' %}#processes">← My processes</a></header>
+<main><div class="sub">{{ application.number }} · {{ application.client.get_full_name|default:application.client.email }} ({{ application.client.email }})</div>
+<h1>{{ application.service_title }}</h1>
+<p class="sub">{{ application.location_label }} · <strong>{{ application.get_status_display }}</strong></p>
+<div class="grid"><div>
+<section class="panel"><h2>Process status</h2><ul class="timeline">
+{% for event in events %}<li><strong>{{ event.get_status_display }}</strong><small>{{ event.created_at|date:"M j, Y g:i A" }}</small>{% if event.note %}<p>{{ event.note }}</p>{% endif %}</li>{% empty %}<li>Draft created</li>{% endfor %}
+</ul></section>
+<section class="panel"><h2>Documents</h2>
+{% for doc in application.documents.all %}<p><a href="{% url 'application_download' application.pk doc.pk %}">{{ doc.original_filename }}</a> {% if doc.is_deliverable %} · Final document{% else %} · Submitted{% endif %}</p>{% empty %}<p>Documents will appear here when uploaded.</p>{% endfor %}
+</section></div>
+<div><section class="panel"><h2>Order details</h2>
+<p>Client: {{ application.client.get_full_name|default:application.client.email }}</p><p>Email: {{ application.client.email }}</p>
+<p>Estimated delivery: {{ application.estimated_delivery|default:"To be confirmed" }}</p>
+{% if application.payment_confirmed_at %}<p>Payment confirmed: {{ application.payment_confirmed_at|date:"M j, Y" }}</p><p>Amount paid: {{ application.currency }} {{ application.total }}</p>{% endif %}
+{% if application.stripe_receipt_url %}<p><a href="{{ application.stripe_receipt_url }}" rel="noopener noreferrer" target="_blank">Payment receipt</a></p>{% endif %}
+{% if application.status == 'draft' or application.status == 'quoted' or application.status == 'awaiting_payment' %}
+<a class="btn" href="{% url 'application_step' application.pk 1 %}">Resume application →</a>
+{% elif application.status == 'quote_requested' %}<p>The Galiel team is preparing your quotation.</p>{% endif %}
+</section><section class="panel"><h2>Messages</h2>
+{% if application.conversation_id %}<p><a class="btn" href="{% url 'conversation_detail' application.conversation_id %}">View case conversation →</a></p>
+{% else %}<p>A process conversation will appear after payment or quotation request.</p>{% endif %}
+</section></div></div>
+</main></body></html>
