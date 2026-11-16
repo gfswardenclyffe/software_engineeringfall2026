@@ -1,0 +1,15 @@
+# Add to the EXISTING document root .htaccess, preserving its other RewriteRules.
+# Production document root: /home2/gfrancossh/galiel
+# Requires Apache mod_headers, mod_rewrite and applicable directive support.
+Options -Indexes
+<FilesMatch "(?i)^(?:.*\\.(?:sqlite3?|db|py|pyc|env|bak|log)|\\.env(?:\\..*)?|\\.gitignore)$">
+    Require all denied
+</FilesMatch>
+RewriteEngine On
+RewriteRule "(^|/)(?:\\.git|migrations)(?:/|$)" - [F,L,NC]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=302,L]
+RequestHeader unset X-Forwarded-Proto
+RequestHeader set X-Forwarded-Proto "https" "expr=%{HTTPS} == 'on'"
+# Retain the actual application FastCGI mapping and other rules from production.
+# Use R=301 only after separate stable HTTPS validation.
