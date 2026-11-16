@@ -24,20 +24,33 @@ class CatalogTests(TestCase):
 
     def test_filters_and_currency_and_estimate(self):
         self.client.force_login(self.client_user)
-        response = self.client.get(reverse("service_catalog"), {"country": "MX", "region": str(self.region.pk), "municipality": str(self.city.pk)})
-        self.assertContains(response, "Business permit")
-        self.assertContains(response, "MXN 1250.00")
-        self.assertContains(response, "5–10")
-        self.assertContains(response, "San Pedro Garza García")
-        response = self.client.get(reverse("service_catalog"), {"country": "FR"})
-        self.assertNotContains(response, "Business permit")
+        response = self.client.get(reverse("catalog_api"), {
+            "country": "MX", "region": str(self.region.pk),
+            "municipality": str(self.city.pk),
+        })
+        self.assertEqual(response.status_code, 200)
+        items = response.json()["offerings"]
+        selected = next(item for item in items if item["service"] == "Business permit")
+        self.assertEqual(selected["currency"], "MXN")
+        self.assertEqual(selected["price"], "1250.00")
+        self.assertEqual(selected["estimated_min_business_days"], 5)
+        self.assertEqual(selected["estimated_max_business_days"], 10)
+        self.assertEqual(selected["location"], "San Pedro Garza García")
+        response = self.client.get(reverse("catalog_api"), {"country": "FR"})
+        self.assertNotIn("Business permit", [
+            item["service"] for item in response.json()["offerings"]
+        ])
 
     def test_language_selection(self):
         self.client.force_login(self.client_user)
-        response = self.client.get(reverse("service_catalog"), {"lang": "es"})
-        self.assertContains(response, "Permiso de funcionamiento")
-        response = self.client.get(reverse("service_catalog"), {"lang": "fr"})
-        self.assertContains(response, "Permis d&#x27;exploitation", html=False)
+        response = self.client.get(reverse("catalog_api"), {"lang": "es"})
+        self.assertIn("Permiso de funcionamiento", [
+            item["service"] for item in response.json()["offerings"]
+        ])
+        response = self.client.get(reverse("catalog_api"), {"lang": "fr"})
+        self.assertIn("Permis d'exploitation", [
+            item["service"] for item in response.json()["offerings"]
+        ])
 
     def test_unpublished_service_is_hidden(self):
         self.offering.is_published = False
