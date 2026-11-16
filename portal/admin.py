@@ -246,6 +246,7 @@ class ContactLeadAdmin(admin.ModelAdmin):
     search_fields = ("full_name", "email", "phone", "state_city", "request_type", "message")
     list_select_related = ("client", "conversation")
     list_per_page = 30
+    actions = ("retry_failed_emails",)
     readonly_fields = ("full_name", "email", "phone_code", "phone", "country", "state_city", "request_type",
                        "message", "privacy_consent_at", "attachment_link", "attachment_filename", "language",
                        "client", "conversation", "visitor_notified", "team_notified", "delivery_error", "created_at")
@@ -267,3 +268,25 @@ class ContactLeadAdmin(admin.ModelAdmin):
             return format_html('<a href="{}">Download attachment</a>',
                                reverse("staff_lead_attachment", args=[obj.pk]))
         return "No attachment"
+
+    @admin.action(description="Retry undelivered lead emails")
+    def retry_failed_emails(self, request, queryset):
+        from .contact_views import _send_mail
+        succeeded, failed = 0, 0
+        for lead in queryset:
+            failures = []
+            for visitor, flag in ((True, "visitor_notified"), (False, "team_notified")):
+                if getattr(lead, flag):
+                    continue
+                try:
+                    _send_mail(lead, visitor=visitor)
+                except Exception as exc:
+                    logger.exception("Lead email retry failed for %s", lead.pk)
+                    failures.append(flag + ": " + type(exc).__name__)
+                    failed += 1
+                else:
+                    setattr(lead, flag, True)
+                    succeeded += 1
+            lead.delivery_error = "; ".join(failures)
+            lead.save(update_fields=["visitor_notified", "team_notified", "delivery_error"])
+        self.message_user(request, f"Emails delivered: {succeeded}; failures: {failed}.")
