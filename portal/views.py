@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
@@ -480,6 +481,30 @@ def service_intake(request, offering_id):
         ServiceOffering.objects.select_related("country", "region", "municipality", "service")
         .prefetch_related("requirements"), pk=offering_id, is_published=True,
     )
+    class IntakeForm(forms.Form):
+        details = forms.CharField(max_length=5000, strip=True, label="Describe what you need",
+                                  widget=forms.Textarea(attrs={"rows": 6}))
+    for requirement in offering.requirements.filter(kind="question"):
+        IntakeForm.base_fields["requirement_" + str(requirement.pk)] = forms.CharField(
+            label=requirement.label_en, max_length=1000, required=requirement.is_required,
+        )
+    form = IntakeForm(request.POST or None)
+    if request.method == "POST" and not request.user.is_staff and form.is_valid():
+        place = offering.municipality or offering.region or offering.country
+        with transaction.atomic():
+            conversation = ClientConversation.objects.create(
+                client=request.user,
+                subject=f"Inquiry: {offering.service.title_en} — {place}"[:160],
+            )
+            answer_lines = [form.cleaned_data["details"]]
+            for requirement in offering.requirements.filter(kind="question"):
+                answer = form.cleaned_data.get("requirement_" + str(requirement.pk), "")
+                if answer:
+                    answer_lines.append(f"{requirement.label_en}: {answer}")
+            ClientMessage.objects.create(conversation=conversation, sender=request.user,
+                                         body="\\n\\n".join(answer_lines))
+        messages.success(request, "Your service inquiry has been saved. The team can reply here.")
+        return redirect("conversation_detail", conversation_id=conversation.pk)
     return render(request, "portal/service_intake.html", {
-        "offering": offering, "locale": _catalog_locale(request),
+        "offering": offering, "locale": _catalog_locale(request), "form": form,
     })
