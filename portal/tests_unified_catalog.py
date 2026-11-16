@@ -94,3 +94,17 @@ class UnifiedCatalogTests(TestCase):
         offering.save(update_fields=["is_published"])
         self.client.force_login(self.user)
         self.assertEqual(self.client.get(reverse("service_intake", args=[offering.pk])).status_code, 404)
+
+    def test_login_preserves_service_intake_destination(self):
+        offering = ServiceOffering.objects.get(service__slug="tx-apostille")
+        next_url = reverse("service_intake", args=[offering.pk])
+        response = self.client.get(next_url)
+        self.assertEqual(response.status_code, 302)
+        login_page = self.client.get(reverse("login"), {"next": next_url})
+        self.assertContains(login_page, 'name="next"')
+        result = self.client.post(reverse("login"), {
+            "username": "catalog-check@example.com",
+            "password": "StrongPass123",
+            "next": next_url,
+        })
+        self.assertRedirects(result, next_url)
