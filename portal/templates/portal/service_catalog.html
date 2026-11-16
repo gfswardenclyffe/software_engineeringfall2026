@@ -38,7 +38,7 @@ label{display:block;font-size:12px;font-weight:750;margin-bottom:8px}select{widt
 </main>
 <script>
 (()=> {
-const language={{ locale|escapejs|safe|default:'"en"' }};
+const language="{{ locale|escapejs }}";
 const api="{% url 'catalog_api' %}";
 const country=document.getElementById("country"),region=document.getElementById("region"),municipality=document.getElementById("municipality");
 const cards=document.getElementById("cards"),count=document.getElementById("count"),loading=document.getElementById("loading"),error=document.getElementById("error");
