@@ -59,15 +59,8 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 <section id="processes" class="page"><div class="eyebrow">Your activity</div><h1>My processes</h1><p class="subtitle">See the progress of your services when they are added to your account.</p><div class="card"><div class="empty"><div class="empty-icon">01</div><h3>No processes yet</h3><p>No service requests are associated with this account. Case tracking is being prepared for Galiel.</p><a href="#services" class="action">Explore services →</a></div></div></section>
 <section id="services" class="page">
 <div class="eyebrow">Explore within your workspace</div><h1>Services</h1>
-<p class="subtitle">Browse the services available for inquiry without leaving Galiel. Select a service to start a conversation with Wardenclyffe; no order or payment is created automatically.</p>
-{% for group in service_groups %}
-<div class="service-group"><h2>{{ group.name }}</h2><p class="contact">{{ group.description }}</p>
-<div class="service-grid">{% for service in group.services %}
-<article class="card service-card"><h3>{{ service.label }}</h3>
-{% if user.is_staff %}<a class="secondary" href="{% url 'messages_inbox' %}">View client messages →</a>
-{% else %}<a class="secondary" href="{% url 'messages_inbox' %}?service={{ service.code|urlencode }}">Ask about this service →</a>{% endif %}
-</article>{% endfor %}</div></div>
-{% endfor %}
+<p class="subtitle">Find services by location, review published fees and estimates, and ask Wardenclyffe about requirements without leaving your workspace.</p><p><a class="action" href="{% url 'service_catalog' %}">Browse services by location →</a></p>
+
 </section>
 <section id="documents" class="page"><div class="eyebrow">Your files</div><h1>Documents</h1><p class="subtitle">Upload PDF documents securely and download your existing files.</p><p><a class="action" href="{% url 'document_upload' %}">Upload PDF document →</a></p><div class="card">{% if client_documents %}<ul style="list-style:none;padding:0;margin:0">{% for document in client_documents %}<li style="display:flex;gap:15px;justify-content:space-between;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:15px 0"><span><strong>{{ document.title }}</strong><br><small>{{ document.uploaded_at|date:"M j, Y" }}</small></span><a class="secondary" href="{% url 'document_download' document.id %}">Download PDF</a></li>{% endfor %}</ul>{% else %}<div class="empty"><div class="empty-icon">◇</div><h3>No documents yet</h3><p>Your uploaded documents will appear here.</p></div>{% endif %}</div></section>
 <section id="invoices" class="page"><div class="eyebrow">Payments</div><h1>Invoices & payments</h1><p class="subtitle">Billing and payment records associated with your services.</p><div class="card"><div class="empty"><div class="empty-icon">$</div><h3>No invoices yet</h3><p>Invoices will appear here once billing is connected to your account.</p></div></div></section>
