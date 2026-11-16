@@ -102,9 +102,13 @@ class ServiceAwareLoginView(LoginView):
 
 def home(request):
     published = ServiceOffering.objects.filter(is_published=True)
-    regions = CatalogRegion.objects.filter(
+    regions = list(CatalogRegion.objects.filter(
         country_id="MX", offerings__is_published=True,
-    ).distinct().order_by("name_en")
+    ).distinct().order_by("name_en"))
+    for region in regions:
+        region.service_cards = list(
+            published.filter(region=region).select_related("service", "municipality")
+        )
     return render(request, "portal/home.html", {
         "homepage_regions": regions,
         "homepage_us_offerings": published.filter(country_id="US").select_related("service", "region"),
