@@ -81,6 +81,9 @@ def _price_for(app):
     offer = app.offering
     if app.quoted_amount is not None and app.status in ("quoted", "awaiting_payment"):
         return app.quoted_amount.quantize(CENT), Decimal("0.00"), app.quoted_amount.quantize(CENT)
+    if offer.is_temporary_price:
+        # Published research estimates are never automatically chargeable.
+        return None, None, None
     if offer.price_type == "quote" or offer.price is None:
         return None, None, None
     if offer.price_type == "starting":
