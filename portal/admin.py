@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 from .workflow_views import _notify_client, _verify_file
 
-from .models import Profile, ClientConversation, ClientMessage, CatalogCountry, CatalogRegion, CatalogMunicipality, CatalogService, ServiceOffering, ServiceRequirement, ServiceApplication, ApplicationDocument, ApplicationEvent, ContactLead
+from .models import Profile, ClientConversation, ClientMessage, CatalogCountry, CatalogRegion, CatalogMunicipality, CatalogService, ServiceOffering, ServiceRequirement, ServiceApplication, ApplicationDocument, ApplicationEvent, ContactLead, OfferingPriceResearch
 
 
 @admin.register(Profile)
@@ -88,16 +88,33 @@ class ServiceRequirementInline(admin.TabularInline):
     fields = ("display_order", "kind", "label_en", "label_es", "label_fr", "is_required")
 
 
+class OfferingPriceResearchInline(admin.TabularInline):
+    model = OfferingPriceResearch
+    extra = 0
+    fields = ("source_kind", "source_title", "source_url", "checked_on", "government_fee",
+              "market_low", "market_high", "currency", "fee_unit", "research_notes", "verified")
+    show_change_link = True
+
+
+@admin.register(OfferingPriceResearch)
+class OfferingPriceResearchAdmin(admin.ModelAdmin):
+    list_display = ("offering", "source_kind", "source_title", "checked_on", "government_fee",
+                    "market_low", "market_high", "currency", "verified")
+    list_filter = ("source_kind", "verified", "checked_on", "currency")
+    search_fields = ("offering__service__title_en", "source_title", "source_url", "research_notes")
+    list_select_related = ("offering",)
+
+
 @admin.register(ServiceOffering)
 class ServiceOfferingAdmin(admin.ModelAdmin):
-    list_display = ("service", "country", "region", "municipality", "price_type", "price", "currency", "is_published")
-    list_filter = ("is_published", "country", "price_type", "currency")
+    list_display = ("service", "country", "region", "municipality", "price_type", "price", "currency", "is_temporary_price", "pricing_review_required", "is_published")
+    list_filter = ("is_published", "country", "price_type", "currency", "is_temporary_price", "pricing_review_required")
     search_fields = ("service__title_en", "municipality__name_en", "region__name_en")
     list_select_related = ("service", "country", "region", "municipality")
-    inlines = [ServiceRequirementInline]
+    inlines = [ServiceRequirementInline, OfferingPriceResearchInline]
     fieldsets = (
         ("Service & location", {"fields": ("service", "country", "region", "municipality")}),
-        ("Commercial details", {"fields": ("price_type", "price", "deposit_amount", "tax_rate", "currency", "estimated_min_business_days", "estimated_max_business_days")}),
+        ("Commercial details", {"fields": ("price_type", "price", "price_unit", "is_temporary_price", "estimated_price_note", "government_fee_estimate", "service_fee_estimate", "pricing_review_required", "deposit_amount", "tax_rate", "currency", "estimated_min_business_days", "estimated_max_business_days")}),
         ("Visibility & internal notes", {"fields": ("is_published", "manager_notes")}),
     )
 
