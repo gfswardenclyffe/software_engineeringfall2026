@@ -118,8 +118,10 @@ class ApplicationAdminForm(forms.ModelForm):
                 amount = values.get("quoted_amount")
                 if old.status not in ("quote_requested", "quoted", "awaiting_payment") or amount is None or amount <= 0:
                     raise ValidationError("A positive staff-approved quote is required for a quote-requested application.")
-            if old.payment_confirmed_at and values.get("quoted_amount") != old.quoted_amount:
-                raise ValidationError("Paid orders cannot have their quotations modified.")
+            if (old.payment_confirmed_at or old.stripe_checkout_session) and values.get("quoted_amount") != old.quoted_amount:
+                raise ValidationError("Cannot change a quotation after Stripe Checkout has started. Resolve or expire the session first.")
+            if old.payment_confirmed_at and new_status not in ("paid", "under_review", "missing_documents", "submitted", "in_process", "ready"):
+                raise ValidationError("A paid case cannot be returned to an unpaid status.")
         return values
 
 
