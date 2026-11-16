@@ -139,16 +139,16 @@ def _lead_details(lead, locale="en"):
         "FR": {"en": "France", "es": "Francia", "fr": "France"},
     }.get(lead.country, {}).get(locale, lead.get_country_display())
     return (
-        f"{ref}: GL-{lead.pk:06d}\\n"
-        f"{full}: {lead.full_name}\\n"
-        f"{email}: {lead.email}\\n"
-        f"{phone}: {lead.phone_code} {lead.phone or '(' + not_given + ')'}\\n"
-        f"{country}: {country_name}\\n"
-        f"{city}: {lead.state_city}\\n"
-        f"{kind}: {lead.request_type}\\n"
-        f"{attachment}: {lead.attachment_filename or '(' + none + ')'}\\n"
-        f"{privacy}: {lead.privacy_consent_at.isoformat()}\\n"
-        f"{message}:\\n{lead.message}"
+        f"{ref}: GL-{lead.pk:06d}\n"
+        f"{full}: {lead.full_name}\n"
+        f"{email}: {lead.email}\n"
+        f"{phone}: {lead.phone_code} {lead.phone or '(' + not_given + ')'}\n"
+        f"{country}: {country_name}\n"
+        f"{city}: {lead.state_city}\n"
+        f"{kind}: {lead.request_type}\n"
+        f"{attachment}: {lead.attachment_filename or '(' + none + ')'}\n"
+        f"{privacy}: {lead.privacy_consent_at.isoformat()}\n"
+        f"{message}:\n{lead.message}"
     )
 
 
@@ -160,7 +160,7 @@ def _send_mail(lead, visitor):
         "es": "Gracias. Recibimos tu mensaje y responderemos en un día hábil.",
         "fr": "Merci — nous avons reçu votre message et répondrons sous un jour ouvré.",
     }[locale]
-    body = f"{introduction}\n\n{_lead_details(lead)}\n\nGaliel by Wardenclyffe"
+    body = f"{introduction}\n\n{_lead_details(lead, locale if visitor else 'en')}\n\nGaliel by Wardenclyffe"
     logo = '<strong style="font:italic 32px Georgia,serif;color:#211c19">Galiel</strong> <span style="font:12px Arial;color:#211c19">by Wardenclyffe</span>'
     html = (
         '<div style="background:#f6f1ea;padding:32px;color:#211c19;font:15px Arial,sans-serif">'
