@@ -350,6 +350,22 @@ def application_download(request, application_id, document_id):
 
 @never_cache
 @login_required
+def staff_document_download(request, document_id):
+    if not request.user.is_staff:
+        return HttpResponseForbidden("Only authorized staff may access client files.")
+    doc = get_object_or_404(ApplicationDocument, pk=document_id)
+    try:
+        stream = doc.file.open("rb")
+    except (ValueError, OSError):
+        raise Http404
+    response = FileResponse(stream, as_attachment=False, filename=doc.original_filename)
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Content-Security-Policy"] = "sandbox"
+    return response
+
+
+@never_cache
+@login_required
 def application_track(request, application_id):
     app = _application(request, application_id)
     requirements = [(req, app.documents.filter(requirement=req).first())
