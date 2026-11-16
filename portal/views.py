@@ -17,7 +17,7 @@ from django.conf import settings
 
 from .forms import EmailAuthenticationForm, GalielRegistrationForm, UserProfileForm
 from .verification import send_activation_email
-from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCountry, CatalogRegion, CatalogMunicipality, ServiceOffering
+from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCountry, CatalogRegion, CatalogMunicipality, ServiceOffering, ServiceApplication, ApplicationDocument
 from .document_forms import ClientDocumentForm
 from .message_forms import NewConversationForm, ReplyForm
 from pathlib import Path
@@ -72,9 +72,22 @@ def workspace_service_groups():
 
 def _capture_pending_service(request):
     service = (request.GET.get("service") or request.POST.get("service") or "").strip()
-    if service in SERVICE_LABELS:
+    if service in SERVICE_LABELS or (
+        service and ServiceOffering.objects.filter(service__slug=service, is_published=True).exists()
+    ):
         request.session["pending_service"] = service
     return request.session.get("pending_service", "")
+
+
+def _pending_service_label(code):
+    if not code:
+        return ""
+    if code in SERVICE_LABELS:
+        return SERVICE_LABELS[code]
+    match = ServiceOffering.objects.filter(
+        service__slug=code, is_published=True,
+    ).select_related("service").first()
+    return match.service.title_en if match else code.replace("-", " ").title()
 
 
 class ServiceAwareLoginView(LoginView):
@@ -89,9 +102,7 @@ class ServiceAwareLoginView(LoginView):
         context = super().get_context_data(**kwargs)
         code = self.request.session.get("pending_service", "")
         context["pending_service"] = code
-        context["pending_service_label"] = SERVICE_LABELS.get(
-            code, code.replace("-", " ").title() if code else ""
-        )
+        context["pending_service_label"] = _pending_service_label(code)
         return context
 
     def get_success_url(self):
@@ -159,9 +170,7 @@ def register(request):
             else None
         )
 
-    label = SERVICE_LABELS.get(
-        pending_service, pending_service.replace("-", " ").title() if pending_service else ""
-    )
+    label = _pending_service_label(pending_service)
     return render(
         request,
         "portal/register.html",
@@ -176,7 +185,7 @@ def register(request):
 def registration_complete(request):
     email = request.session.pop("registered_email", "")
     code = request.session.get("pending_service", "")
-    label = SERVICE_LABELS.get(code, code.replace("-", " ").title() if code else "")
+    label = _pending_service_label(code)
     return render(
         request,
         "portal/registration_complete.html",
@@ -230,9 +239,20 @@ def resend_activation(request):
 @never_cache
 @login_required
 def dashboard(request):
+    applications = ServiceApplication.objects.filter(client=request.user).select_related(
+        "offering__service", "conversation"
+    )
+    paid_statuses = ("paid", "under_review", "missing_documents", "submitted", "in_process", "ready")
     return render(request, "portal/dashboard.html", {
         "client_documents": ClientDocument.objects.filter(owner=request.user),
+        "case_documents": ApplicationDocument.objects.filter(application__client=request.user, is_invoice=False).select_related("application"),
+        "case_invoices": ApplicationDocument.objects.filter(application__client=request.user, is_invoice=True).select_related("application"),
+        "document_count": ClientDocument.objects.filter(owner=request.user).count() + ApplicationDocument.objects.filter(application__client=request.user).count(),
+        "payment_count": applications.filter(payment_confirmed_at__isnull=False).count(),
         "client_conversations": ClientConversation.objects.filter(client=request.user)[:10],
+        "applications": applications,
+        "active_count": applications.filter(status__in=paid_statuses).count(),
+        "paid_applications": applications.filter(payment_confirmed_at__isnull=False),
         "service_groups": workspace_service_groups(),
     })
 
@@ -486,35 +506,12 @@ def catalog_api(request):
 @never_cache
 @login_required
 def service_intake(request, offering_id):
-    """Safely open the selected offering's intake introduction."""
+    """Service step one: describe the offering and explicitly start a draft."""
     offering = get_object_or_404(
-        ServiceOffering.objects.select_related("country", "region", "municipality", "service")
-        .prefetch_related("requirements"), pk=offering_id, is_published=True,
+        ServiceOffering.objects.select_related("country", "region", "municipality", "service"),
+        pk=offering_id, is_published=True,
     )
-    class IntakeForm(forms.Form):
-        details = forms.CharField(max_length=5000, strip=True, label="Describe what you need",
-                                  widget=forms.Textarea(attrs={"rows": 6}))
-    for requirement in offering.requirements.filter(kind="question"):
-        IntakeForm.base_fields["requirement_" + str(requirement.pk)] = forms.CharField(
-            label=requirement.label_en, max_length=1000, required=requirement.is_required,
-        )
-    form = IntakeForm(request.POST or None)
-    if request.method == "POST" and not request.user.is_staff and form.is_valid():
-        place = offering.municipality or offering.region or offering.country
-        with transaction.atomic():
-            conversation = ClientConversation.objects.create(
-                client=request.user,
-                subject=f"Inquiry: {offering.service.title_en} — {place}"[:160],
-            )
-            answer_lines = [form.cleaned_data["details"]]
-            for requirement in offering.requirements.filter(kind="question"):
-                answer = form.cleaned_data.get("requirement_" + str(requirement.pk), "")
-                if answer:
-                    answer_lines.append(f"{requirement.label_en}: {answer}")
-            ClientMessage.objects.create(conversation=conversation, sender=request.user,
-                                         body="\\n\\n".join(answer_lines))
-        messages.success(request, "Your service inquiry has been saved. The team can reply here.")
-        return redirect("conversation_detail", conversation_id=conversation.pk)
     return render(request, "portal/service_intake.html", {
-        "offering": offering, "locale": _catalog_locale(request), "form": form,
+        "offering": offering, "locale": _catalog_locale(request),
     })
+

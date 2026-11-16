@@ -1,7 +1,8 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
+from django.views.generic import TemplateView
 
-from . import views
+from . import views, workflow_views
 
 urlpatterns = [
     path("", views.home, name="home"),
@@ -38,8 +39,20 @@ urlpatterns = [
     path("dashboard/", views.dashboard, name="dashboard"),
     path("services/start/", views.service_start, name="service_start"),
     path("services/", views.service_catalog, name="service_catalog"),
+    path("services/terms/", TemplateView.as_view(template_name="portal/application_terms.html"), name="application_terms"),
     path("services/api/catalog/", views.catalog_api, name="catalog_api"),
     path("services/<int:offering_id>/intake/", views.service_intake, name="service_intake"),
+    path("services/<int:offering_id>/start/", workflow_views.application_start, name="application_start"),
+    path("services/applications/<int:application_id>/step/<int:step>/", workflow_views.application_step, name="application_step"),
+    path("services/applications/<int:application_id>/autosave/", workflow_views.application_autosave, name="application_autosave"),
+    path("services/applications/<int:application_id>/upload/<int:requirement_id>/", workflow_views.application_upload, name="application_upload"),
+    path("services/applications/<int:application_id>/remove/<int:document_id>/", workflow_views.application_delete_file, name="application_delete_file"),
+    path("services/applications/<int:application_id>/download/<int:document_id>/", workflow_views.application_download, name="application_download"),
+    path("services/applications/<int:application_id>/track/", workflow_views.application_track, name="application_track"),
+    path("services/applications/<int:application_id>/receipt/", workflow_views.application_receipt, name="application_receipt"),
+    path("services/applications/<int:application_id>/checkout/", workflow_views.application_checkout, name="application_checkout"),
+    path("services/payment/webhook/", workflow_views.stripe_webhook, name="stripe_webhook"),
+    path("services/staff/documents/<int:document_id>/download/", workflow_views.staff_document_download, name="staff_document_download"),
     path("profile/", views.profile, name="profile"),
     path("messages/", views.messages_inbox, name="messages_inbox"),
     path("messages/new/", views.conversation_new, name="conversation_new"),

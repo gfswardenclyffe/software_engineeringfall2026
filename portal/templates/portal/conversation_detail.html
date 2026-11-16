@@ -2,8 +2,8 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ conversation.subject }} · Galiel</title>
 <style>
-:root{--dark:#173e39;--border:#e5eae4;--muted:#697872}*{box-sizing:border-box}
-body{margin:0;background:#f6f8f5;color:#1d2d2a;font-family:system-ui,-apple-system,sans-serif}
+:root{--dark:#211c19;--border:#e9dbcf;--muted:#74685f}*{box-sizing:border-box}
+body{margin:0;background:#f6f1ea;color:#211c19;font-family:system-ui,-apple-system,sans-serif}
 main{max-width:850px;margin:5vh auto;padding:20px}h1{font:normal clamp(30px,5vw,44px) Georgia,serif}
 a{color:var(--dark)}.card{background:white;border:1px solid var(--border);border-radius:17px;padding:24px;margin:18px 0}
 .entry{padding:18px 0;border-bottom:1px solid var(--border)}.entry:last-child{border-bottom:0}
@@ -13,7 +13,7 @@ button{background:var(--dark);border:0;border-radius:24px;color:white;padding:12
 .errorlist{color:#a52820}
 </style></head><body><main><a href="{% url 'messages_inbox' %}">← All messages</a>
 <h1>{{ conversation.subject }}</h1>
-<p class="meta">Client: {{ conversation.client.email }}</p>
+<p class="meta">Client: {{ conversation.client.get_full_name|default:conversation.client.email }} · {{ conversation.client.email }}{% if conversation.application %} · Process <a href="{% url 'application_track' conversation.application.pk %}">{{ conversation.application.number }}</a>{% endif %}</p>
 <section class="card" aria-label="Conversation history">
 {% for entry in conversation.entries.all %}
 <div class="entry"><div class="meta"><strong>{% if entry.sender.is_staff %}Wardenclyffe{% else %}{{ entry.sender.get_full_name|default:entry.sender.email }}{% endif %}</strong> · {{ entry.created_at|date:"M j, Y, g:i A" }}</div><p>{{ entry.body }}</p></div>
