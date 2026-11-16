@@ -25,7 +25,7 @@ The tested live site is authoritative; these are code and configuration template
 ## Configuration review gate
 This GitHub settings module uses `load_env()`, `DEBUG=False`, `SECRET_KEY_FALLBACKS=[]`, mandatory `DJANGO_SECRET_KEY`, and an optional `DJANGO_DB_PATH` to support the eventual DB relocation. Currently, the DB path defaults to `BASE_DIR/db.sqlite3`, *inside* the production document root. Moving it is a separate supervised operation.
 
-The loader uses `os.environ.setdefault`, so already-present environment variables have precedence. Confirm this matches the live loader before deploying; a stale inherited secret must not silently override the private file. It does not execute .env as shell script.
+The versioned loader gives the checked private environment file precedence over inherited variables to prevent stale worker values. Compare this with the working live loader before deployment. It does not execute .env as shell script.
 
 ## Must-pass acceptance tests
 1. Compare live settings, FastCGI, and .htaccess to candidates without exposing any secrets. Never replace them wholesale.
