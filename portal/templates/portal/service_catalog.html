@@ -1,42 +1,90 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Services · Galiel</title><style>
+<html lang="{{ locale }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Explore services · Galiel</title>
+<style>
 :root{--paper:#f6f8f5;--ink:#1d2d2a;--green:#173e39;--line:#e5eae4;--muted:#697872;--accent:#b75a32}*{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,sans-serif}a{color:inherit;text-decoration:none}
-.top{padding:20px clamp(16px,4vw,56px);background:white;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px}
-.brand{font-size:29px;font-weight:800;letter-spacing:-.06em}.brand span{color:var(--accent)}
-main{max-width:1120px;margin:0 auto;padding:45px 22px}.eyebrow{color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-size:12px;font-weight:750}
-h1{font:normal clamp(38px,5vw,60px) Georgia,serif;margin:10px 0}h2{font-size:18px;margin:0 0 12px}
-.subtitle,.muted{color:var(--muted);line-height:1.65}
-.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;background:#fff;border:1px solid var(--line);padding:20px;border-radius:18px;margin:30px 0}
+.top{padding:20px clamp(16px,4vw,56px);background:#fff;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px}
+.brand{font-size:29px;font-weight:800;letter-spacing:-.06em}.brand span{color:var(--accent)}main{max-width:1120px;margin:0 auto;padding:45px 22px}
+.eyebrow{color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-size:12px;font-weight:750}
+h1{font:normal clamp(38px,5vw,60px) Georgia,serif;margin:10px 0}.subtitle,.muted{color:var(--muted);line-height:1.65}
+.filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;background:#fff;border:1px solid var(--line);padding:20px;border-radius:18px;margin:30px 0}
 label{display:block;font-size:12px;font-weight:750;margin-bottom:8px}select{width:100%;border:1px solid #cbd4cd;background:#fff;padding:11px;border-radius:10px;font:inherit}
 .btn{background:var(--green);color:white;padding:12px 17px;border:0;border-radius:22px;font-weight:700;cursor:pointer;display:inline-block}
-.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:white;border:1px solid var(--line);padding:25px;border-radius:18px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:#fff;border:1px solid var(--line);padding:25px;border-radius:18px}
 .card h2{font:normal 25px Georgia,serif;line-height:1.25}.meta{display:flex;gap:15px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:20px;padding-top:16px}
 .card .btn{margin-top:20px}.count{font-size:14px;color:var(--muted);margin-bottom:16px}
+#error{border:1px solid #d39898;background:#fff1f1;color:#8c2424;border-radius:12px;padding:15px;margin:15px 0}
 @media(max-width:760px){.filters,.cards{grid-template-columns:1fr}.top{flex-wrap:wrap}}
 </style></head><body>
-<header class="top"><a class="brand" href="{% url 'dashboard' %}">galiel<span>.</span></a><a href="{% url 'dashboard' %}#services">← {% if locale == 'es' %}Mi espacio{% elif locale == 'fr' %}Mon espace{% else %}My workspace{% endif %}</a></header>
-<main><div class="eyebrow">Galiel / {% if locale == 'es' %}Servicios{% elif locale == 'fr' %}Services{% else %}Services{% endif %}</div>
+<header class="top"><a class="brand" href="{% url 'dashboard' %}">galiel<span>.</span></a>
+<a href="{% url 'dashboard' %}#services">← {% if locale == 'es' %}Mi espacio{% elif locale == 'fr' %}Mon espace{% else %}My workspace{% endif %}</a></header>
+<main>
+<div class="eyebrow">Galiel / {% if locale == 'es' %}Servicios{% else %}Services{% endif %}</div>
 <h1>{% if locale == 'es' %}Explorar servicios{% elif locale == 'fr' %}Explorer les services{% else %}Explore services{% endif %}</h1>
-<p class="subtitle">{% if locale == 'es' %}Seleccione un país, región y municipio para encontrar los servicios disponibles.{% elif locale == 'fr' %}Choisissez un pays, une région et une commune pour voir les services disponibles.{% else %}Choose a country, region, and municipality to find available services.{% endif %}</p>
-<form class="filters" method="get">
-<input type="hidden" name="lang" value="{{ locale }}">
-<div><label for="country">{% if locale == 'es' %}País{% elif locale == 'fr' %}Pays{% else %}Country{% endif %}</label><select id="country" name="country"><option value="">{% if locale == 'es' %}Todos{% elif locale == 'fr' %}Tous{% else %}All countries{% endif %}</option>
-{% for country in countries %}<option value="{{ country.code }}" {% if selected_country == country.code %}selected{% endif %}>{% if locale == 'es' %}{{ country.name_es }}{% elif locale == 'fr' %}{{ country.name_fr }}{% else %}{{ country.name_en }}{% endif %}</option>{% endfor %}</select></div>
-<div><label for="region">{% if locale == 'es' %}Estado / Región{% elif locale == 'fr' %}Région{% else %}State / Region{% endif %}</label><select id="region" name="region"><option value="">{% if locale == 'es' %}Todas{% elif locale == 'fr' %}Toutes{% else %}All regions{% endif %}</option>
-{% for region in regions %}<option value="{{ region.pk }}" {% if selected_region == region.pk|stringformat:'s' %}selected{% endif %}>{% if locale == 'es' %}{{ region.name_es }}{% elif locale == 'fr' %}{{ region.name_fr }}{% else %}{{ region.name_en }}{% endif %}</option>{% endfor %}</select></div>
-<div><label for="municipality">{% if locale == 'es' %}Municipio{% elif locale == 'fr' %}Commune{% else %}Municipality{% endif %}</label><select id="municipality" name="municipality"><option value="">{% if locale == 'es' %}Todos{% elif locale == 'fr' %}Toutes{% else %}All municipalities{% endif %}</option>
-{% for municipality in municipalities %}<option value="{{ municipality.pk }}" {% if selected_municipality == municipality.pk|stringformat:'s' %}selected{% endif %}>{% if locale == 'es' %}{{ municipality.name_es }}{% elif locale == 'fr' %}{{ municipality.name_fr }}{% else %}{{ municipality.name_en }}{% endif %}</option>{% endfor %}</select></div>
-<div><label>&nbsp;</label><button class="btn" type="submit">{% if locale == 'es' %}Buscar{% elif locale == 'fr' %}Rechercher{% else %}Search{% endif %}</button></div>
-</form>
-<div class="count">{{ offerings|length }} {% if locale == 'es' %}servicios disponibles{% elif locale == 'fr' %}services disponibles{% else %}available services{% endif %}</div>
-<div class="cards">{% for offering in offerings %}
-<article class="card"><div class="eyebrow">{% if locale == 'es' %}{{ offering.country.name_es }}{% elif locale == 'fr' %}{{ offering.country.name_fr }}{% else %}{{ offering.country.name_en }}{% endif %}</div>
-<h2>{% if locale == 'es' %}{{ offering.service.title_es }}{% elif locale == 'fr' %}{{ offering.service.title_fr }}{% else %}{{ offering.service.title_en }}{% endif %}</h2>
-<p class="muted">{% if offering.municipality %}{% if locale == 'es' %}{{ offering.municipality.name_es }}{% elif locale == 'fr' %}{{ offering.municipality.name_fr }}{% else %}{{ offering.municipality.name_en }}{% endif %}{% elif offering.region %}{% if locale == 'es' %}{{ offering.region.name_es }}{% elif locale == 'fr' %}{{ offering.region.name_fr }}{% else %}{{ offering.region.name_en }}{% endif %}{% endif %}</p>
-<div class="meta"><div><strong>{% if offering.price_type == 'quote' %}{% if locale == 'es' %}Cotización requerida{% elif locale == 'fr' %}Devis requis{% else %}Quote required{% endif %}{% else %}{% if offering.price_type == 'starting' %}{% if locale == 'es' %}Desde{% elif locale == 'fr' %}À partir de{% else %}From{% endif %} {% endif %}{{ offering.currency }} {{ offering.price }}{% endif %}</strong></div>
-<div class="muted">{% if offering.estimated_min_business_days != None and offering.estimated_max_business_days != None %}{{ offering.estimated_min_business_days }}–{{ offering.estimated_max_business_days }} {% if locale == 'es' %}días hábiles estimados{% elif locale == 'fr' %}jours ouvrés estimés{% else %}estimated business days{% endif %}{% else %}{% if locale == 'es' %}Plazo por confirmar{% elif locale == 'fr' %}Délai à confirmer{% else %}Timeline to be confirmed{% endif %}{% endif %}</div></div>
-<a class="btn" href="{% url 'messages_inbox' %}?offering={{ offering.pk }}">{% if locale == 'es' %}Consultar este servicio{% elif locale == 'fr' %}Demander des informations{% else %}Ask about this service{% endif %} →</a>
-</article>{% empty %}<article class="card"><h2>{% if locale == 'es' %}Aún no hay servicios publicados{% elif locale == 'fr' %}Aucun service publié{% else %}No services published yet{% endif %}</h2><p class="muted">{% if locale == 'es' %}El catálogo se está preparando. Puede escribir al equipo desde Mensajes.{% elif locale == 'fr' %}Le catalogue est en préparation. Vous pouvez contacter l'équipe par Messages.{% else %}Our catalog is being prepared. You can still contact the team through Messages.{% endif %}</p></article>{% endfor %}</div>
-</main></body></html>
+<p class="subtitle">{% if locale == 'es' %}Seleccione el país, estado y municipio. Los servicios y sus precios se actualizan automáticamente.{% elif locale == 'fr' %}Sélectionnez un pays, une région et une commune. Les services se mettent à jour automatiquement.{% else %}Choose a country, state or region, and municipality. Services and prices update automatically.{% endif %}</p>
+<div class="filters" aria-label="Location filters">
+<div><label for="country">{% if locale == 'es' %}País{% elif locale == 'fr' %}Pays{% else %}Country{% endif %}</label><select id="country"><option value="">{% if locale == 'es' %}Todos los países{% elif locale == 'fr' %}Tous les pays{% else %}All countries{% endif %}</option>
+{% for country in countries %}<option value="{{ country.code }}">{% if locale == 'es' %}{{ country.name_es }}{% elif locale == 'fr' %}{{ country.name_fr }}{% else %}{{ country.name_en }}{% endif %}</option>{% endfor %}</select></div>
+<div><label for="region">{% if locale == 'es' %}Estado / Región{% elif locale == 'fr' %}Région{% else %}State / Region{% endif %}</label>
+<select id="region" disabled><option value="">{% if locale == 'es' %}Todas las regiones{% elif locale == 'fr' %}Toutes les régions{% else %}All regions{% endif %}</option></select></div>
+<div><label for="municipality">{% if locale == 'es' %}Municipio{% elif locale == 'fr' %}Commune{% else %}Municipality{% endif %}</label>
+<select id="municipality" disabled><option value="">{% if locale == 'es' %}Todos los municipios{% elif locale == 'fr' %}Toutes les communes{% else %}All municipalities{% endif %}</option></select></div>
+</div>
+<div id="loading" role="status">{% if locale == 'es' %}Cargando servicios…{% elif locale == 'fr' %}Chargement des services…{% else %}Loading services…{% endif %}</div>
+<div id="error" role="alert" hidden></div>
+<p class="count" id="count" aria-live="polite"></p>
+<div class="cards" id="cards" aria-live="polite"></div>
+</main>
+<script>
+(()=> {
+const language="{{ locale|escapejs }}";
+const api="{% url 'catalog_api' %}";
+const country=document.getElementById("country"),region=document.getElementById("region"),municipality=document.getElementById("municipality");
+const cards=document.getElementById("cards"),count=document.getElementById("count"),loading=document.getElementById("loading"),error=document.getElementById("error");
+const words={
+en:{regions:"All regions",municipalities:"All municipalities",quote:"Quote required",from:"From",unknown:"Timeline to be confirmed",days:"estimated business days",start:"Start service",empty:"No services published for this location.",failed:"Unable to load services. Please retry.",available:"available services"},
+es:{regions:"Todas las regiones",municipalities:"Todos los municipios",quote:"Cotización requerida",from:"Desde",unknown:"Plazo por confirmar",days:"días hábiles estimados",start:"Iniciar trámite",empty:"No hay servicios publicados para esta ubicación.",failed:"No se pudieron cargar los servicios. Intente nuevamente.",available:"servicios disponibles"},
+fr:{regions:"Toutes les régions",municipalities:"Toutes les communes",quote:"Devis requis",from:"À partir de",unknown:"Délai à confirmer",days:"jours ouvrés estimés",start:"Démarrer la démarche",empty:"Aucun service publié pour ce lieu.",failed:"Impossible de charger les services. Réessayez.",available:"services disponibles"}
+};
+const w=words[language]||words.en;let generation=0;
+function el(tag,cls,text){const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
+function options(select,items,all){select.replaceChildren(new Option(all,""));items.forEach(item=>select.add(new Option(item.name,item.id)));select.disabled=items.length===0;}
+function render(items){
+cards.replaceChildren();count.textContent=items.length+" "+w.available;
+if(!items.length){const card=el("article","card");card.append(el("h2","",w.empty));cards.append(card);return;}
+items.forEach(item=>{
+const card=el("article","card"),location=el("div","eyebrow",item.location),title=el("h2","",item.service),meta=el("div","meta");
+let price=item.price_type==="quote"||!item.price?w.quote:(item.price_type==="starting"?w.from+" ":"")+item.currency+" "+item.price;
+meta.append(el("strong","",price));
+let duration=(item.estimated_min_business_days!==null&&item.estimated_max_business_days!==null)
+?item.estimated_min_business_days+"–"+item.estimated_max_business_days+" "+w.days:w.unknown;
+meta.append(el("div","muted",duration));
+const link=el("a","btn",w.start+" →");link.href=item.start_url;
+card.append(location,title,meta,link);cards.append(card);
+});}
+async function refresh(changed){
+const version=++generation;loading.hidden=false;error.hidden=true;count.textContent="";cards.replaceChildren();
+if(changed==="country"){options(region,[],w.regions);options(municipality,[],w.municipalities);}
+if(changed==="region"){options(municipality,[],w.municipalities);}
+const params=new URLSearchParams({lang:language});
+if(country.value)params.set("country",country.value);
+if(region.value)params.set("region",region.value);
+if(municipality.value)params.set("municipality",municipality.value);
+try{
+const response=await fetch(api+"?"+params.toString(),{credentials:"same-origin",headers:{"Accept":"application/json"}});
+if(!response.ok)throw new Error("HTTP "+response.status);
+const data=await response.json();if(version!==generation)return;
+if(changed==="country"||changed==="initial"){const value=region.value;options(region,data.regions,w.regions);if(value&&data.regions.some(x=>String(x.id)===value))region.value=value;}
+if(changed==="region"||changed==="country"||changed==="initial"){const value=municipality.value;options(municipality,data.municipalities,w.municipalities);if(value&&data.municipalities.some(x=>String(x.id)===value))municipality.value=value;}
+render(data.offerings);
+const historyParams=new URLSearchParams(params);history.replaceState(null,"",location.pathname+"?"+historyParams.toString());
+}catch(e){if(version!==generation)return;error.textContent=w.failed+" ("+e.message+")";error.hidden=false;}
+finally{if(version===generation)loading.hidden=true;}
+}
+country.addEventListener("change",()=>refresh("country"));region.addEventListener("change",()=>refresh("region"));municipality.addEventListener("change",()=>refresh("municipality"));
+const initial=new URLSearchParams(location.search);country.value=initial.get("country")||"";
+refresh("initial").then(async()=>{const wantedRegion=initial.get("region"),wantedMunicipality=initial.get("municipality");
+if(wantedRegion&&[...region.options].some(o=>o.value===wantedRegion)){region.value=wantedRegion;await refresh("region");if(wantedMunicipality&&[...municipality.options].some(o=>o.value===wantedMunicipality)){municipality.value=wantedMunicipality;await refresh("municipality");}}});
+})();
+</script></body></html>

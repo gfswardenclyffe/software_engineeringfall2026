@@ -1,8 +1,9 @@
 from django.contrib import messages
+from django import forms
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
-from django.http import FileResponse, Http404, HttpResponseForbidden
+from django.http import FileResponse, Http404, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_str
@@ -94,6 +95,10 @@ class ServiceAwareLoginView(LoginView):
         return context
 
     def get_success_url(self):
+        # Respect Django's validated ?next= parameter after login.
+        safe_next = self.get_redirect_url()
+        if safe_next:
+            return safe_next
         code = self.request.session.get("pending_service", "")
         if code:
             return reverse("service_start")
@@ -101,7 +106,19 @@ class ServiceAwareLoginView(LoginView):
 
 
 def home(request):
-    return render(request, "portal/home.html")
+    published = ServiceOffering.objects.filter(is_published=True)
+    regions = list(CatalogRegion.objects.filter(
+        country_id="MX", offerings__is_published=True,
+    ).distinct().order_by("name_en"))
+    for region in regions:
+        region.service_cards = list(
+            published.filter(region=region).select_related("service", "municipality")
+        )
+    return render(request, "portal/home.html", {
+        "homepage_regions": regions,
+        "homepage_us_offerings": published.filter(country_id="US").select_related("service", "region"),
+        "homepage_fr_offerings": published.filter(country_id="FR").select_related("service"),
+    })
 
 
 def wordmark(request):
@@ -248,6 +265,12 @@ def service_start(request):
     if not code:
         return redirect("dashboard")
 
+    offering = ServiceOffering.objects.filter(
+        service__slug=code, is_published=True,
+    ).first()
+    if offering:
+        request.session.pop("pending_service", None)
+        return redirect("service_intake", offering_id=offering.pk)
     label = SERVICE_LABELS.get(code, code.replace("-", " ").title())
     return render(
         request,
@@ -390,4 +413,108 @@ def service_catalog(request):
         "selected_region": str(selected_region),
         "selected_municipality": str(selected_municipality),
         "offerings": list(offerings),
+    })
+
+
+def _catalog_locale(request):
+    lang = request.GET.get("lang", "")
+    if lang not in ("en", "es", "fr") and request.user.is_authenticated:
+        lang = getattr(getattr(request.user, "profile", None), "preferred_language", "en")
+    return lang if lang in ("en", "es", "fr") else "en"
+
+
+def _localized(record, stem, locale):
+    return getattr(record, stem + "_" + locale)
+
+
+def _published_offerings(request):
+    """Shared filter semantics for HTML and JSON. Empty filters mean 'all'."""
+    qs = ServiceOffering.objects.filter(is_published=True).select_related(
+        "country", "region", "municipality", "service",
+    )
+    country = request.GET.get("country", "").upper()
+    region = request.GET.get("region", "")
+    municipality = request.GET.get("municipality", "")
+    if country:
+        qs = qs.filter(country_id=country)
+    if region:
+        if not region.isdecimal():
+            return qs.none()
+        qs = qs.filter(region_id=region)
+    if municipality:
+        if not municipality.isdecimal():
+            return qs.none()
+        qs = qs.filter(municipality_id=municipality)
+    return qs
+
+
+def catalog_api(request):
+    """Read-only JSON for the homepage and authenticated service catalog."""
+    if request.method != "GET":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+    locale = _catalog_locale(request)
+    country = request.GET.get("country", "").upper()
+    region = request.GET.get("region", "")
+    if len(country) > 2 or (region and not region.isdecimal()):
+        return JsonResponse({"error": "Invalid location filter"}, status=400)
+
+    regions = CatalogRegion.objects.filter(country_id=country).order_by("name_en") if country else CatalogRegion.objects.none()
+    municipalities = CatalogMunicipality.objects.filter(region_id=region).order_by("name_en") if region else CatalogMunicipality.objects.none()
+    offerings = []
+    for item in _published_offerings(request):
+        place = item.municipality or item.region or item.country
+        offerings.append({
+            "id": item.pk,
+            "service": _localized(item.service, "title", locale),
+            "code": item.service.slug,
+            "country": item.country_id,
+            "location": _localized(place, "name", locale),
+            "price_type": item.price_type,
+            "price": str(item.price) if item.price is not None else None,
+            "currency": item.currency,
+            "estimated_min_business_days": item.estimated_min_business_days,
+            "estimated_max_business_days": item.estimated_max_business_days,
+            "start_url": reverse("service_intake", args=[item.pk]),
+        })
+    return JsonResponse({
+        "regions": [{"id": r.pk, "name": _localized(r, "name", locale)} for r in regions],
+        "municipalities": [{"id": m.pk, "name": _localized(m, "name", locale)} for m in municipalities],
+        "offerings": offerings,
+    })
+
+
+@never_cache
+@login_required
+def service_intake(request, offering_id):
+    """Safely open the selected offering's intake introduction."""
+    offering = get_object_or_404(
+        ServiceOffering.objects.select_related("country", "region", "municipality", "service")
+        .prefetch_related("requirements"), pk=offering_id, is_published=True,
+    )
+    class IntakeForm(forms.Form):
+        details = forms.CharField(max_length=5000, strip=True, label="Describe what you need",
+                                  widget=forms.Textarea(attrs={"rows": 6}))
+    for requirement in offering.requirements.filter(kind="question"):
+        IntakeForm.base_fields["requirement_" + str(requirement.pk)] = forms.CharField(
+            label=requirement.label_en, max_length=1000, required=requirement.is_required,
+        )
+    form = IntakeForm(request.POST or None)
+    if request.method == "POST" and not request.user.is_staff and form.is_valid():
+        place = offering.municipality or offering.region or offering.country
+        with transaction.atomic():
+            conversation = ClientConversation.objects.create(
+                client=request.user,
+                subject=f"Inquiry: {offering.service.title_en} — {place}"[:160],
+            )
+            answer_lines = [form.cleaned_data["details"]]
+            for requirement in offering.requirements.filter(kind="question"):
+                answer = form.cleaned_data.get("requirement_" + str(requirement.pk), "")
+                if answer:
+                    answer_lines.append(f"{requirement.label_en}: {answer}")
+            ClientMessage.objects.create(conversation=conversation, sender=request.user,
+                                         body="\\n\\n".join(answer_lines))
+        messages.success(request, "Your service inquiry has been saved. The team can reply here.")
+        return redirect("conversation_detail", conversation_id=conversation.pk)
+    return render(request, "portal/service_intake.html", {
+        "offering": offering, "locale": _catalog_locale(request), "form": form,
     })
