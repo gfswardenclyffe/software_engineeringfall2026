@@ -52,7 +52,7 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 <main>
 {% if messages %}{% for message in messages %}<div role="status" style="background:#e7f3ea;padding:14px 18px;border-radius:12px;margin-bottom:20px">{{ message }}</div>{% endfor %}{% endif %}
 <section id="overview" class="page active"><div class="eyebrow">Galiel / Client workspace</div><h1>Welcome, {{ user.first_name|default:"there" }}.</h1><p class="subtitle">Your private place to manage services with Wardenclyffe.</p>
-<div class="stats"><div class="stat"><strong>{{ active_count }}</strong><span>Active processes</span></div><div class="stat"><strong>{{ client_documents|length }}</strong><span>Documents</span></div><div class="stat"><strong>0</strong><span>Open invoices</span></div></div>
+<div class="stats"><div class="stat"><strong>{{ active_count }}</strong><span>Active processes</span></div><div class="stat"><strong>{{ document_count }}</strong><span>Documents</span></div><div class="stat"><strong>{{ payment_count }}</strong><span>Payments</span></div></div>
 <div class="grid"><article class="card"><h2>Your processes</h2>
 {% for app in applications|slice:":4" %}
 <p style="padding:13px 0;border-bottom:1px solid var(--line)">
