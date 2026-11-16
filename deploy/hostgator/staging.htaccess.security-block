@@ -1,0 +1,14 @@
+# ADD to the staging document root's .htaccess.
+# /home2/gfrancossh/galiel-staging-web
+# Create the docroot with 03_prepare_staging before adding the cPanel subdomain.
+Options -Indexes
+<FilesMatch "(?i)^(?:.*\\.(?:sqlite3?|db|py|pyc|env|bak|log)|\\.env(?:\\..*)?|\\.gitignore)$">
+    Require all denied
+</FilesMatch>
+RewriteEngine On
+RewriteRule "(^|/)(?:\\.git|migrations)(?:/|$)" - [F,L,NC]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=302,L]
+RequestHeader unset X-Forwarded-Proto
+RequestHeader set X-Forwarded-Proto "https" "expr=%{HTTPS} == 'on'"
+# Keep the subdomain password-protected until the visual preview is approved.
