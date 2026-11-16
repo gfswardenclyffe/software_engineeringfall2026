@@ -180,3 +180,38 @@ class AccountLifecycleTests(TestCase):
         for url in ("login", "register", "password_reset"):
             response = self.client.get(reverse(url))
             self.assertContains(response, 'name="viewport"')
+
+
+class LogoutCsrfTests(TestCase):
+    """Authenticated pages should issue fresh CSRF tokens and never be cached."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="logout-test@example.com",
+            email="logout-test@example.com",
+            password="StrongPassword123!",
+        )
+        from django.test import Client
+        self.csrf_client = Client(enforce_csrf_checks=True)
+
+    def test_dashboard_is_not_cached_and_logout_post_succeeds(self):
+        self.csrf_client.force_login(self.user)
+        page = self.csrf_client.get(reverse("dashboard"))
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("no-store", page["Cache-Control"])
+        self.assertIn("csrftoken", self.csrf_client.cookies)
+        import re
+        match = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', page.content.decode())
+        self.assertIsNotNone(match)
+        result = self.csrf_client.post(
+            reverse("logout"), {"csrfmiddlewaretoken": match.group(1)},
+            HTTP_REFERER="https://galiel.wardenclyffefirm.com/dashboard/",
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn("_auth_user_id", self.csrf_client.session)
+
+    def test_profile_not_cached(self):
+        self.csrf_client.force_login(self.user)
+        page = self.csrf_client.get(reverse("profile"))
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("no-store", page["Cache-Control"])
