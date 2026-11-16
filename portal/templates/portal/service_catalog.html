@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Services · Galiel</title><style>
+:root{--paper:#f6f8f5;--ink:#1d2d2a;--green:#173e39;--line:#e5eae4;--muted:#697872;--accent:#b75a32}*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,sans-serif}a{color:inherit;text-decoration:none}
+.top{padding:20px clamp(16px,4vw,56px);background:white;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px}
+.brand{font-size:29px;font-weight:800;letter-spacing:-.06em}.brand span{color:var(--accent)}
+main{max-width:1120px;margin:0 auto;padding:45px 22px}.eyebrow{color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-size:12px;font-weight:750}
+h1{font:normal clamp(38px,5vw,60px) Georgia,serif;margin:10px 0}h2{font-size:18px;margin:0 0 12px}
+.subtitle,.muted{color:var(--muted);line-height:1.65}
+.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;background:#fff;border:1px solid var(--line);padding:20px;border-radius:18px;margin:30px 0}
+label{display:block;font-size:12px;font-weight:750;margin-bottom:8px}select{width:100%;border:1px solid #cbd4cd;background:#fff;padding:11px;border-radius:10px;font:inherit}
+.btn{background:var(--green);color:white;padding:12px 17px;border:0;border-radius:22px;font-weight:700;cursor:pointer;display:inline-block}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:white;border:1px solid var(--line);padding:25px;border-radius:18px}
+.card h2{font:normal 25px Georgia,serif;line-height:1.25}.meta{display:flex;gap:15px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:20px;padding-top:16px}
+.card .btn{margin-top:20px}.count{font-size:14px;color:var(--muted);margin-bottom:16px}
+@media(max-width:760px){.filters,.cards{grid-template-columns:1fr}.top{flex-wrap:wrap}}
+</style></head><body>
+<header class="top"><a class="brand" href="{% url 'dashboard' %}">galiel<span>.</span></a><a href="{% url 'dashboard' %}#services">← {% if locale == 'es' %}Mi espacio{% elif locale == 'fr' %}Mon espace{% else %}My workspace{% endif %}</a></header>
+<main><div class="eyebrow">Galiel / {% if locale == 'es' %}Servicios{% elif locale == 'fr' %}Services{% else %}Services{% endif %}</div>
+<h1>{% if locale == 'es' %}Explorar servicios{% elif locale == 'fr' %}Explorer les services{% else %}Explore services{% endif %}</h1>
+<p class="subtitle">{% if locale == 'es' %}Seleccione un país, región y municipio para encontrar los servicios disponibles.{% elif locale == 'fr' %}Choisissez un pays, une région et une commune pour voir les services disponibles.{% else %}Choose a country, region, and municipality to find available services.{% endif %}</p>
+<form class="filters" method="get">
+<input type="hidden" name="lang" value="{{ locale }}">
+<div><label for="country">{% if locale == 'es' %}País{% elif locale == 'fr' %}Pays{% else %}Country{% endif %}</label><select id="country" name="country"><option value="">{% if locale == 'es' %}Todos{% elif locale == 'fr' %}Tous{% else %}All countries{% endif %}</option>
+{% for country in countries %}<option value="{{ country.code }}" {% if selected_country == country.code %}selected{% endif %}>{% if locale == 'es' %}{{ country.name_es }}{% elif locale == 'fr' %}{{ country.name_fr }}{% else %}{{ country.name_en }}{% endif %}</option>{% endfor %}</select></div>
+<div><label for="region">{% if locale == 'es' %}Estado / Región{% elif locale == 'fr' %}Région{% else %}State / Region{% endif %}</label><select id="region" name="region"><option value="">{% if locale == 'es' %}Todas{% elif locale == 'fr' %}Toutes{% else %}All regions{% endif %}</option>
+{% for region in regions %}<option value="{{ region.pk }}" {% if selected_region == region.pk|stringformat:'s' %}selected{% endif %}>{% if locale == 'es' %}{{ region.name_es }}{% elif locale == 'fr' %}{{ region.name_fr }}{% else %}{{ region.name_en }}{% endif %}</option>{% endfor %}</select></div>
+<div><label for="municipality">{% if locale == 'es' %}Municipio{% elif locale == 'fr' %}Commune{% else %}Municipality{% endif %}</label><select id="municipality" name="municipality"><option value="">{% if locale == 'es' %}Todos{% elif locale == 'fr' %}Toutes{% else %}All municipalities{% endif %}</option>
+{% for municipality in municipalities %}<option value="{{ municipality.pk }}" {% if selected_municipality == municipality.pk|stringformat:'s' %}selected{% endif %}>{% if locale == 'es' %}{{ municipality.name_es }}{% elif locale == 'fr' %}{{ municipality.name_fr }}{% else %}{{ municipality.name_en }}{% endif %}</option>{% endfor %}</select></div>
+<div><label>&nbsp;</label><button class="btn" type="submit">{% if locale == 'es' %}Buscar{% elif locale == 'fr' %}Rechercher{% else %}Search{% endif %}</button></div>
+</form>
+<div class="count">{{ offerings|length }} {% if locale == 'es' %}servicios disponibles{% elif locale == 'fr' %}services disponibles{% else %}available services{% endif %}</div>
+<div class="cards">{% for offering in offerings %}
+<article class="card"><div class="eyebrow">{% if locale == 'es' %}{{ offering.country.name_es }}{% elif locale == 'fr' %}{{ offering.country.name_fr }}{% else %}{{ offering.country.name_en }}{% endif %}</div>
+<h2>{% if locale == 'es' %}{{ offering.service.title_es }}{% elif locale == 'fr' %}{{ offering.service.title_fr }}{% else %}{{ offering.service.title_en }}{% endif %}</h2>
+<p class="muted">{% if offering.municipality %}{% if locale == 'es' %}{{ offering.municipality.name_es }}{% elif locale == 'fr' %}{{ offering.municipality.name_fr }}{% else %}{{ offering.municipality.name_en }}{% endif %}{% elif offering.region %}{% if locale == 'es' %}{{ offering.region.name_es }}{% elif locale == 'fr' %}{{ offering.region.name_fr }}{% else %}{{ offering.region.name_en }}{% endif %}{% endif %}</p>
+<div class="meta"><div><strong>{% if offering.price_type == 'quote' %}{% if locale == 'es' %}Cotización requerida{% elif locale == 'fr' %}Devis requis{% else %}Quote required{% endif %}{% else %}{% if offering.price_type == 'starting' %}{% if locale == 'es' %}Desde{% elif locale == 'fr' %}À partir de{% else %}From{% endif %} {% endif %}{{ offering.currency }} {{ offering.price }}{% endif %}</strong></div>
+<div class="muted">{% if offering.estimated_min_business_days != None and offering.estimated_max_business_days != None %}{{ offering.estimated_min_business_days }}–{{ offering.estimated_max_business_days }} {% if locale == 'es' %}días hábiles estimados{% elif locale == 'fr' %}jours ouvrés estimés{% else %}estimated business days{% endif %}{% else %}{% if locale == 'es' %}Plazo por confirmar{% elif locale == 'fr' %}Délai à confirmer{% else %}Timeline to be confirmed{% endif %}{% endif %}</div></div>
+<a class="btn" href="{% url 'messages_inbox' %}?offering={{ offering.pk }}">{% if locale == 'es' %}Consultar este servicio{% elif locale == 'fr' %}Demander des informations{% else %}Ask about this service{% endif %} →</a>
+</article>{% empty %}<article class="card"><h2>{% if locale == 'es' %}Aún no hay servicios publicados{% elif locale == 'fr' %}Aucun service publié{% else %}No services published yet{% endif %}</h2><p class="muted">{% if locale == 'es' %}El catálogo se está preparando. Puede escribir al equipo desde Mensajes.{% elif locale == 'fr' %}Le catalogue est en préparation. Vous pouvez contacter l'équipe par Messages.{% else %}Our catalog is being prepared. You can still contact the team through Messages.{% endif %}</p></article>{% endfor %}</div>
+</main></body></html>
