@@ -37,6 +37,8 @@ The new files to copy are:
 - `portal/templates/portal/application_step.html`
 - `portal/templates/portal/application_track.html`
 - `portal/templates/portal/application_receipt.html`
+- `portal/templates/portal/application_terms.html`
+- `portal/templates/portal/application_payment_pending.html`
 - `portal/templates/portal/dashboard.html`
 - `portal/templates/portal/messages.html`
 - `portal/templates/portal/conversation_detail.html`
