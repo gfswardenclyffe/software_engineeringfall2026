@@ -835,7 +835,7 @@ dd {
 
       <div class="general" id="general">
         <p><strong><span data-i18n="notListed">Do not see your process?</span></strong> <span data-i18n="notListedCopy"><span data-i18n="send">Send</span> a general inquiry. If Galiel does not currently handle it, we will tell you clearly and, when appropriate, refer you to another professional or resource.</span></p>
-        <a href="mailto:info@wardenclyffefirm.com?subject=Galiel%20General%20Inquiry"><span data-i18n="generalInquiry">General inquiry</span> →</a>
+        <a href="#contact"><span data-i18n="generalInquiry">General inquiry</span> →</a>
       </div>
     </div>
   </section>
@@ -883,7 +883,7 @@ dd {
           <input type="hidden" name="language" id="galiel-contact-language" value="en">
           <h3 class="form-title" data-i18n="contactFormTitle">Send us a message</h3>
           <div class="anti-spam-field" aria-hidden="true"><label for="contact-website">Website</label><input id="contact-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
-          <div id="galiel-contact-feedback" class="form-feedback" role="status" aria-live="polite"></div>
+          <div id="galiel-contact-feedback" class="form-feedback" role="status" tabindex="-1" aria-live="polite"></div>
           <div class="form-row">
             <div class="form-field"><label class="field-label" for="contact-name" data-i18n="contactFullName">Full name *</label>
               <input id="contact-name" name="full_name" type="text" autocomplete="name" maxlength="180" value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.email }}{% endif %}" required aria-describedby="contact-name-error">
@@ -896,7 +896,7 @@ dd {
             <div class="form-field"><label class="field-label" for="contact-phone" data-i18n="contactPhone">Phone (optional)</label>
               <div class="phone-row"><select id="contact-phone-code" name="phone_code" aria-label="Country calling code">
                 <option value="+52" selected>+52 MX</option><option value="+1">+1 US</option><option value="+33">+33 FR</option></select>
-                <input id="contact-phone" name="phone" type="tel" maxlength="32" autocomplete="tel-national" value="{% if user.is_authenticated %}{{ user.profile.phone|default:'' }}{% endif %}" aria-describedby="contact-phone-error"></div>
+                <input id="contact-phone" name="phone" type="tel" maxlength="32" autocomplete="tel-national" value="" aria-describedby="contact-phone-error"></div>
               <div class="form-error" id="contact-phone-error" data-error-for="phone" aria-live="polite"></div></div>
             <div class="form-field"><label class="field-label" for="contact-country" data-i18n="contactCountry">Country *</label>
               <select id="contact-country" name="country" required aria-describedby="contact-country-error">
