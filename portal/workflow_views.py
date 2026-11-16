@@ -142,16 +142,15 @@ def _notify_client(app, subject, summary):
         settings.DEFAULT_FROM_EMAIL, [app.client.email],
     )
     html = (
-        '<div style="background:#f6f1ea;padding:32px;font:15px Arial,sans-serif;color:#211c19">'
+        '<div style="background:#F2F1EC;padding:32px;font:15px Arial,sans-serif;color:#211c19">'
         '<div style="max-width:600px;margin:auto;background:#fffdf9;border:1px solid #e9dbcf;padding:30px">'
-        '<h1 style="font:italic 32px Georgia,serif;margin:0">Galiel'
-        '<small style="font:13px Arial,sans-serif"> by Wardenclyffe</small></h1>'
+        '<div style="display:flex;align-items:center;gap:12px"><img src="https://galiel.wardenclyffefirm.com/static/portal/galiel-signature.svg" width="96" height="60" alt="Galiel" style="display:inline-block"><span style="font:700 11px Arial,sans-serif;letter-spacing:2px;color:#161616">by WARDENCLYFFE</span></div>'
         '<p style="font-size:20px;margin-top:28px">' + escape(subject) + '</p>'
         '<p>Hello ' + escape(_full_name(app.client)) + ',</p>'
         '<p>' + escape(summary) + '</p>'
         '<p><strong>' + escape(app.number) + '</strong> · ' + escape(app.service_title) + '</p>'
         '<p>Estimated delivery: ' + escape(str(app.estimated_delivery or "To be confirmed")) + '</p>'
-        '<a style="display:inline-block;border-radius:24px;background:#e96c3c;color:#211c19;padding:13px 20px;text-decoration:none;font-weight:bold" href="' + escape(track) + '">Track my process</a>'
+        '<a style="display:inline-block;border-radius:2px;background:#D9714A;color:#211c19;padding:13px 20px;text-decoration:none;font-weight:bold" href="' + escape(track) + '">Track my process</a>'
         + (('<p><a href="https://galiel.wardenclyffefirm.com' + reverse("application_receipt", args=[app.pk]) + '">View your Galiel payment record</a></p>') if app.payment_confirmed_at else '')
         + (('<p><a href="' + escape(app.stripe_receipt_url) + '">View Stripe card receipt</a></p>') if app.stripe_receipt_url else '')
         + '<p style="font-size:12px;color:#786c62;margin-top:26px">Government processing and agency approval are not guaranteed. Tax invoices are issued separately when applicable.</p>'
