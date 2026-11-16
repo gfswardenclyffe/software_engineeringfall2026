@@ -276,6 +276,10 @@ class ApplicationDocument(models.Model):
     content_type = models.CharField(max_length=40)
     size = models.PositiveIntegerField()
     is_deliverable = models.BooleanField(default=False)
+    is_invoice = models.BooleanField(default=False, help_text="Staff-uploaded tax invoice, if applicable.")
+    REVIEW_CHOICES = [("pending", "Pending review"), ("approved", "Approved"), ("rejected", "Needs replacement")]
+    review_status = models.CharField(max_length=10, choices=REVIEW_CHOICES, default="pending")
+    staff_note = models.CharField(max_length=300, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
