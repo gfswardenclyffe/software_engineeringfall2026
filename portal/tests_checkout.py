@@ -215,3 +215,51 @@ class CheckoutFlowTests(TestCase):
         app = self.start()
         self.assertEqual(self.client.get(reverse("application_step", args=[app.pk, 6])).status_code, 302)
         self.assertContains(self.client.get(reverse("application_track", args=[app.pk])), "Draft")
+
+    def test_quote_locks_answers_but_allows_payment_step(self):
+        self.offering.price_type = "quote"
+        self.offering.price = None
+        self.offering.save(update_fields=["price_type", "price"])
+        app = self.start()
+        self.complete_to_review(app)
+        self.client.post(reverse("application_step", args=[app.pk, 5]), {"action": "quote"})
+        app.refresh_from_db()
+        original = dict(app.answers)
+        app.status = "quoted"
+        app.quoted_amount = Decimal("450.00")
+        app.save(update_fields=["status", "quoted_amount"])
+        post = self.client.post(reverse("application_step", args=[app.pk, 2]), {
+            "answer_" + str(self.question.pk): "Tampered company",
+        })
+        self.assertRedirects(post, reverse("application_track", args=[app.pk]))
+        app.refresh_from_db()
+        self.assertEqual(app.answers, original)
+        self.assertContains(self.client.get(reverse("application_step", args=[app.pk, 5])), "450.00")
+
+    def test_receipts_only_after_verified_payment_and_are_private(self):
+        app = self.start()
+        self.assertEqual(self.client.get(reverse("application_receipt", args=[app.pk])).status_code, 404)
+        self.complete_to_review(app)
+        app.stripe_checkout_session = "cs_receipt_verified"
+        app.save(update_fields=["stripe_checkout_session"])
+        with self.captureOnCommitCallbacks(execute=True):
+            _confirm_paid(app, {"id": "cs_receipt_verified", "client_reference_id": str(app.pk),
+                "payment_status": "paid", "amount_total": 23200, "currency": "mxn",
+                "payment_intent": "pi_test_receipt"})
+        receipt = self.client.get(reverse("application_receipt", args=[app.pk]))
+        self.assertContains(receipt, "Payment confirmation")
+        self.assertContains(receipt, "232.00")
+        self.client.force_login(self.other)
+        self.assertEqual(self.client.get(reverse("application_receipt", args=[app.pk])).status_code, 404)
+
+    def test_stripe_redirect_without_webhook_is_pending_not_paid(self):
+        app = self.start()
+        self.complete_to_review(app)
+        app.stripe_checkout_session = "cs_pending"
+        app.save(update_fields=["stripe_checkout_session"])
+        response = self.client.get(reverse("application_step", args=[app.pk, 6]), {
+            "session_id": "cs_pending",
+        })
+        self.assertContains(response, "Payment verification in progress")
+        app.refresh_from_db()
+        self.assertEqual(app.status, "draft")
