@@ -2,6 +2,8 @@ from django.contrib import admin
 from django import forms
 from django.db import transaction
 from django.core.exceptions import ValidationError
+from django.urls import reverse
+from django.utils.html import format_html
 import logging
 
 logger = logging.getLogger(__name__)
@@ -153,8 +155,15 @@ class ApplicationDocumentInline(admin.TabularInline):
     model = ApplicationDocument
     form = ApplicationDocumentAdminForm
     extra = 0
-    fields = ("requirement", "file", "original_filename", "content_type", "size", "review_status", "staff_note", "is_deliverable", "is_invoice")
-    readonly_fields = ("original_filename", "content_type", "size")
+    fields = ("requirement", "file", "staff_preview", "original_filename", "review_status", "staff_note", "is_deliverable", "is_invoice")
+    readonly_fields = ("staff_preview", "original_filename")
+
+    @admin.display(description="Private file")
+    def staff_preview(self, obj):
+        if obj and obj.pk:
+            return format_html('<a href="{}" target="_blank" rel="noopener">Preview file</a>',
+                reverse("staff_document_download", args=[obj.pk]))
+        return "—"
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("requirement")
@@ -219,6 +228,12 @@ class ApplicationDocumentAdmin(admin.ModelAdmin):
     form = ApplicationDocumentAdminForm
     list_display = ("application", "original_filename", "review_status", "is_deliverable", "is_invoice", "uploaded_at")
     search_fields = ("application__client__email", "application__service_title")
-    readonly_fields = ("uploaded_at",)
+    readonly_fields = ("uploaded_at", "staff_preview")
+    @admin.display(description="Private file")
+    def staff_preview(self, obj):
+        if obj and obj.pk:
+            return format_html('<a href="{}" target="_blank" rel="noopener">Preview file</a>', reverse("staff_document_download", args=[obj.pk]))
+        return "—"
+
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
