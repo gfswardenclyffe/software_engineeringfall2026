@@ -21,6 +21,9 @@ from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCo
 from .document_forms import ClientDocumentForm
 from .message_forms import NewConversationForm, ReplyForm
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 SERVICE_LABELS = {
@@ -159,6 +162,7 @@ def register(request):
                     profile.save()
                     send_activation_email(request, user)
             except Exception:
+                logger.exception("Galiel account registration or activation email failed")
                 form.add_error(None, "We couldn't send your confirmation email. Please try again later.")
             else:
                 request.session["registered_email"] = user.email
@@ -231,6 +235,7 @@ def resend_activation(request):
         try:
             send_activation_email(request, user)
         except Exception:
+            logger.exception("Galiel activation email resend failed")
             messages.error(request, "Email delivery is unavailable. Please try again later.")
             return redirect("registration_complete")
     messages.info(request, "If this email has an unverified account, a new link has been sent.")
