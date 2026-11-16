@@ -17,7 +17,7 @@ from django.conf import settings
 
 from .forms import EmailAuthenticationForm, GalielRegistrationForm, UserProfileForm
 from .verification import send_activation_email
-from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCountry, CatalogRegion, CatalogMunicipality, ServiceOffering, ServiceApplication, ApplicationDocument
+from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCountry, CatalogRegion, CatalogMunicipality, ServiceOffering, ServiceApplication, ApplicationDocument, CatalogService
 from .document_forms import ClientDocumentForm
 from .message_forms import NewConversationForm, ReplyForm
 from pathlib import Path
@@ -129,6 +129,7 @@ def home(request):
         "homepage_regions": regions,
         "homepage_us_offerings": published.filter(country_id="US").select_related("service", "region"),
         "homepage_fr_offerings": published.filter(country_id="FR").select_related("service"),
+        "contact_services": CatalogService.objects.filter(offerings__is_published=True).distinct().order_by("title_en"),
     })
 
 
