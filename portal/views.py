@@ -238,6 +238,8 @@ def dashboard(request):
         "client_documents": ClientDocument.objects.filter(owner=request.user),
         "case_documents": ApplicationDocument.objects.filter(application__client=request.user, is_invoice=False).select_related("application"),
         "case_invoices": ApplicationDocument.objects.filter(application__client=request.user, is_invoice=True).select_related("application"),
+        "document_count": ClientDocument.objects.filter(owner=request.user).count() + ApplicationDocument.objects.filter(application__client=request.user).count(),
+        "payment_count": applications.filter(payment_confirmed_at__isnull=False).count(),
         "client_conversations": ClientConversation.objects.filter(client=request.user)[:10],
         "applications": applications,
         "active_count": applications.filter(status__in=paid_statuses).count(),
