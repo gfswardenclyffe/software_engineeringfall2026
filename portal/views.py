@@ -16,7 +16,7 @@ from django.conf import settings
 
 from .forms import EmailAuthenticationForm, GalielRegistrationForm, UserProfileForm
 from .verification import send_activation_email
-from .models import ClientDocument, ClientConversation, ClientMessage
+from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCountry, CatalogRegion, CatalogMunicipality, ServiceOffering
 from .document_forms import ClientDocumentForm
 from .message_forms import NewConversationForm, ReplyForm
 from pathlib import Path
@@ -295,6 +295,14 @@ def messages_inbox(request):
         conversations = ClientConversation.objects.filter(client=request.user)
     service = request.GET.get("service", "")
     subject = f"Inquiry: {SERVICE_LABELS[service]}" if service in SERVICE_LABELS else ""
+    offering_id = request.GET.get("offering", "")
+    if offering_id.isdecimal():
+        offering = ServiceOffering.objects.filter(pk=offering_id, is_published=True).select_related(
+            "service", "municipality", "region", "country"
+        ).first()
+        if offering:
+            place = offering.municipality or offering.region or offering.country
+            subject = f"Inquiry: {offering.service.title_en} — {place}"[:160]
     return render(request, "portal/messages.html", {
         "conversations": conversations,
         "form": NewConversationForm(initial={"subject": subject}),
@@ -343,4 +351,43 @@ def conversation_detail(request, conversation_id):
         form = ReplyForm()
     return render(request, "portal/conversation_detail.html", {
         "conversation": conversation, "form": form,
+    })
+
+
+@never_cache
+@login_required
+def service_catalog(request):
+    """Published services only, filtered in country -> region -> municipality order."""
+    locale = request.GET.get("lang", "")
+    if locale not in ("en", "es", "fr"):
+        try:
+            locale = request.user.profile.preferred_language
+        except Exception:
+            locale = "en"
+    country_code = request.GET.get("country", "")[:2].upper()
+    region_id = request.GET.get("region", "")
+    municipality_id = request.GET.get("municipality", "")
+    selected_country = country_code if CatalogCountry.objects.filter(pk=country_code).exists() else ""
+    regions = CatalogRegion.objects.filter(country_id=selected_country) if selected_country else CatalogRegion.objects.none()
+    selected_region = region_id if region_id.isdecimal() and regions.filter(pk=region_id).exists() else ""
+    municipalities = CatalogMunicipality.objects.filter(region_id=selected_region) if selected_region else CatalogMunicipality.objects.none()
+    selected_municipality = municipality_id if municipality_id.isdecimal() and municipalities.filter(pk=municipality_id).exists() else ""
+    offerings = ServiceOffering.objects.filter(is_published=True).select_related(
+        "service", "country", "region", "municipality",
+    )
+    if country_code:
+        offerings = offerings.filter(country_id=selected_country) if selected_country else offerings.none()
+    if region_id:
+        offerings = offerings.filter(region_id=selected_region) if selected_region else offerings.none()
+    if municipality_id:
+        offerings = offerings.filter(municipality_id=selected_municipality) if selected_municipality else offerings.none()
+    return render(request, "portal/service_catalog.html", {
+        "locale": locale,
+        "countries": CatalogCountry.objects.all(),
+        "regions": regions,
+        "municipalities": municipalities,
+        "selected_country": selected_country,
+        "selected_region": str(selected_region),
+        "selected_municipality": str(selected_municipality),
+        "offerings": list(offerings),
     })
