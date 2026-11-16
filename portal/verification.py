@@ -20,7 +20,8 @@ def send_activation_email(request, user):
         "This link expires in 24 hours. If you did not register, ignore this message.\n\n"
         "Galiel by Wardenclyffe"
     ).format(name=user.first_name or "there", link=link)
-    html = '<div style="background:#F2F1EC;padding:30px;font:15px Arial,sans-serif;color:#161616">'
+    html = (
+        '<div style="background:#F2F1EC;padding:30px;font:15px Arial,sans-serif;color:#161616">'
         '<section style="max-width:580px;margin:auto;background:white;border:1px solid #161616;padding:28px">'
         '<p><img src="https://galiel.wardenclyffefirm.com/brand/galiel-signature.png" width="96" height="60" alt="Galiel">'
         '<strong style="font:700 11px Arial;letter-spacing:2px">by WARDENCLYFFE</strong></p>'
@@ -30,5 +31,6 @@ def send_activation_email(request, user):
         '<p><a href="' + escape(link) + '" style="display:inline-block;padding:13px 20px;background:#D9714A;color:#161616;text-decoration:none;border-radius:2px;font-weight:800">Confirm account</a></p>'
         '<p>This link expires in 24 hours. If you did not register, ignore this message.</p>'
         '</section></div>'
+    )
     return send_mail("Confirm your Galiel account", body, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False, html_message=html)
 
