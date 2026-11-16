@@ -8,11 +8,11 @@
     {% if user.is_authenticated %}
       <span class="galiel-user">{{ user.get_full_name|default:user.email }}</span>
     {% endif %}
-    {% with current=request.GET.lang|default:"en" %}
+    {% with current=request.GET.lang|default:user.profile.preferred_language|default:"en" %}
     <nav class="galiel-languages" aria-label="Language">
-      <a href="?lang=en" lang="en" {% if current == "en" %}aria-current="page"{% endif %}>EN</a>
-      <a href="?lang=es" lang="es" {% if current == "es" %}aria-current="page"{% endif %}>ES</a>
-      <a href="?lang=fr" lang="fr" {% if current == "fr" %}aria-current="page"{% endif %}>FR</a>
+      <a href="?lang=en" data-lang-choice="en" lang="en" {% if current == "en" %}aria-current="page"{% endif %}>EN</a>
+      <a href="?lang=es" data-lang-choice="es" lang="es" {% if current == "es" %}aria-current="page"{% endif %}>ES</a>
+      <a href="?lang=fr" data-lang-choice="fr" lang="fr" {% if current == "fr" %}aria-current="page"{% endif %}>FR</a>
     </nav>
     {% endwith %}
     {% if user.is_authenticated %}
@@ -23,3 +23,14 @@
     {% endif %}
   </div>
 </header>
+<script>
+/* Keep country / region catalog filters when switching languages. */
+document.querySelectorAll(".galiel-languages a[data-lang-choice]").forEach(link=>{
+  const url=new URL(window.location.href);
+  url.searchParams.set("lang",link.dataset.langChoice);
+  link.href=url.pathname+url.search+url.hash;
+  link.addEventListener("click",()=>{
+    try{localStorage.setItem("galiel_lang",link.dataset.langChoice);}catch(e){}
+  });
+});
+</script>
