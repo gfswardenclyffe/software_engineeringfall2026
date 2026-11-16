@@ -764,49 +764,42 @@ dd {
 
       <div id="mx" class="drawer">
         <div class="drawer-inner">
-          <div class="drawer-title">
-            <h3><span data-i18n="mxStates">Mexico · Current focus by state</span></h3>
-            <p><span data-i18n="availability">Availability depends on the exact municipality and authority.</span></p>
-          </div>
+          <div class="drawer-title"><h3><span data-i18n="mxStates">Mexico · Current focus by state</span></h3>
+          <p><span data-i18n="availability">Availability depends on the exact municipality and authority.</span></p></div>
           <div class="subgrid">
-            <div class="subitem"><strong>Nuevo León</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
-            <div class="subitem"><strong>Jalisco</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
-            <div class="subitem"><strong>Ciudad de México</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
-            <div class="subitem"><strong>Colima</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
-            <div class="subitem"><strong>Querétaro</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
-            <div class="subitem"><strong>Tamaulipas</strong><span>Permits, licenses, filings and selected administrative processes.</span></div>
+            {% for region in homepage_regions %}
+            <div class="subitem">
+              <strong data-catalog-localized data-en="{{ region.name_en }}" data-es="{{ region.name_es }}" data-fr="{{ region.name_fr }}">{{ region.name_en }}</strong>
+              {% for item in region.service_cards %}
+              <a style="display:block;margin-top:8px;text-decoration:underline" href="{% url 'service_intake' item.pk %}">
+                <span data-catalog-localized data-en="{{ item.service.title_en }}" data-es="{{ item.service.title_es }}" data-fr="{{ item.service.title_fr }}">{{ item.service.title_en }}</span>{% if item.municipality %} · {{ item.municipality.name_en }}{% endif %}
+              </a>{% endfor %}
+            </div>{% empty %}<div class="subitem">No published locations yet.</div>{% endfor %}
           </div>
+          <a class="btn" href="{% url 'service_catalog' %}?country=MX" style="margin-top:20px">Explore Mexico services →</a>
         </div>
       </div>
 
-      <div id="us" class="drawer">
-        <div class="drawer-inner single-services">
-          <div class="drawer-title">
-            <h3><span data-i18n="texasServices">Texas · Available services</span></h3>
-            <p>Other U.S. matters may be reviewed individually.</p>
-          </div>
-          <div class="subgrid">
-            <div class="subitem"><strong>Notarization assistance</strong><span>Support for documents requiring notarization.</span></div>
-            <div class="subitem"><strong>Professional translations</strong><span>Selected business, personal and administrative documents.</span></div>
-            <div class="subitem"><strong>Apostille coordination</strong><span>Guidance and coordination for eligible documents.</span></div>
-            <div class="subitem"><strong>Selected business filings</strong><span>State and administrative filings handled on a case-by-case basis.</span></div>
-          </div>
-        </div>
-      </div>
+      <div id="us" class="drawer"><div class="drawer-inner single-services">
+        <div class="drawer-title"><h3><span data-i18n="texasServices">Texas · Available services</span></h3>
+        <p>Services, fees and availability are managed in Galiel.</p></div>
+        <div class="subgrid">{% for item in homepage_us_offerings %}
+          <a class="subitem" href="{% url 'service_intake' item.pk %}">
+            <strong data-catalog-localized data-en="{{ item.service.title_en }}" data-es="{{ item.service.title_es }}" data-fr="{{ item.service.title_fr }}">{{ item.service.title_en }}</strong>
+            <span>{{ item.region.name_en }}</span>
+          </a>{% empty %}<div class="subitem">No published services yet.</div>{% endfor %}</div>
+        <a class="btn" href="{% url 'service_catalog' %}?country=US" style="margin-top:20px">Explore Texas services →</a>
+      </div></div>
 
-      <div id="fr" class="drawer">
-        <div class="drawer-inner single-services">
-          <div class="drawer-title">
-            <h3><span data-i18n="franceServices">France · Available services</span></h3>
-            <p>Availability depends on the document and authority involved.</p>
-          </div>
-          <div class="subgrid">
-            <div class="subitem"><strong>Translations</strong><span>Selected document translation and preparation.</span></div>
-            <div class="subitem"><strong>Apostille / legalization</strong><span>Coordination depending on the document and destination.</span></div>
-            <div class="subitem"><strong>Administrative matters</strong><span>Selected processes reviewed individually.</span></div>
-          </div>
-        </div>
-      </div>
+      <div id="fr" class="drawer"><div class="drawer-inner single-services">
+        <div class="drawer-title"><h3><span data-i18n="franceServices">France · Available services</span></h3>
+        <p>Availability depends on the document and authority involved.</p></div>
+        <div class="subgrid">{% for item in homepage_fr_offerings %}
+          <a class="subitem" href="{% url 'service_intake' item.pk %}">
+            <strong data-catalog-localized data-en="{{ item.service.title_en }}" data-es="{{ item.service.title_es }}" data-fr="{{ item.service.title_fr }}">{{ item.service.title_en }}</strong>
+          </a>{% empty %}<div class="subitem">No published services yet.</div>{% endfor %}</div>
+        <a class="btn" href="{% url 'service_catalog' %}?country=FR" style="margin-top:20px">Explore France services →</a>
+      </div></div>
 
       <div class="general" id="general">
         <p><strong><span data-i18n="notListed">Do not see your process?</span></strong> <span data-i18n="notListedCopy"><span data-i18n="send">Send</span> a general inquiry. If Galiel does not currently handle it, we will tell you clearly and, when appropriate, refer you to another professional or resource.</span></p>
@@ -948,7 +941,7 @@ const UI={
 en:{services:"Services",how:"How it works",contact:"Contact",createAccount:"Create account",signIn:"Sign in",heroTitle:"Business permits and legal processes, handled clearly.",heroCopy:"For selected matters in Mexico, the United States and France. We help you understand what is needed, what it may cost, and where your process stands.",findService:"Find a service →",generalInquiry:"General inquiry",mxQuick:"Selected states and local processes",usQuick:"Texas-focused document services",frQuick:"Selected administrative and document matters",startWhere:"Start with where you need help.",startCopy:"Choose a location first. The submenu opens only for the place you select, so the navigation stays simple and clear.",mxDesc:"Permits, licenses and selected administrative processes.",viewStates:"View states +",usDesc:"Notarization, translations, apostilles and selected business filings.",viewServices:"View services +",frDesc:"Selected document and administrative matters.",mxStates:"Mexico · Current focus by state",availability:"Availability depends on the exact municipality and authority.",texasServices:"Texas · Available services",franceServices:"France · Available services",notListed:"Do not see your process?",notListedCopy:"Send a general inquiry. If Galiel does not currently handle it, we will tell you clearly and, when appropriate, refer you to another professional or resource.",simpleStart:"Simple from the start.",simpleCopy:"Choose the service, review the basic requirements and estimated cost, send the documents, and follow the status from your account.",choose:"Choose",review:"Review",send:"Send",track:"Track",questions:"Questions about a process?",questionsCopy:"Tell us what you need and where. If it is not a process currently listed on Galiel, send a general inquiry and we will let you know whether we can assist or point you in the right direction.",mexOffice:"Mexico office",phone:"Phone",explore:"Explore",reachOut:"Reach out",legal:"Legal",footerNote:"Business permits, filings and selected administrative processes presented through Galiel, a platform by Wardenclyffe.",cookieText:"Galiel uses essential cookies to operate the site and may use optional analytics cookies to understand how the site is used. You can accept optional cookies, reject them, or review the Cookie Policy.",rejectOptional:"Reject optional",accept:"Accept"},
 es:{services:"Servicios",how:"Cómo funciona",contact:"Contacto",createAccount:"Crear cuenta",signIn:"Ingresar",heroTitle:"Permisos comerciales y trámites legales, con claridad.",heroCopy:"Para asuntos seleccionados en México, Estados Unidos y Francia. Te ayudamos a entender qué necesitas, cuánto puede costar y en qué etapa se encuentra tu trámite.",findService:"Buscar un servicio →",generalInquiry:"Consulta general",mxQuick:"Estados y trámites seleccionados",usQuick:"Servicios documentales con enfoque en Texas",frQuick:"Asuntos administrativos y documentales seleccionados",startWhere:"Empieza por donde necesitas ayuda.",startCopy:"Elige primero una ubicación. El submenú se abre solo para el lugar que selecciones, para mantener la navegación simple y clara.",mxDesc:"Permisos, licencias y trámites administrativos seleccionados.",viewStates:"Ver estados +",usDesc:"Notarizaciones, traducciones, apostillas y trámites empresariales seleccionados.",viewServices:"Ver servicios +",frDesc:"Asuntos documentales y administrativos seleccionados.",mxStates:"México · Enfoque actual por estado",availability:"La disponibilidad depende del municipio y la autoridad correspondiente.",texasServices:"Texas · Servicios disponibles",franceServices:"Francia · Servicios disponibles",notListed:"¿No ves tu trámite?",notListedCopy:"Envía una consulta general. Si Galiel no maneja actualmente ese trámite, te lo diremos claramente y, cuando corresponda, podremos referirte con otro profesional o recurso.",simpleStart:"Simple desde el inicio.",simpleCopy:"Elige el servicio, revisa requisitos básicos y costo estimado, envía los documentos y sigue el estado desde tu cuenta.",choose:"Elige",review:"Revisa",send:"Envía",track:"Sigue",questions:"¿Preguntas sobre un trámite?",questionsCopy:"Dinos qué necesitas y dónde. Si no aparece en Galiel, envía una consulta general y te diremos si podemos ayudarte o orientarte.",mexOffice:"Oficina México",phone:"Teléfono",explore:"Explorar",reachOut:"Contacto",legal:"Legal",footerNote:"Permisos, trámites y procesos administrativos seleccionados a través de Galiel, una plataforma de Wardenclyffe.",cookieText:"Galiel utiliza cookies esenciales para operar el sitio y puede utilizar cookies analíticas opcionales para entender su uso. Puedes aceptar las opcionales, rechazarlas o revisar la Política de Cookies.",rejectOptional:"Rechazar opcionales",accept:"Aceptar"},
 fr:{services:"Services",how:"Fonctionnement",contact:"Contact",createAccount:"Créer un compte",signIn:"Connexion",heroTitle:"Permis commerciaux et démarches juridiques, en toute clarté.",heroCopy:"Pour certains dossiers au Mexique, aux États-Unis et en France. Nous vous aidons à comprendre ce qui est nécessaire, le coût estimatif et l’état d’avancement de votre démarche.",findService:"Trouver un service →",generalInquiry:"Demande générale",mxQuick:"États et démarches sélectionnés",usQuick:"Services documentaires centrés sur le Texas",frQuick:"Démarches administratives et documentaires sélectionnées",startWhere:"Commencez par le lieu où vous avez besoin d’aide.",startCopy:"Choisissez d’abord un lieu. Le sous-menu s’ouvre uniquement pour le lieu sélectionné afin de garder la navigation simple.",mxDesc:"Permis, licences et démarches administratives sélectionnées.",viewStates:"Voir les États +",usDesc:"Notarisation, traductions, apostilles et dépôts commerciaux sélectionnés.",viewServices:"Voir les services +",frDesc:"Démarches documentaires et administratives sélectionnées.",mxStates:"Mexique · Présence actuelle par État",availability:"La disponibilité dépend de la commune et de l’autorité concernée.",texasServices:"Texas · Services disponibles",franceServices:"France · Services disponibles",notListed:"Vous ne trouvez pas votre démarche ?",notListedCopy:"Envoyez une demande générale. Si Galiel ne la traite pas actuellement, nous vous le dirons clairement et pourrons, le cas échéant, vous orienter vers un autre professionnel ou une ressource.",simpleStart:"Simple dès le départ.",simpleCopy:"Choisissez le service, consultez les exigences et le coût estimatif, envoyez les documents et suivez l’état depuis votre compte.",choose:"Choisir",review:"Vérifier",send:"Envoyer",track:"Suivre",questions:"Une question sur une démarche ?",questionsCopy:"Indiquez-nous ce dont vous avez besoin et où. Si la démarche n’est pas listée sur Galiel, envoyez une demande générale et nous vous dirons si nous pouvons vous aider ou vous orienter.",mexOffice:"Bureau au Mexique",phone:"Téléphone",explore:"Explorer",reachOut:"Nous contacter",legal:"Mentions",footerNote:"Permis, dépôts et démarches administratives sélectionnées via Galiel, une plateforme de Wardenclyffe.",cookieText:"Galiel utilise des cookies essentiels au fonctionnement du site et peut utiliser des cookies analytiques optionnels pour comprendre son utilisation. Vous pouvez les accepter, les refuser ou consulter la Politique relative aux cookies.",rejectOptional:"Refuser les optionnels",accept:"Accepter"}};
-function setLang(l){localStorage.setItem("galiel_lang",l);document.documentElement.lang=l;document.querySelectorAll("[data-i18n]").forEach(e=>{const k=e.dataset.i18n;if(UI[l]&&UI[l][k])e.textContent=UI[l][k]});document.querySelectorAll(".langs button").forEach(b=>b.classList.toggle("active",b.dataset.lang===l))}
+function setLang(l){localStorage.setItem("galiel_lang",l);document.documentElement.lang=l;document.querySelectorAll("[data-catalog-localized]").forEach(e=>{e.textContent=e.dataset[l]||e.dataset.en;});document.querySelectorAll("[data-i18n]").forEach(e=>{const k=e.dataset.i18n;if(UI[l]&&UI[l][k])e.textContent=UI[l][k]});document.querySelectorAll(".langs button").forEach(b=>b.classList.toggle("active",b.dataset.lang===l))}
 document.querySelectorAll(".langs button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
 setLang(localStorage.getItem("galiel_lang")||"en");
 
