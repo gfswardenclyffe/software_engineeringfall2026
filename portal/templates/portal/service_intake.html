@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="{{ locale }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Start service · Galiel</title>
+<style>
+:root{--paper:#f6f8f5;--green:#173e39;--line:#e5eae4;--muted:#697872}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:#1d2d2a;font-family:system-ui,-apple-system,sans-serif}
+main{max-width:860px;margin:5vh auto;padding:20px}h1{font:normal clamp(30px,5vw,47px) Georgia,serif}
+a{color:var(--green)}.card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:27px;margin:20px 0}
+p{line-height:1.7}.muted{color:var(--muted)}label{display:block;font-weight:600;margin:16px 0 7px}
+textarea,input{width:100%;font:inherit;padding:12px;border:1px solid #b8c8bf;border-radius:9px}
+button{background:var(--green);color:white;border:0;border-radius:22px;padding:13px 19px;font:inherit;cursor:pointer}
+.errorlist{color:#a62828}
+</style></head><body><main>
+<a href="{% url 'service_catalog' %}">← {% if locale == 'es' %}Volver a servicios{% elif locale == 'fr' %}Retour aux services{% else %}Back to services{% endif %}</a>
+<h1>{% if locale == 'es' %}Iniciar consulta de servicio{% elif locale == 'fr' %}Commencer une demande{% else %}Start service inquiry{% endif %}</h1>
+<section class="card">
+<h2>{% if locale == 'es' %}{{ offering.service.title_es }}{% elif locale == 'fr' %}{{ offering.service.title_fr }}{% else %}{{ offering.service.title_en }}{% endif %}</h2>
+<p class="muted">{{ offering.municipality|default:offering.region|default:offering.country }}</p>
+<p><strong>{% if offering.price_type == "quote" %}{% if locale == 'es' %}Cotización requerida{% elif locale == 'fr' %}Devis requis{% else %}Quote required{% endif %}{% else %}{{ offering.currency }} {{ offering.price }}{% endif %}</strong></p>
+<p class="muted">{% if offering.estimated_min_business_days != None and offering.estimated_max_business_days != None %}{{ offering.estimated_min_business_days }}–{{ offering.estimated_max_business_days }} {% if locale == 'es' %}días hábiles estimados{% elif locale == 'fr' %}jours ouvrés estimés{% else %}estimated business days{% endif %}{% else %}{% if locale == 'es' %}Plazo por confirmar{% elif locale == 'fr' %}Délai à confirmer{% else %}Timeline to be confirmed{% endif %}{% endif %}</p>
+<p class="muted">{% if locale == 'es' %}Esta es una consulta inicial; no se generará un pedido ni un cargo.{% elif locale == 'fr' %}Il s'agit d'une demande initiale, sans commande ni paiement.{% else %}This begins an inquiry, not a paid order. No charge will be made.{% endif %}</p>
+</section>
+{% if offering.requirements.all %}
+<section class="card"><h2>{% if locale == 'es' %}Documentos y requisitos{% elif locale == 'fr' %}Pièces et informations demandées{% else %}Documents and requirements{% endif %}</h2>
+{% for requirement in offering.requirements.all %}{% if requirement.kind == "document" %}
+<p>☐ {% if locale == 'es' %}{{ requirement.label_es }}{% elif locale == 'fr' %}{{ requirement.label_fr }}{% else %}{{ requirement.label_en }}{% endif %}{% if requirement.is_required %} *{% endif %}</p>{% endif %}{% endfor %}
+<p class="muted">{% if locale == 'es' %}Puede subir archivos PDF a Documentos después de iniciar la consulta.{% elif locale == 'fr' %}Vous pouvez déposer des PDF depuis Documents après l'envoi.{% else %}PDF files can be uploaded from Documents after starting your inquiry.{% endif %}</p></section>
+{% endif %}
+{% if user.is_staff %}
+<section class="card"><p>This service is visible to clients. Managers can edit its requirements in Django administration.</p></section>
+{% else %}
+<section class="card"><h2>{% if locale == 'es' %}Información inicial{% elif locale == 'fr' %}Premières informations{% else %}Tell us about your request{% endif %}</h2>
+<form method="post">{% csrf_token %}{{ form.non_field_errors }}
+{% for field in form %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field.errors }}{{ field }}{% endfor %}
+<p><button type="submit">{% if locale == 'es' %}Enviar consulta{% elif locale == 'fr' %}Envoyer la demande{% else %}Send inquiry{% endif %} →</button></p>
+</form></section>{% endif %}
+</main></body></html>
