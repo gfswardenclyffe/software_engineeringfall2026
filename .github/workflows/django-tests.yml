@@ -19,10 +19,12 @@ jobs:
       - name: Django system check
         env:
           DJANGO_SECRET_KEY: ci-secret-key-only-for-tests-do-not-use-in-production
+          GALIEL_ENV: "development"
           DJANGO_DEBUG: "False"
         run: python manage.py check
       - name: Run Django tests
         env:
           DJANGO_SECRET_KEY: ci-secret-key-only-for-tests-do-not-use-in-production
+          GALIEL_ENV: "development"
           DJANGO_DEBUG: "False"
         run: python manage.py test portal --verbosity 2
