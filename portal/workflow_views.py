@@ -128,8 +128,10 @@ def _notify_client(app, subject, summary):
         f"Track your process: {track}\n\n"
         "Wardenclyffe Inc. is a private service provider; approval and agency timelines are not guaranteed.\n"
     )
+    if app.payment_confirmed_at:
+        body += "\nPayment record: https://galiel.wardenclyffefirm.com" + reverse("application_receipt", args=[app.pk]) + "\n"
     if app.stripe_receipt_url:
-        body += f"\nPayment receipt: {app.stripe_receipt_url}\n"
+        body += f"\nCard processor receipt: {app.stripe_receipt_url}\n"
     if app.payment_confirmed_at:
         body += "\nA tax invoice, where applicable, will be issued separately.\n"
     msg = EmailMultiAlternatives(
@@ -147,7 +149,8 @@ def _notify_client(app, subject, summary):
         '<p><strong>' + escape(app.number) + '</strong> · ' + escape(app.service_title) + '</p>'
         '<p>Estimated delivery: ' + escape(str(app.estimated_delivery or "To be confirmed")) + '</p>'
         '<a style="display:inline-block;border-radius:24px;background:#e96c3c;color:#211c19;padding:13px 20px;text-decoration:none;font-weight:bold" href="' + escape(track) + '">Track my process</a>'
-        + (('<p><a href="' + escape(app.stripe_receipt_url) + '">View payment receipt</a></p>') if app.stripe_receipt_url else '')
+        + (('<p><a href="https://galiel.wardenclyffefirm.com' + reverse("application_receipt", args=[app.pk]) + '">View your Galiel payment record</a></p>') if app.payment_confirmed_at else '')
+        + (('<p><a href="' + escape(app.stripe_receipt_url) + '">View Stripe card receipt</a></p>') if app.stripe_receipt_url else '')
         + '<p style="font-size:12px;color:#786c62;margin-top:26px">Government processing and agency approval are not guaranteed. Tax invoices are issued separately when applicable.</p>'
         '</div></div>'
     )
@@ -240,6 +243,7 @@ def application_step(request, application_id, step):
         "place_name": _display_place(offer, lang), "form": form,
         "requirements": requirements, "questions": questions,
         "base": base, "tax": tax, "total": total,
+        "checkout_cancelled": request.GET.get("canceled") == "1",
         "is_quote": total is None, "stripe_configured": bool(
             os.getenv("GALIEL_STRIPE_SECRET_KEY") and os.getenv("GALIEL_STRIPE_WEBHOOK_SECRET")
         ),
@@ -346,6 +350,15 @@ def application_track(request, application_id):
     })
 
 
+@never_cache
+@login_required
+def application_receipt(request, application_id):
+    app = _application(request, application_id)
+    if not app.payment_confirmed_at:
+        raise Http404("No verified payment exists for this application.")
+    return render(request, "portal/application_receipt.html", {"application": app})
+
+
 @login_required
 @require_POST
 def application_checkout(request, application_id):
@@ -370,6 +383,16 @@ def application_checkout(request, application_id):
     try:
         import stripe
         stripe.api_key = os.environ["GALIEL_STRIPE_SECRET_KEY"]
+        if app.stripe_checkout_session:
+            old = stripe.checkout.Session.retrieve(app.stripe_checkout_session)
+            if old.get("status") == "complete":
+                messages.info(request, "Your payment is being verified. Please check your process before paying again.")
+                return redirect("application_track", application_id=app.pk)
+            if old.get("status") == "open":
+                if (old.get("amount_total") == int(total * 100)
+                        and (old.get("currency") or "").lower() == app.currency.lower()):
+                    return redirect(str(old.url))
+                stripe.checkout.Session.expire(app.stripe_checkout_session)
         stripe_session = stripe.checkout.Session.create(
             mode="payment",
             payment_method_types=["card"],
@@ -381,7 +404,7 @@ def application_checkout(request, application_id):
                 "product_data": {"name": app.service_title[:180]},
             }, "quantity": 1}],
             success_url=request.build_absolute_uri(reverse("application_step", args=[app.pk, 6])) + "?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=request.build_absolute_uri(reverse("application_step", args=[app.pk, 5])),
+            cancel_url=request.build_absolute_uri(reverse("application_step", args=[app.pk, 5])) + "?canceled=1",
         )
     except Exception:
         logger.exception("Stripe Checkout session creation failed for application %s", app.pk)
