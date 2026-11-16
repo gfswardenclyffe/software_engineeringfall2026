@@ -37,6 +37,7 @@ urlpatterns = [
     ), name="password_reset_complete"),
     path("dashboard/", views.dashboard, name="dashboard"),
     path("services/start/", views.service_start, name="service_start"),
+    path("services/", views.service_catalog, name="service_catalog"),
     path("profile/", views.profile, name="profile"),
     path("messages/", views.messages_inbox, name="messages_inbox"),
     path("messages/new/", views.conversation_new, name="conversation_new"),

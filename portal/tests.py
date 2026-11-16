@@ -230,8 +230,8 @@ class WorkspaceServicesTests(TestCase):
         self.assertContains(response, 'id="services"')
         self.assertContains(response, 'href="#services"')
         self.assertNotContains(response, 'href="/#services"')
-        self.assertContains(response, "Licencia / permiso de funcionamiento")
-        self.assertContains(response, "Apostille coordination")
+        self.assertContains(response, "Browse services by location")
+        self.assertContains(response, reverse("service_catalog"))
 
     def test_service_inquiry_prefills_message_subject(self):
         self.client.force_login(self.user)
@@ -256,7 +256,7 @@ class WorkspaceServicesTests(TestCase):
         self.user.save(update_fields=["is_staff"])
         self.client.force_login(self.user)
         dashboard = self.client.get(reverse("dashboard"))
-        self.assertContains(dashboard, "View client messages")
+        self.assertContains(dashboard, "Browse services by location")
         messages_page = self.client.get(reverse("messages_inbox"), {"service": "tx-apostille"})
         self.assertNotContains(messages_page, "New message to Wardenclyffe")
 

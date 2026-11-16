@@ -70,3 +70,142 @@ class ClientMessage(models.Model):
 
     def __str__(self):
         return f"Message in {self.conversation_id} from {self.sender_id}"
+
+
+# Location-first service catalog; nothing is publicly priced until a manager publishes it.
+class CatalogCountry(models.Model):
+    code = models.CharField(max_length=2, primary_key=True)
+    name_en = models.CharField(max_length=100)
+    name_es = models.CharField(max_length=100)
+    name_fr = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ["name_en"]
+        verbose_name_plural = "Catalog countries"
+
+    def __str__(self):
+        return self.name_en
+
+
+class CatalogRegion(models.Model):
+    country = models.ForeignKey(CatalogCountry, on_delete=models.PROTECT, related_name="regions")
+    slug = models.SlugField(max_length=80)
+    name_en = models.CharField(max_length=120)
+    name_es = models.CharField(max_length=120)
+    name_fr = models.CharField(max_length=120)
+
+    class Meta:
+        ordering = ["name_en"]
+        constraints = [models.UniqueConstraint(fields=["country", "slug"], name="catalog_region_unique")]
+
+    def __str__(self):
+        return f"{self.name_en}, {self.country.code}"
+
+
+class CatalogMunicipality(models.Model):
+    region = models.ForeignKey(CatalogRegion, on_delete=models.PROTECT, related_name="municipalities")
+    slug = models.SlugField(max_length=90)
+    name_en = models.CharField(max_length=130)
+    name_es = models.CharField(max_length=130)
+    name_fr = models.CharField(max_length=130)
+
+    class Meta:
+        ordering = ["name_en"]
+        constraints = [models.UniqueConstraint(fields=["region", "slug"], name="catalog_municipality_unique")]
+
+    def __str__(self):
+        return f"{self.name_en}, {self.region.name_en}"
+
+
+class CatalogService(models.Model):
+    slug = models.SlugField(max_length=120, unique=True)
+    title_en = models.CharField(max_length=180)
+    title_es = models.CharField(max_length=180)
+    title_fr = models.CharField(max_length=180)
+    description_en = models.TextField(blank=True)
+    description_es = models.TextField(blank=True)
+    description_fr = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["title_en"]
+
+    def __str__(self):
+        return self.title_en
+
+
+class ServiceOffering(models.Model):
+    PRICE_TYPES = [
+        ("fixed", "Fixed price"),
+        ("starting", "Starting at"),
+        ("quote", "Quotation required"),
+    ]
+    CURRENCIES = [("MXN", "MXN"), ("USD", "USD"), ("EUR", "EUR")]
+
+    service = models.ForeignKey(CatalogService, on_delete=models.PROTECT, related_name="offerings")
+    country = models.ForeignKey(CatalogCountry, on_delete=models.PROTECT, related_name="offerings")
+    region = models.ForeignKey(CatalogRegion, null=True, blank=True, on_delete=models.PROTECT, related_name="offerings")
+    municipality = models.ForeignKey(CatalogMunicipality, null=True, blank=True, on_delete=models.PROTECT, related_name="offerings")
+    price_type = models.CharField(max_length=12, choices=PRICE_TYPES, default="quote")
+    price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    currency = models.CharField(max_length=3, choices=CURRENCIES, default="MXN")
+    estimated_min_business_days = models.PositiveSmallIntegerField(null=True, blank=True)
+    estimated_max_business_days = models.PositiveSmallIntegerField(null=True, blank=True)
+    is_published = models.BooleanField(default=False)
+    manager_notes = models.TextField(blank=True, help_text="Internal only; never shown to clients.")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["country__name_en", "region__name_en", "municipality__name_en", "service__title_en"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["service", "country", "region", "municipality"],
+                name="catalog_offering_location_unique",
+            ),
+            models.CheckConstraint(
+                check=models.Q(price__gte=0) | models.Q(price__isnull=True),
+                name="catalog_price_nonnegative",
+            ),
+        ]
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        errors = {}
+        if self.region_id and self.region.country_id != self.country_id:
+            errors["region"] = "Region must belong to the selected country."
+        if self.municipality_id:
+            if not self.region_id:
+                errors["municipality"] = "Choose a region before a municipality."
+            elif self.municipality.region_id != self.region_id:
+                errors["municipality"] = "Municipality must belong to the selected region."
+        if self.price_type in ("fixed", "starting") and self.price is None:
+            errors["price"] = "A published price requires an amount."
+        if (
+            self.estimated_min_business_days is not None
+            and self.estimated_max_business_days is not None
+            and self.estimated_min_business_days > self.estimated_max_business_days
+        ):
+            errors["estimated_max_business_days"] = "Maximum time cannot be less than minimum time."
+        if errors:
+            raise ValidationError(errors)
+
+    def __str__(self):
+        location = self.municipality or self.region or self.country
+        return f"{self.service} — {location}"
+
+
+class ServiceRequirement(models.Model):
+    KINDS = [("question", "Intake question"), ("document", "Required document")]
+    offering = models.ForeignKey(ServiceOffering, on_delete=models.CASCADE, related_name="requirements")
+    kind = models.CharField(max_length=10, choices=KINDS)
+    label_en = models.CharField(max_length=220)
+    label_es = models.CharField(max_length=220)
+    label_fr = models.CharField(max_length=220)
+    is_required = models.BooleanField(default=True)
+    display_order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["display_order", "id"]
+
+    def __str__(self):
+        return self.label_en
