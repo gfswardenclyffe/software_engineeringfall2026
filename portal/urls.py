@@ -7,6 +7,7 @@ from . import views, workflow_views, contact_views
 urlpatterns = [
     path("", views.home, name="home"),
     path("wordmark/", views.wordmark, name="wordmark"),
+    path("brand/galiel-signature.png", views.galiel_signature_png, name="galiel_signature_png"),
     path("register/", views.register, name="register"),
     path("register/complete/", views.registration_complete, name="registration_complete"),
     path("activate/<uidb64>/<token>/", views.activate_account, name="activate_account"),
