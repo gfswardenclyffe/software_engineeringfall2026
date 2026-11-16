@@ -192,6 +192,9 @@ def application_step(request, application_id, step):
     if paid and step != 6:
         return redirect("application_track", application_id=app.pk)
     if step == 6 and not paid:
+        # Stripe may return before the verified webhook has arrived.
+        if app.stripe_checkout_session and request.GET.get("session_id") == app.stripe_checkout_session:
+            return render(request, "portal/application_payment_pending.html", {"application": app})
         return redirect("application_step", application_id=app.pk, step=5)
     if step > app.step and step != 6:
         return redirect("application_step", application_id=app.pk, step=app.step)
