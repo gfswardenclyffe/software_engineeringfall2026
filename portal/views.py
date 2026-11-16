@@ -72,9 +72,22 @@ def workspace_service_groups():
 
 def _capture_pending_service(request):
     service = (request.GET.get("service") or request.POST.get("service") or "").strip()
-    if service in SERVICE_LABELS:
+    if service in SERVICE_LABELS or (
+        service and ServiceOffering.objects.filter(service__slug=service, is_published=True).exists()
+    ):
         request.session["pending_service"] = service
     return request.session.get("pending_service", "")
+
+
+def _pending_service_label(code):
+    if not code:
+        return ""
+    if code in SERVICE_LABELS:
+        return SERVICE_LABELS[code]
+    match = ServiceOffering.objects.filter(
+        service__slug=code, is_published=True,
+    ).select_related("service").first()
+    return match.service.title_en if match else code.replace("-", " ").title()
 
 
 class ServiceAwareLoginView(LoginView):
@@ -89,9 +102,7 @@ class ServiceAwareLoginView(LoginView):
         context = super().get_context_data(**kwargs)
         code = self.request.session.get("pending_service", "")
         context["pending_service"] = code
-        context["pending_service_label"] = SERVICE_LABELS.get(
-            code, code.replace("-", " ").title() if code else ""
-        )
+        context["pending_service_label"] = _pending_service_label(code)
         return context
 
     def get_success_url(self):
@@ -159,9 +170,7 @@ def register(request):
             else None
         )
 
-    label = SERVICE_LABELS.get(
-        pending_service, pending_service.replace("-", " ").title() if pending_service else ""
-    )
+    label = _pending_service_label(pending_service)
     return render(
         request,
         "portal/register.html",
@@ -176,7 +185,7 @@ def register(request):
 def registration_complete(request):
     email = request.session.pop("registered_email", "")
     code = request.session.get("pending_service", "")
-    label = SERVICE_LABELS.get(code, code.replace("-", " ").title() if code else "")
+    label = _pending_service_label(code)
     return render(
         request,
         "portal/registration_complete.html",
