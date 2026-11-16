@@ -123,10 +123,35 @@ class ApplicationAdminForm(forms.ModelForm):
         return values
 
 
+class ApplicationDocumentAdminForm(forms.ModelForm):
+    class Meta:
+        model = ApplicationDocument
+        fields = "__all__"
+
+    def clean_file(self):
+        file = self.cleaned_data.get("file")
+        if file and hasattr(file, "size"):
+            _verify_file(file)
+        return file
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        file = self.cleaned_data.get("file")
+        if file and hasattr(file, "size"):
+            obj.original_filename = file.name.rsplit("/", 1)[-1][:255]
+            obj.content_type = _verify_file(file)
+            obj.size = file.size
+        if commit:
+            obj.save()
+            self.save_m2m()
+        return obj
+
+
 class ApplicationDocumentInline(admin.TabularInline):
     model = ApplicationDocument
+    form = ApplicationDocumentAdminForm
     extra = 0
-    fields = ("requirement", "file", "original_filename", "content_type", "size", "is_deliverable")
+    fields = ("requirement", "file", "original_filename", "content_type", "size", "review_status", "staff_note", "is_deliverable", "is_invoice")
     readonly_fields = ("original_filename", "content_type", "size")
 
     def get_queryset(self, request):
@@ -187,27 +212,11 @@ class ServiceApplicationAdmin(admin.ModelAdmin):
             transaction.on_commit(send_notification)
 
 
-class ApplicationDocumentAdminForm(forms.ModelForm):
-    class Meta:
-        model = ApplicationDocument
-        fields = "__all__"
-
-    def clean_file(self):
-        file = self.cleaned_data.get("file")
-        if file and hasattr(file, "size"):
-            _verify_file(file)
-        return file
-
-
 @admin.register(ApplicationDocument)
 class ApplicationDocumentAdmin(admin.ModelAdmin):
     form = ApplicationDocumentAdminForm
-    list_display = ("application", "original_filename", "is_deliverable", "uploaded_at")
+    list_display = ("application", "original_filename", "review_status", "is_deliverable", "is_invoice", "uploaded_at")
     search_fields = ("application__client__email", "application__service_title")
     readonly_fields = ("uploaded_at",)
     def save_model(self, request, obj, form, change):
-        if obj.file:
-            obj.original_filename = obj.file.name.rsplit("/", 1)[-1][:255]
-            obj.content_type = _verify_file(obj.file)
-            obj.size = obj.file.size
         super().save_model(request, obj, form, change)
