@@ -215,19 +215,30 @@ header {
 }
 
 .quick {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  background:#151515;
+  position:relative;
+  overflow:hidden;
+  background:#161616;
   color:#fff;
+  isolation:isolate;
 }
-.quick div {
-  padding:18px 24px;
-  border-right:1px solid #4b4b4b;
-  font-size:14px;
-  line-height:1.4;
+.quick::before,.quick::after{
+  content:"";position:absolute;inset-block:0;width:min(9vw,90px);
+  pointer-events:none;z-index:2;
 }
-.quick div:last-child { border-right:0; }
-.quick strong { font-weight:800; }
+.quick::before{left:0;background:linear-gradient(to right,#161616,transparent)}
+.quick::after{right:0;background:linear-gradient(to left,#161616,transparent)}
+.quick-track{display:flex;width:max-content;animation:galiel-marquee 52s linear infinite;will-change:transform}
+.quick:hover .quick-track,.quick:focus-within .quick-track{animation-play-state:paused}
+.quick-group{display:flex;align-items:center;flex:none;min-width:max-content}
+.quick-group a{display:inline-flex;align-items:center;gap:10px;white-space:nowrap;color:#fff;text-decoration:none;padding:19px 27px;font-size:14px;line-height:1.4}
+.quick-group a:hover,.quick-group a:focus-visible{color:#f3c4b2;text-decoration:underline;text-underline-offset:5px}
+.quick-group a strong{font-weight:800}
+.quick-dot{color:#D9714A;font-size:13px;padding:0 8px;flex:none}
+@keyframes galiel-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){
+  .quick-track{animation:none;will-change:auto}
+  .quick{overflow-x:auto}
+}
 
 section {
   border-bottom:1px solid var(--ink);
@@ -760,10 +771,19 @@ dd {
     </div>
   </section>
 
-  <div class="quick">
-    <div><strong>Mexico</strong> · <span data-i18n="mxQuick">Selected states and local processes</span></div>
-    <div><strong>United States</strong> · <span data-i18n="usQuick">Texas-focused document services</span></div>
-    <div><strong>France</strong> · <span data-i18n="frQuick">Selected administrative and document matters</span></div>
+  <div class="quick" aria-label="Explore Galiel services by country">
+    <div class="quick-track">
+      <div class="quick-group">
+        <a href="{% url 'service_catalog' %}?country=MX"><strong>Mexico</strong><span data-i18n="mxQuick">Selected states and local processes</span></a><span class="quick-dot" aria-hidden="true">✦</span>
+        <a href="{% url 'service_catalog' %}?country=US"><strong>United States</strong><span data-i18n="usQuick">Texas-focused document services</span></a><span class="quick-dot" aria-hidden="true">✦</span>
+        <a href="{% url 'service_catalog' %}?country=FR"><strong>France</strong><span data-i18n="frQuick">Selected administrative and document matters</span></a><span class="quick-dot" aria-hidden="true">✦</span>
+      </div>
+      <div class="quick-group" aria-hidden="true">
+        <a href="{% url 'service_catalog' %}?country=MX" tabindex="-1"><strong>Mexico</strong><span data-i18n="mxQuick">Selected states and local processes</span></a><span class="quick-dot" aria-hidden="true">✦</span>
+        <a href="{% url 'service_catalog' %}?country=US" tabindex="-1"><strong>United States</strong><span data-i18n="usQuick">Texas-focused document services</span></a><span class="quick-dot" aria-hidden="true">✦</span>
+        <a href="{% url 'service_catalog' %}?country=FR" tabindex="-1"><strong>France</strong><span data-i18n="frQuick">Selected administrative and document matters</span></a><span class="quick-dot" aria-hidden="true">✦</span>
+      </div>
+    </div>
   </div>
 
   <section id="services">
