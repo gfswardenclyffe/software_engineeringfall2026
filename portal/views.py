@@ -236,7 +236,8 @@ def dashboard(request):
     paid_statuses = ("paid", "under_review", "missing_documents", "submitted", "in_process", "ready")
     return render(request, "portal/dashboard.html", {
         "client_documents": ClientDocument.objects.filter(owner=request.user),
-        "case_documents": ApplicationDocument.objects.filter(application__client=request.user).select_related("application"),
+        "case_documents": ApplicationDocument.objects.filter(application__client=request.user, is_invoice=False).select_related("application"),
+        "case_invoices": ApplicationDocument.objects.filter(application__client=request.user, is_invoice=True).select_related("application"),
         "client_conversations": ClientConversation.objects.filter(client=request.user)[:10],
         "applications": applications,
         "active_count": applications.filter(status__in=paid_statuses).count(),
