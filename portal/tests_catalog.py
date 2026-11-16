@@ -12,7 +12,7 @@ class CatalogTests(TestCase):
     def setUpTestData(cls):
         cls.client_user = User.objects.create_user(username="catalog-client", password="test_password_123", email="client@example.com")
         cls.manager = User.objects.create_superuser(username="catalog-manager", password="test_password_123", email="manager@example.com")
-        cls.country = CatalogCountry.objects.create(code="MX", name_en="Mexico", name_es="México", name_fr="Mexique")
+        cls.country = CatalogCountry.objects.get(code="MX")
         cls.region = CatalogRegion.objects.create(country=cls.country, slug="nuevo-leon", name_en="Nuevo León", name_es="Nuevo León", name_fr="Nuevo León")
         cls.city = CatalogMunicipality.objects.create(region=cls.region, slug="san-pedro", name_en="San Pedro Garza García", name_es="San Pedro Garza García", name_fr="San Pedro Garza García")
         cls.service = CatalogService.objects.create(slug="permiso", title_en="Business permit", title_es="Permiso de funcionamiento", title_fr="Permis d'exploitation")
@@ -46,7 +46,7 @@ class CatalogTests(TestCase):
         self.assertNotContains(self.client.get(reverse("service_catalog")), "Business permit")
 
     def test_location_validation(self):
-        other = CatalogCountry.objects.create(code="FR", name_en="France", name_es="Francia", name_fr="France")
+        other = CatalogCountry.objects.get(code="FR")
         self.offering.country = other
         with self.assertRaises(ValidationError):
             self.offering.full_clean()
