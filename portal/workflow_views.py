@@ -63,7 +63,7 @@ def _requirements(app, kind):
 def _form_for(app, request):
     class AnswerForm(forms.Form):
         pass
-    form = AnswerForm(request.POST or None)
+    form = AnswerForm(request.POST if request.method == 'POST' else None)
     for req in _requirements(app, "question"):
         lang = _language(request)
         form.fields["answer_" + str(req.pk)] = forms.CharField(
