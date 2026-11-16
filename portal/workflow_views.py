@@ -19,6 +19,7 @@ from django.http import FileResponse, Http404, HttpResponseBadRequest, HttpRespo
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import escape
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -127,10 +128,30 @@ def _notify_client(app, subject, summary):
         f"Track your process: {track}\n\n"
         "Wardenclyffe Inc. is a private service provider; approval and agency timelines are not guaranteed.\n"
     )
+    if app.stripe_receipt_url:
+        body += f"\nPayment receipt: {app.stripe_receipt_url}\n"
+    if app.payment_confirmed_at:
+        body += "\nA tax invoice, where applicable, will be issued separately.\n"
     msg = EmailMultiAlternatives(
         f"Galiel · {subject} · {app.number}", body,
         settings.DEFAULT_FROM_EMAIL, [app.client.email],
     )
+    html = (
+        '<div style="background:#f6f1ea;padding:32px;font:15px Arial,sans-serif;color:#211c19">'
+        '<div style="max-width:600px;margin:auto;background:#fffdf9;border:1px solid #e9dbcf;padding:30px">'
+        '<h1 style="font:italic 32px Georgia,serif;margin:0">Galiel'
+        '<small style="font:13px Arial,sans-serif"> by Wardenclyffe</small></h1>'
+        '<p style="font-size:20px;margin-top:28px">' + escape(subject) + '</p>'
+        '<p>Hello ' + escape(_full_name(app.client)) + ',</p>'
+        '<p>' + escape(summary) + '</p>'
+        '<p><strong>' + escape(app.number) + '</strong> · ' + escape(app.service_title) + '</p>'
+        '<p>Estimated delivery: ' + escape(str(app.estimated_delivery or "To be confirmed")) + '</p>'
+        '<a style="display:inline-block;border-radius:24px;background:#e96c3c;color:#211c19;padding:13px 20px;text-decoration:none;font-weight:bold" href="' + escape(track) + '">Track my process</a>'
+        + (('<p><a href="' + escape(app.stripe_receipt_url) + '">View payment receipt</a></p>') if app.stripe_receipt_url else '')
+        + '<p style="font-size:12px;color:#786c62;margin-top:26px">Government processing and agency approval are not guaranteed. Tax invoices are issued separately when applicable.</p>'
+        '</div></div>'
+    )
+    msg.attach_alternative(html, "text/html")
     msg.send(fail_silently=False)
 
 
@@ -388,6 +409,17 @@ def _estimated_delivery(max_business_days):
 
 def _confirm_paid(app, session):
     """Idempotently activate the case after a verified, paid Checkout Session."""
+    receipt = ""
+    if os.getenv("GALIEL_STRIPE_SECRET_KEY") and session.get("payment_intent"):
+        try:
+            import stripe
+            stripe.api_key = os.environ["GALIEL_STRIPE_SECRET_KEY"]
+            intent = stripe.PaymentIntent.retrieve(session["payment_intent"], expand=["latest_charge"])
+            charge = intent.get("latest_charge")
+            if charge and hasattr(charge, "get"):
+                receipt = charge.get("receipt_url") or ""
+        except Exception:
+            logger.exception("Unable to retrieve receipt link for application %s", app.pk)
     with transaction.atomic():
         app = ServiceApplication.objects.select_for_update().select_related("client", "offering").get(pk=app.pk)
         if app.status in PAYMENT_STATUSES:
@@ -404,8 +436,9 @@ def _confirm_paid(app, session):
             raise ValueError("Checkout currency mismatch")
         app.payment_confirmed_at = timezone.now()
         app.stripe_payment_intent = session.get("payment_intent") or ""
+        app.stripe_receipt_url = receipt[:1000]
         app.estimated_delivery = _estimated_delivery(app.offering.estimated_max_business_days)
-        app.save(update_fields=["payment_confirmed_at", "stripe_payment_intent", "estimated_delivery", "updated_at"])
+        app.save(update_fields=["payment_confirmed_at", "stripe_payment_intent", "stripe_receipt_url", "estimated_delivery", "updated_at"])
         _set_status(app, "paid", "Stripe payment confirmed")
         conversation = _ensure_conversation(app)
         ClientMessage.objects.create(
