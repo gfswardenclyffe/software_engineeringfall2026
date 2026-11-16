@@ -11,15 +11,15 @@ _DEFAULT_ENV = Path("/home2/gfrancossh/galiel_env/.env")
 
 
 def load_env():
-    env_path = Path(os.environ.get("GALIEL_ENV_FILE", str(_DEFAULT_ENV))).resolve()
-    if not env_path.is_file():
-        raise RuntimeError("Galiel private environment file is missing")
+    env_path = Path(os.environ.get("GALIEL_ENV_FILE", str(_DEFAULT_ENV)))
     if env_path.is_symlink():
         raise RuntimeError("Galiel environment must not be a symbolic link")
+    if not env_path.is_file():
+        raise RuntimeError("Galiel private environment file is missing")
     if env_path.stat().st_mode & 0o077:
         raise RuntimeError("Galiel environment permissions are too permissive")
     # Accept simple KEY=VALUE lines, quoted or unquoted, without shell execution.
-    # Preserve inherited values only when they are already defined deliberately.
+    # Values in the verified private file take precedence over stale process values.
     for raw in env_path.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
         if not line or line.startswith("#"):
@@ -35,4 +35,4 @@ def load_env():
         value = value.strip()
         if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
             value = value[1:-1]
-        os.environ.setdefault(key, value)
+        os.environ[key] = value
