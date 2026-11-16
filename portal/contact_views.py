@@ -117,18 +117,38 @@ class ContactForm(forms.Form):
         return file
 
 
-def _lead_details(lead):
+def _lead_details(lead, locale="en"):
+    words = {
+        "en": ("Reference", "Full name", "Email", "Phone", "not provided", "Country", "State / city",
+               "Type of request", "Attachment", "none", "Privacy notice accepted", "Message"),
+        "es": ("Referencia", "Nombre completo", "Correo electrónico", "Teléfono", "no proporcionado",
+               "País", "Estado / ciudad", "Tipo de solicitud", "Archivo adjunto", "ninguno",
+               "Aviso de privacidad aceptado", "Mensaje"),
+        "fr": ("Référence", "Nom complet", "E-mail", "Téléphone", "non communiqué", "Pays",
+               "État / ville", "Type de demande", "Pièce jointe", "aucune",
+               "Politique de confidentialité acceptée", "Message"),
+    }.get(locale, (
+        "Reference", "Full name", "Email", "Phone", "not provided", "Country", "State / city",
+        "Type of request", "Attachment", "none", "Privacy notice accepted", "Message",
+    ))
+    (ref, full, email, phone, not_given, country, city, kind, attachment, none,
+     privacy, message) = words
+    country_name = {
+        "MX": {"en": "Mexico", "es": "México", "fr": "Mexique"},
+        "US-TX": {"en": "United States – Texas", "es": "Estados Unidos – Texas", "fr": "États-Unis – Texas"},
+        "FR": {"en": "France", "es": "Francia", "fr": "France"},
+    }.get(lead.country, {}).get(locale, lead.get_country_display())
     return (
-        f"Reference: GL-{lead.pk:06d}\n"
-        f"Full name: {lead.full_name}\n"
-        f"Email: {lead.email}\n"
-        f"Phone: {lead.phone_code} {lead.phone or '(not provided)'}\n"
-        f"Country: {lead.get_country_display()}\n"
-        f"State / city: {lead.state_city}\n"
-        f"Type of request: {lead.request_type}\n"
-        f"Attachment: {lead.attachment_filename or '(none)'}\n"
-        f"Privacy notice accepted: {lead.privacy_consent_at.isoformat()}\n"
-        f"Message:\n{lead.message}"
+        f"{ref}: GL-{lead.pk:06d}\\n"
+        f"{full}: {lead.full_name}\\n"
+        f"{email}: {lead.email}\\n"
+        f"{phone}: {lead.phone_code} {lead.phone or '(' + not_given + ')'}\\n"
+        f"{country}: {country_name}\\n"
+        f"{city}: {lead.state_city}\\n"
+        f"{kind}: {lead.request_type}\\n"
+        f"{attachment}: {lead.attachment_filename or '(' + none + ')'}\\n"
+        f"{privacy}: {lead.privacy_consent_at.isoformat()}\\n"
+        f"{message}:\\n{lead.message}"
     )
 
 
@@ -146,7 +166,7 @@ def _send_mail(lead, visitor):
         '<div style="background:#f6f1ea;padding:32px;color:#211c19;font:15px Arial,sans-serif">'
         '<div style="background:#fffdf9;max-width:610px;margin:auto;padding:30px;border:1px solid #211c19">'
         + logo + '<p style="font-size:18px">' + escape(introduction) + '</p>'
-        + '<p style="white-space:pre-wrap;line-height:1.65">' + escape(_lead_details(lead)) + '</p>'
+        + '<p style="white-space:pre-wrap;line-height:1.65">' + escape(_lead_details(lead, locale)) + '</p>'
         + '</div></div>'
     )
     if visitor:
