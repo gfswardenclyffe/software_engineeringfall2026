@@ -74,7 +74,7 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 <p>{{ app.location_label }} · {{ app.get_status_display }}</p>
 <p style="color:var(--muted)">Estimated delivery: {{ app.estimated_delivery|default:"To be confirmed" }}</p>
 {% if app.status == 'draft' or app.status == 'quoted' or app.status == 'awaiting_payment' %}
-<a class="action" href="{% url 'application_step' app.pk 1 %}">{% if app.status == 'quoted' %}Pay now / Review quote{% else %}Resume draft{% endif %} →</a>
+<a class="action" href="{% if app.status == 'quoted' %}{% url 'application_step' app.pk 5 %}{% else %}{% url 'application_step' app.pk 1 %}{% endif %}">{% if app.status == 'quoted' %}Pay now{% else %}Resume draft{% endif %} →</a>
 {% else %}<a class="secondary" href="{% url 'application_track' app.pk %}">Track process →</a>{% endif %}
 </div>
 {% empty %}<div class="empty"><h3>No processes yet</h3><p>Your applications and drafts will appear here.</p>
@@ -94,8 +94,10 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 <div class="card">{% for app in paid_applications %}
 <p><strong>{{ app.number }} · {{ app.service_title }}</strong><br>
 {{ app.currency }} {{ app.total }} · Paid {{ app.payment_confirmed_at|date:"M j, Y" }}<br>
-{% if app.stripe_receipt_url %}<a href="{{ app.stripe_receipt_url }}">Open Stripe receipt</a>{% else %}Receipt pending{% endif %}
-</p>{% empty %}<div class="empty"><h3>No paid invoices or receipts yet</h3><p>Verified payment records will appear here.</p></div>{% endfor %}
+<a href="{% url 'application_receipt' app.pk %}">View payment record</a>{% if app.stripe_receipt_url %} · <a href="{{ app.stripe_receipt_url }}">Stripe receipt</a>{% endif %}
+</p>{% empty %}<div class="empty"><h3>No paid receipts yet</h3><p>Verified payment records will appear here.</p></div>{% endfor %}
+<h2>Issued tax invoices</h2>{% for doc in case_invoices %}<p><a href="{% url 'application_download' doc.application_id doc.pk %}">{{ doc.original_filename }}</a> · {{ doc.application.number }}</p>
+{% empty %}<p style="color:var(--muted)">No tax invoices issued yet.</p>{% endfor %}
 </div></section>
 <section id="messages" class="page"><div class="eyebrow">Communication</div><h1>Messages</h1><p class="subtitle">Conversations with Wardenclyffe, saved to your account.</p><p><a class="action" href="{% url 'messages_inbox' %}">Open messages →</a></p><div class="card">{% for thread in client_conversations %}<p><a href="{% url 'conversation_detail' thread.pk %}"><strong>{{ thread.subject }}</strong></a><br><small>{{ thread.updated_at|date:"M j, Y" }}</small></p>{% empty %}<div class="empty"><div class="empty-icon">✉</div><h3>No messages yet</h3><p>Send Wardenclyffe a message to start a conversation.</p></div>{% endfor %}</div></section>
 </main></div>
