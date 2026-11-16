@@ -45,7 +45,7 @@ h1{font-family:Georgia,serif;font-size:clamp(36px,5vw,58px);font-weight:400;lett
 <div class="layout">
 <aside><div class="eyebrow">Workspace</div><nav aria-label="Client navigation">
 <a href="{% url 'dashboard' %}#overview">Overview</a>
-<a href="{% url 'dashboard' %}#processes">My processes</a>
+<a href="{% url 'dashboard' %}#processes">My processes</a><a href="{% url 'dashboard' %}#services">Services</a>
 <a href="{% url 'dashboard' %}#documents">Documents</a>
 <a href="{% url 'dashboard' %}#invoices">Invoices & payments</a>
 <a href="{% url 'dashboard' %}#messages">Messages</a>
@@ -56,7 +56,7 @@ h1{font-family:Georgia,serif;font-size:clamp(36px,5vw,58px);font-weight:400;lett
 <div class="hero"><div><div class="eyebrow">Account settings / 01</div><h1>My profile</h1><p class="subtitle">Your information, all in one place. Keep it current so we can serve you better.</p></div><a class="button" href="{% url 'profile_edit' %}">Edit my information ↗</a></div>
 {% if messages %}{% for message in messages %}<div class="message" role="status">{{ message }}</div>{% endfor %}{% endif %}
 <div class="columns">
-<section class="card"><div class="avatar" aria-hidden="true">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div><h2 class="name">{{ user.get_full_name|default:user.email }}</h2><p class="subtitle">Client account</p>
+<section class="card"><div class="avatar" aria-hidden="true">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div><h2 class="name">{{ user.get_full_name|default:user.email }}</h2><p class="subtitle">{% if user.is_superuser %}Manager account{% elif user.is_staff %}Staff account{% else %}Client account{% endif %}</p>
 <div class="data">
 <div><span>First name</span><strong>{{ user.first_name|default:"Not provided" }}</strong></div>
 <div><span>Last name</span><strong>{{ user.last_name|default:"Not provided" }}</strong></div>
@@ -64,9 +64,15 @@ h1{font-family:Georgia,serif;font-size:clamp(36px,5vw,58px);font-weight:400;lett
 <div><span>Phone number</span><strong>{{ user.profile.phone|default:"Not provided" }}</strong></div>
 <div><span>Preferred language</span><strong>{{ user.profile.get_preferred_language_display }}</strong></div>
 <div class="wide"><span>Company / legal name</span><strong>{{ user.profile.company|default:"Not provided" }}</strong></div>
-<div><span>RFC / Tax ID</span><strong>{{ user.profile.tax_id|default:"Not provided" }}</strong></div>
+<div><span>Tax ID (if applicable)</span><strong>{{ user.profile.tax_id|default:"Not provided" }}</strong></div>
 <div><span>Country</span><strong>{{ user.profile.country|default:"Not provided" }}</strong></div>
-<div class="wide"><span>Address</span><strong>{{ user.profile.address|default:"Not provided"|linebreaksbr }}</strong></div>
+<div class="wide"><span>Street</span><strong>{{ user.profile.street|default:"Not provided" }}</strong></div>
+<div><span>Street number</span><strong>{{ user.profile.street_number|default:"Not provided" }}</strong></div>
+<div><span>Apartment / Suite</span><strong>{{ user.profile.unit|default:"Not provided" }}</strong></div>
+<div><span>City</span><strong>{{ user.profile.city|default:"Not provided" }}</strong></div>
+<div><span>State / Province / Region</span><strong>{{ user.profile.state_region|default:"Not provided" }}</strong></div>
+<div><span>ZIP / Postal code</span><strong>{{ user.profile.postal_code|default:"Not provided" }}</strong></div>
+{% if user.profile.address and not user.profile.street %}<div class="wide"><span>Previously saved address</span><strong>{{ user.profile.address|linebreaksbr }}</strong></div>{% endif %}
 </div>
 </section>
 <section class="card"><h2>Account & privacy</h2><div class="secure"><span class="dot"></span>Signed in securely</div><p class="note">Only you and authorized Wardenclyffe personnel should have access to your client information.</p><div class="separator"></div><div class="eyebrow">Member since</div><p style="font-size:16px;margin:9px 0">{{ user.date_joined|date:"F j, Y" }}</p><div class="separator"></div><div class="eyebrow">Need something corrected?</div><p class="note">Update your contact and billing details anytime using the Edit button. Password changes are managed separately for security.</p><a class="button" href="{% url 'profile_edit' %}">Manage my details</a></section>
