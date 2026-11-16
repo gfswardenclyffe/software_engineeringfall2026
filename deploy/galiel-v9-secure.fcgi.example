@@ -8,6 +8,8 @@ APP_ROOT = "/home2/gfrancossh/galiel"
 sys.path.insert(0, APP_ROOT)
 os.chdir(APP_ROOT)
 
+# Force live process to use production even if inherited environment differs.
+os.environ["GALIEL_ENV"] = "production"
 from wardenclyffe_portal.private_env import load_private_env
 load_private_env()
 
