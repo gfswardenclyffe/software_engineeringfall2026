@@ -5,22 +5,31 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-jdg^51c^p5j66wn#@$pgd&!qd7@++a@d54)&47dr1h3jw#$6l@",
-)
+from django.core.exceptions import ImproperlyConfigured
+from django.core.management.utils import get_random_secret_key
+from .private_env import load_private_env
 
-DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
+# Mandatory in production, including Django CLI/WSGI; no committed fallback.
+load_private_env()
+IS_DEVELOPMENT = os.environ.get("GALIEL_ENV") == "development"
 
-ALLOWED_HOSTS = [
-    "galiel.wardenclyffefirm.com",
-    "www.galiel.wardenclyffefirm.com",
-    "localhost",
-    "127.0.0.1",
-]
+if IS_DEVELOPMENT:
+    SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or get_random_secret_key()
+    DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]", "testserver"]
+else:
+    SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+    if not SECRET_KEY or len(SECRET_KEY) < 50:
+        raise ImproperlyConfigured("Production DJANGO_SECRET_KEY is required.")
+    DEBUG = False
+    ALLOWED_HOSTS = [
+        "galiel.wardenclyffefirm.com",
+        "www.galiel.wardenclyffefirm.com",
+    ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://galiel.wardenclyffefirm.com",
+    "https://www.galiel.wardenclyffefirm.com",
 ]
 
 INSTALLED_APPS = [
@@ -88,6 +97,7 @@ LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/"
 
+# HostGator proxy header must be verified during HTTPS preflight.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
@@ -106,7 +116,7 @@ EMAIL_USE_TLS = os.environ.get("DJANGO_EMAIL_USE_TLS", "True").lower() == "true"
 EMAIL_USE_SSL = os.environ.get("DJANGO_EMAIL_USE_SSL", "False").lower() == "true"
 DEFAULT_FROM_EMAIL = os.environ.get("DJANGO_DEFAULT_FROM_EMAIL", "Galiel <info@wardenclyffefirm.com>")
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24
-# Production must set DJANGO_SECRET_KEY and DJANGO_DEBUG=False in its environment.
+# Production requires a private, permission-checked ~/galiel_env/.env; no fallback key.
 
 
 # Client files must be outside the application and any public document root.
