@@ -1,0 +1,13 @@
+# DO NOT replace the active galiel-v9.fcgi with this snippet.
+# Server path: /home2/gfrancossh/galiel/galiel-v9.fcgi
+# Preserve its real shebang, interpreter, executable mode and FastCGI implementation.
+# Insert these lines before the first Django import/application initialization:
+import sys
+if "/home2/gfrancossh/galiel" not in sys.path:
+    sys.path.insert(0, "/home2/gfrancossh/galiel")
+from galiel_env_loader import load_env
+load_env()
+
+# Deploy by installing to a temporary file next to the original and atomically
+# renaming with mv; touching the file does NOT restart stale HostGator workers.
+# Match existing processes by galiel-v9.fcgi; zero workers is normal.
