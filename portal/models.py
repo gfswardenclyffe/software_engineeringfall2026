@@ -149,6 +149,8 @@ class ServiceOffering(models.Model):
     is_temporary_price = models.BooleanField(default=False, help_text="Estimate only; does not authorize charging this amount.")
     price_unit = models.CharField(max_length=80, blank=True, help_text="Examples: per document, per page, per m², or basic project.")
     estimated_price_note = models.TextField(blank=True, default="Estimated price — final cost confirmed after document review; government fees may vary.")
+    estimated_price_note_es = models.TextField(blank=True, default="Precio estimado — costo final confirmado tras revisar documentos; los derechos oficiales pueden variar.")
+    estimated_price_note_fr = models.TextField(blank=True, default="Prix estimé — coût final confirmé après examen des documents ; les frais officiels peuvent varier.")
     government_fee_estimate = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Research reference, not a confirmed client-specific government assessment.")
     service_fee_estimate = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Proposed Wardenclyffe service fee; staff may revise before publication.")
     pricing_review_required = models.BooleanField(default=True, help_text="Flag unsupported or incomplete estimates for manager verification.")
