@@ -1,5 +1,4 @@
-{% extends "portal/auth_base.html" %}{% block title %}Create an account · Galiel
-{% endif %}{% endblock %}{% block content %}{% if user.is_authenticated %}{% include "portal/_already_signed_in.html" %}{% else %}
+{% extends "portal/auth_base.html" %}{% block title %}Create an account · Galiel{% endblock %}{% block content %}{% if user.is_authenticated %}{% include "portal/_already_signed_in.html" %}{% else %}
 
 <div class="eyebrow">New account / Step 1 of 2</div><h1>Let's get started.</h1><p class="sub">Create your client account. We'll email you a confirmation link before you can access your private workspace.</p>
 {% if pending_service_label %}<div class="notice"><strong>Your selected service:</strong> {{ pending_service_label }}</div>{% endif %}
@@ -15,4 +14,5 @@
 <button type="submit" class="action">Create account and send confirmation →</button>
 <p class="form-note">We verify your email before activating the account. Phone verification is not yet enabled; your phone number is used only as contact information.</p></form>
 <p class="links">Already registered? <a href="{% url 'login' %}">Sign in</a><br><a href="{% url 'home' %}">← Back to Galiel</a></p>
+{% endif %}
 {% endblock %}
