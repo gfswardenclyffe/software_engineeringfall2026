@@ -45,6 +45,30 @@ SERVICE_LABELS = {
 }
 
 
+# This catalog is available inside the authenticated client workspace.
+# Service inquiry links do not create requests or payments automatically.
+SERVICE_GROUPS = (
+    ("Mexico", "Municipal and administrative services", ("nl-", "cdmx-", "qro-", "jal-", "col-", "tam-")),
+    ("United States", "Texas services", ("tx-",)),
+    ("France", "Administrative assistance", ("fr-",)),
+)
+
+
+def workspace_service_groups():
+    return [
+        {
+            "name": name,
+            "description": description,
+            "services": [
+                {"code": code, "label": label}
+                for code, label in SERVICE_LABELS.items()
+                if code.startswith(prefixes)
+            ],
+        }
+        for name, description, prefixes in SERVICE_GROUPS
+    ]
+
+
 def _capture_pending_service(request):
     service = (request.GET.get("service") or request.POST.get("service") or "").strip()
     if service in SERVICE_LABELS:
@@ -192,6 +216,7 @@ def dashboard(request):
     return render(request, "portal/dashboard.html", {
         "client_documents": ClientDocument.objects.filter(owner=request.user),
         "client_conversations": ClientConversation.objects.filter(client=request.user)[:10],
+        "service_groups": workspace_service_groups(),
     })
 
 
@@ -268,9 +293,11 @@ def messages_inbox(request):
         conversations = ClientConversation.objects.select_related("client").all()
     else:
         conversations = ClientConversation.objects.filter(client=request.user)
+    service = request.GET.get("service", "")
+    subject = f"Inquiry: {SERVICE_LABELS[service]}" if service in SERVICE_LABELS else ""
     return render(request, "portal/messages.html", {
         "conversations": conversations,
-        "form": NewConversationForm(),
+        "form": NewConversationForm(initial={"subject": subject}),
     })
 
 
