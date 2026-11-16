@@ -1,0 +1,13 @@
+<div class="eyebrow">Your client space / Account</div>
+<h1>You're already signed in.</h1>
+<p class="sub">You're signed in as <strong>{{ user.get_full_name|default:user.email }}</strong>{% if user.get_full_name and user.email %} · {{ user.email }}{% endif %}.</p>
+<div class="notice" role="status">
+  <strong>Everything in its right place.</strong>
+  <p>Continue to your workspace, or sign out to create another account.</p>
+</div>
+<p><a class="action" href="{% url 'dashboard' %}">Go to my workspace →</a></p>
+<form method="post" action="{% url 'logout' %}">
+  {% csrf_token %}
+  <button class="secondary" type="submit">Sign out</button>
+</form>
+<p class="links"><a href="{% url 'home' %}">← Back to Galiel</a></p>
