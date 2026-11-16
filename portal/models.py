@@ -152,6 +152,8 @@ class ServiceOffering(models.Model):
     estimated_max_business_days = models.PositiveSmallIntegerField(null=True, blank=True)
     is_published = models.BooleanField(default=False)
     manager_notes = models.TextField(blank=True, help_text="Internal only; never shown to clients.")
+    deposit_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Starting-price services: optional payable deposit, not final price.")
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Applicable checkout tax percentage configured by staff; do not assume IVA applies.")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -209,3 +211,82 @@ class ServiceRequirement(models.Model):
 
     def __str__(self):
         return self.label_en
+
+
+def case_file_path(instance, filename):
+    suffix = Path(filename).suffix.lower()
+    return f"case_documents/{instance.application.client_id}/{instance.application_id}/{uuid.uuid4().hex}{suffix}"
+
+
+class ServiceApplication(models.Model):
+    STATUS = [
+        ("draft", "Draft"),
+        ("quote_requested", "Quote requested"),
+        ("quoted", "Quote ready"),
+        ("awaiting_payment", "Awaiting payment"),
+        ("paid", "Paid"),
+        ("under_review", "Under review"),
+        ("missing_documents", "Missing documents"),
+        ("submitted", "Submitted to authority"),
+        ("in_process", "In process"),
+        ("ready", "Ready / Delivered"),
+        ("cancelled", "Cancelled"),
+    ]
+    client = models.ForeignKey(User, on_delete=models.PROTECT, related_name="galiel_applications")
+    offering = models.ForeignKey(ServiceOffering, on_delete=models.PROTECT, related_name="applications")
+    status = models.CharField(max_length=25, choices=STATUS, default="draft", db_index=True)
+    step = models.PositiveSmallIntegerField(default=1)
+    answers = models.JSONField(default=dict, blank=True)
+    notes = models.TextField(blank=True)
+    terms_accepted_at = models.DateTimeField(null=True, blank=True)
+    service_title = models.CharField(max_length=180, blank=True)
+    location_label = models.CharField(max_length=240, blank=True)
+    currency = models.CharField(max_length=3, blank=True)
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    tax_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    total = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    quoted_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Staff-approved amount payable, including any tax.")
+    estimated_delivery = models.DateField(null=True, blank=True)
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name="assigned_galiel_cases")
+    conversation = models.OneToOneField(ClientConversation, null=True, blank=True, on_delete=models.SET_NULL, related_name="application")
+    stripe_checkout_session = models.CharField(max_length=255, blank=True)
+    stripe_payment_intent = models.CharField(max_length=255, blank=True)
+    stripe_receipt_url = models.URLField(max_length=1000, blank=True)
+    payment_confirmed_at = models.DateTimeField(null=True, blank=True)
+    confirmation_sent_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+    @property
+    def number(self):
+        return f"GAL-{self.pk:06d}"
+
+    def __str__(self):
+        return f"{self.number} · {self.client.email} · {self.get_status_display()}"
+
+
+class ApplicationDocument(models.Model):
+    application = models.ForeignKey(ServiceApplication, on_delete=models.CASCADE, related_name="documents")
+    requirement = models.ForeignKey(ServiceRequirement, on_delete=models.PROTECT, null=True, blank=True)
+    original_filename = models.CharField(max_length=255)
+    file = models.FileField(upload_to=case_file_path)
+    content_type = models.CharField(max_length=40)
+    size = models.PositiveIntegerField()
+    is_deliverable = models.BooleanField(default=False)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["uploaded_at"]
+
+
+class ApplicationEvent(models.Model):
+    application = models.ForeignKey(ServiceApplication, on_delete=models.CASCADE, related_name="events")
+    status = models.CharField(max_length=25, choices=ServiceApplication.STATUS)
+    note = models.CharField(max_length=400, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "pk"]
