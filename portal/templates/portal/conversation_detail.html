@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ conversation.subject }} · Galiel</title>
@@ -11,7 +12,9 @@ a{color:var(--dark)}.card{background:white;border:1px solid var(--border);border
 label{display:block;font-weight:600;margin-bottom:8px}textarea{width:100%;padding:12px;border:1px solid #bbc8c0;border-radius:9px;font:inherit}
 button{background:var(--dark);border:0;border-radius:24px;color:white;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer}
 .errorlist{color:#a52820}
-</style></head><body><main><a href="{% url 'messages_inbox' %}">← All messages</a>
+</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
+</head><body>{% include 'portal/_site_header.html' %}<main><a href="{% url 'messages_inbox' %}">← All messages</a>
 <h1>{{ conversation.subject }}</h1>
 <p class="meta">Client: {{ conversation.client.get_full_name|default:conversation.client.email }} · {{ conversation.client.email }}{% if conversation.application %} · Process <a href="{% url 'application_track' conversation.application.pk %}">{{ conversation.application.number }}</a>{% endif %}</p>
 <section class="card" aria-label="Conversation history">

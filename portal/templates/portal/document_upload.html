@@ -1,8 +1,9 @@
+{% load static %}
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Upload a document · Galiel</title>
 <style>body{font:16px system-ui,sans-serif;background:#f6f8f5;color:#1d2d2a;margin:0}main{max-width:650px;margin:8vh auto;padding:28px;background:white;border:1px solid #ddd;border-radius:16px}label{display:block;margin:18px 0 6px;font-weight:650}input{display:block;max-width:100%;padding:12px;border:1px solid #aaa;border-radius:8px;width:95%}button{background:#173e39;color:#fff;border:0;border-radius:24px;padding:13px 22px;cursor:pointer}a{color:#173e39}.errorlist{color:#a52d18}</style>
-</head><body><main><a href="{% url 'dashboard' %}#documents">← Back to Documents</a><h1>Upload a document</h1><p>PDF files up to 10 MB. Only you and authorized administrators can access documents you upload.</p>
+<link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}"><link rel="icon" href="{% static 'portal/galiel-signature.svg' %}" type="image/svg+xml"></head><body>{% include 'portal/_site_header.html' %}<main><a href="{% url 'dashboard' %}#documents">← Back to Documents</a><h1>Upload a document</h1><p>PDF files up to 10 MB. Only you and authorized administrators can access documents you upload.</p>
 <form method="post" enctype="multipart/form-data">{% csrf_token %}
 {{ form.non_field_errors }}<label for="{{ form.title.id_for_label }}">Document title</label>{{ form.title.errors }}{{ form.title }}
 <label for="{{ form.file.id_for_label }}">Choose PDF</label>{{ form.file.errors }}{{ form.file }}

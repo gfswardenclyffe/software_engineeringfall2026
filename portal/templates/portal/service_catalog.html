@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="{{ locale }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Explore services · Galiel</title>
@@ -16,9 +17,10 @@ label{display:block;font-size:12px;font-weight:750;margin-bottom:8px}select{widt
 .card .btn{margin-top:20px}.count{font-size:14px;color:var(--muted);margin-bottom:16px}
 #error{border:1px solid #d39898;background:#fff1f1;color:#8c2424;border-radius:12px;padding:15px;margin:15px 0}
 @media(max-width:760px){.filters,.cards{grid-template-columns:1fr}.top{flex-wrap:wrap}}
-</style></head><body>
-<header class="top"><a class="brand" href="{% url 'dashboard' %}">galiel<span>.</span></a>
-<a href="{% url 'dashboard' %}#services">← {% if locale == 'es' %}Mi espacio{% elif locale == 'fr' %}Mon espace{% else %}My workspace{% endif %}</a></header>
+</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
+</head><body>
+{% include 'portal/_site_header.html' %}
 <main>
 <div class="eyebrow">Galiel / {% if locale == 'es' %}Servicios{% else %}Services{% endif %}</div>
 <h1>{% if locale == 'es' %}Explorar servicios{% elif locale == 'fr' %}Explorer les services{% else %}Explore services{% endif %}</h1>
@@ -43,9 +45,9 @@ const api="{% url 'catalog_api' %}";
 const country=document.getElementById("country"),region=document.getElementById("region"),municipality=document.getElementById("municipality");
 const cards=document.getElementById("cards"),count=document.getElementById("count"),loading=document.getElementById("loading"),error=document.getElementById("error");
 const words={
-en:{regions:"All regions",municipalities:"All municipalities",quote:"Quote required",from:"From",unknown:"Timeline to be confirmed",days:"estimated business days",start:"Start service",empty:"No services published for this location.",failed:"Unable to load services. Please retry.",available:"available services"},
-es:{regions:"Todas las regiones",municipalities:"Todos los municipios",quote:"Cotización requerida",from:"Desde",unknown:"Plazo por confirmar",days:"días hábiles estimados",start:"Iniciar trámite",empty:"No hay servicios publicados para esta ubicación.",failed:"No se pudieron cargar los servicios. Intente nuevamente.",available:"servicios disponibles"},
-fr:{regions:"Toutes les régions",municipalities:"Toutes les communes",quote:"Devis requis",from:"À partir de",unknown:"Délai à confirmer",days:"jours ouvrés estimés",start:"Démarrer la démarche",empty:"Aucun service publié pour ce lieu.",failed:"Impossible de charger les services. Réessayez.",available:"services disponibles"}
+en:{regions:"All regions",municipalities:"All municipalities",quote:"Quote required",from:"From",unknown:"Timeline to be confirmed",days:"business days",start:"Start service",empty:"No services published for this location.",failed:"Unable to load services. Please retry.",available:"available services",estimate:"Estimated price — final cost confirmed after document review; government fees may vary.",unit:"per"},
+es:{regions:"Todas las regiones",municipalities:"Todos los municipios",quote:"Cotización requerida",from:"Desde",unknown:"Plazo por confirmar",days:"días hábiles",start:"Iniciar trámite",empty:"No hay servicios publicados para esta ubicación.",failed:"No se pudieron cargar los servicios. Intente nuevamente.",available:"servicios disponibles",estimate:"Precio estimado — costo final confirmado tras revisar documentos; los derechos oficiales pueden variar.",unit:"por"},
+fr:{regions:"Toutes les régions",municipalities:"Toutes les communes",quote:"Devis requis",from:"À partir de",unknown:"Délai à confirmer",days:"jours ouvrés",start:"Démarrer la démarche",empty:"Aucun service publié pour ce lieu.",failed:"Impossible de charger les services. Réessayez.",available:"services disponibles",estimate:"Prix estimé — coût final confirmé après examen des documents ; les frais officiels peuvent varier.",unit:"par"}
 };
 const w=words[language]||words.en;let generation=0;
 function el(tag,cls,text){const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
@@ -55,11 +57,11 @@ cards.replaceChildren();count.textContent=items.length+" "+w.available;
 if(!items.length){const card=el("article","card");card.append(el("h2","",w.empty));cards.append(card);return;}
 items.forEach(item=>{
 const card=el("article","card"),location=el("div","eyebrow",item.location),title=el("h2","",item.service),meta=el("div","meta");
-let price=item.price_type==="quote"||!item.price?w.quote:(item.price_type==="starting"?w.from+" ":"")+item.currency+" "+item.price;
-meta.append(el("strong","",price));
+let sign=item.currency==="EUR"?"€": "$";let price=item.price_type==="quote"||!item.price?w.quote:(item.price_type==="starting"?w.from+" ":"")+sign+Number(item.price).toLocaleString(language,{maximumFractionDigits:2})+" "+item.currency;
+meta.append(el("strong","",price));if(item.price_unit&&item.price_type!=="quote")meta.append(el("span","muted",item.price_unit));
 let duration=(item.estimated_min_business_days!==null&&item.estimated_max_business_days!==null)
-?item.estimated_min_business_days+"–"+item.estimated_max_business_days+" "+w.days:w.unknown;
-meta.append(el("div","muted",duration));
+?"Est. "+item.estimated_min_business_days+"–"+item.estimated_max_business_days+" "+w.days:w.unknown;
+meta.append(el("div","muted",duration));if(item.is_temporary_price){const disclosure=el("small","muted",item.estimated_price_note||w.estimate);meta.append(disclosure)}
 const link=el("a","btn",w.start+" →");link.href=item.start_url;
 card.append(location,title,meta,link);cards.append(card);
 });}

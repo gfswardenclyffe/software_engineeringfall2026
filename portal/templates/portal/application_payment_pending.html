@@ -1,8 +1,9 @@
+{% load static %}
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Payment verification · Galiel</title><style>
 body{margin:0;background:#f6f1ea;color:#211c19;font:15px Arial,sans-serif}.panel{max-width:680px;margin:10vh auto;padding:32px;background:white;border:1px solid #e9dbcf;border-radius:18px}
 h1{font:normal 37px Georgia,serif}.brand{font:italic 32px Georgia,serif}.brand small{font:12px Arial}
 a{color:#ad5429}p{line-height:1.65}
-</style></head><body><main class="panel"><div class="brand">Galiel <small>by Wardenclyffe</small></div>
+</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}"><link rel="icon" href="{% static 'portal/galiel-signature.svg' %}" type="image/svg+xml"></head><body>{% include 'portal/_site_header.html' %}<main class="panel">
 <h1>Payment verification in progress</h1>
 <p>Stripe has returned you to Galiel, but we haven't received a verified payment confirmation yet. We will not activate your process until Stripe confirms the payment securely.</p>
 <p><strong>{{ application.number }}</strong> · {{ application.service_title }}</p>

@@ -491,6 +491,15 @@ def catalog_api(request):
             "country": item.country_id,
             "location": _localized(place, "name", locale),
             "price_type": item.price_type,
+            "is_temporary_price": item.is_temporary_price,
+            "pricing_review_required": item.pricing_review_required,
+            "price_unit": item.price_unit,
+            "estimated_price_note": (
+                item.estimated_price_note_es if locale == "es"
+                else item.estimated_price_note_fr if locale == "fr"
+                else item.estimated_price_note
+            ) if item.is_temporary_price else "",
+
             "price": str(item.price) if item.price is not None else None,
             "currency": item.currency,
             "estimated_min_business_days": item.estimated_min_business_days,
@@ -516,3 +525,18 @@ def service_intake(request, offering_id):
         "offering": offering, "locale": _catalog_locale(request),
     })
 
+
+
+def galiel_signature_png(request):
+    """Email-compatible PNG served from the exact canonical homepage signature."""
+    import base64
+    from django.conf import settings
+    from django.http import HttpResponse
+    from django.views.decorators.cache import cache_control
+    from pathlib import Path
+    svg = (Path(settings.BASE_DIR) / "portal" / "static" / "portal" / "galiel-signature.svg").read_text(encoding="utf-8")
+    png = base64.b64decode(svg.split("base64,", 1)[1].split('"', 1)[0])
+    response = HttpResponse(png, content_type="image/png")
+    response["Cache-Control"] = "public, max-age=604800"
+    response["X-Content-Type-Options"] = "nosniff"
+    return response

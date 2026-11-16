@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My workspace · Galiel</title>
@@ -38,8 +39,10 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 
 @media(max-width:950px){.layout{display:block}aside{border-right:0;border-bottom:1px solid var(--line);padding:12px 16px}.user-name,aside .mini{display:none}nav{display:flex;overflow-x:auto;gap:3px;scrollbar-width:thin}nav a{white-space:nowrap;padding:11px 13px}.grid{grid-template-columns:1fr}}
 @media(max-width:600px){.top{height:64px}.brand{font-size:26px}.account{display:none}.stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat{padding:13px}.stat strong{font-size:30px}.stat span{font-size:11px}.card{border-radius:15px}.empty{padding:15px 0}.subtitle{font-size:14px}}
-</style></head><body>
-<header class="top"><a href="{% url 'dashboard' %}" class="brand">Galiel <span>by Wardenclyffe</span></a><div class="top-right"><span class="account">{{ user.get_full_name|default:user.email }} · {{ user.email }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="out" type="submit">Sign out</button></form></div></header>
+</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
+</head><body>
+{% include 'portal/_site_header.html' %}
 <div class="layout"><aside><div class="mini">Your workspace</div><div class="user-name">{{ user.get_full_name|default:user.email }}</div><nav aria-label="Workspace navigation">
 <a href="#overview" data-page="overview" class="active">Overview</a>
 <a href="#processes" data-page="processes">My processes</a>

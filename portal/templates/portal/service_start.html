@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,11 +11,11 @@
 a{color:inherit}.card{background:#fff;border:1px solid #151515}.head{padding:26px;border-bottom:1px solid #151515}.head small{display:block;text-transform:uppercase;letter-spacing:.1em;font-weight:800;color:#666;margin-bottom:8px}.head h1{margin:0;font-size:42px;letter-spacing:-.04em}
 .body{padding:26px;display:grid;gap:18px}.notice{background:#f7f2ea;border-left:5px solid #ee6c35;padding:16px}.meta{font-size:13px;color:#666}.actions{display:flex;gap:12px;flex-wrap:wrap}.btn{display:inline-block;border:1px solid #151515;padding:12px 16px;text-decoration:none;font-weight:800;background:#fff}.btn.primary{background:#ee6c35}
 </style>
-</head>
-<body>
+<link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}"><link rel="icon" href="{% static 'portal/galiel-signature.svg' %}" type="image/svg+xml"></head>
+<body>{% include 'portal/_site_header.html' %}
 <div class="wrap">
   <div class="top">
-    <strong>Galiel <span style="font-weight:400">by Wardenclyffe</span></strong>
+    
     <a href="{% url 'dashboard' %}">Client portal</a>
   </div>
   <section class="card">

@@ -7,6 +7,7 @@ from . import views, workflow_views, contact_views
 urlpatterns = [
     path("", views.home, name="home"),
     path("wordmark/", views.wordmark, name="wordmark"),
+    path("brand/galiel-signature.png", views.galiel_signature_png, name="galiel_signature_png"),
     path("register/", views.register, name="register"),
     path("register/complete/", views.registration_complete, name="registration_complete"),
     path("activate/<uidb64>/<token>/", views.activate_account, name="activate_account"),
@@ -24,6 +25,7 @@ urlpatterns = [
     path("password-reset/", auth_views.PasswordResetView.as_view(
         template_name="portal/password_reset.html",
         email_template_name="portal/password_reset_email.txt",
+        html_email_template_name="portal/password_reset_email.html",
         success_url="/password-reset/done/",
     ), name="password_reset"),
     path("password-reset/done/", auth_views.PasswordResetDoneView.as_view(

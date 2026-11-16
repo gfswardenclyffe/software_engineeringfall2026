@@ -146,6 +146,14 @@ class ServiceOffering(models.Model):
     region = models.ForeignKey(CatalogRegion, null=True, blank=True, on_delete=models.PROTECT, related_name="offerings")
     municipality = models.ForeignKey(CatalogMunicipality, null=True, blank=True, on_delete=models.PROTECT, related_name="offerings")
     price_type = models.CharField(max_length=12, choices=PRICE_TYPES, default="quote")
+    is_temporary_price = models.BooleanField(default=False, help_text="Estimate only; does not authorize charging this amount.")
+    price_unit = models.CharField(max_length=80, blank=True, help_text="Examples: per document, per page, per m², or basic project.")
+    estimated_price_note = models.TextField(blank=True, default="Estimated price — final cost confirmed after document review; government fees may vary.")
+    estimated_price_note_es = models.TextField(blank=True, default="Precio estimado — costo final confirmado tras revisar documentos; los derechos oficiales pueden variar.")
+    estimated_price_note_fr = models.TextField(blank=True, default="Prix estimé — coût final confirmé après examen des documents ; les frais officiels peuvent varier.")
+    government_fee_estimate = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Research reference, not a confirmed client-specific government assessment.")
+    service_fee_estimate = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Proposed Wardenclyffe service fee; staff may revise before publication.")
+    pricing_review_required = models.BooleanField(default=True, help_text="Flag unsupported or incomplete estimates for manager verification.")
     price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     currency = models.CharField(max_length=3, choices=CURRENCIES, default="MXN")
     estimated_min_business_days = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -339,3 +347,31 @@ class ContactLead(models.Model):
 
     def __str__(self):
         return f"Lead #{self.pk} · {self.full_name} · {self.get_status_display()}"
+
+
+class OfferingPriceResearch(models.Model):
+    """Source-based working paper for provisional catalog fees, not a customer invoice."""
+    KIND = [
+        ("government", "Official government / authority"),
+        ("market", "Provider / market"),
+        ("context", "Procedure and time context"),
+    ]
+    offering = models.ForeignKey(ServiceOffering, related_name="price_research", on_delete=models.CASCADE)
+    source_kind = models.CharField(max_length=14, choices=KIND)
+    source_title = models.CharField(max_length=200)
+    source_url = models.URLField(max_length=1000, blank=True)
+    checked_on = models.DateField()
+    government_fee = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    market_low = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    market_high = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    currency = models.CharField(max_length=3)
+    fee_unit = models.CharField(max_length=90, blank=True)
+    research_notes = models.TextField(blank=True)
+    verified = models.BooleanField(default=False, help_text="Verified means the manager reviewed this evidence, not that fees are immutable.")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-checked_on", "id"]
+
+    def __str__(self):
+        return f"{self.offering_id} · {self.get_source_kind_display()} · {self.source_title}"

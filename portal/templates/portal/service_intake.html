@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html><html lang="{{ locale }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Galiel · {{ offering.service.title_en }}</title><style>
 :root{--cream:#f6f1ea;--orange:#e96c3c;--line:#e6d9cf}*{box-sizing:border-box}
 body{margin:0;background:var(--cream);color:#241b17;font:15px Arial,sans-serif}main{max-width:860px;margin:6vh auto;padding:0 22px}
@@ -7,15 +8,18 @@ a{color:inherit}.panel{background:#fffdfa;border:1px solid var(--line);border-ra
 .progress span{border-top:4px solid #dacfc4;padding-top:10px;font-size:12px}.progress span:first-child{border-color:var(--orange);font-weight:bold}
 button{background:var(--orange);border:0;border-radius:25px;padding:14px 25px;font-weight:bold;cursor:pointer}.muted{color:#6b615a;line-height:1.6}
 @media(max-width:570px){.progress span{font-size:10px}h1{font-size:31px}}
-</style></head><body><main><a class="brand" href="{% url 'home' %}">Galiel <small>by Wardenclyffe</small></a>
+</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
+</head><body>{% include 'portal/_site_header.html' %}<main>
 <p><a href="{% url 'service_catalog' %}">← {% if locale == 'es' %}Servicios{% elif locale == 'fr' %}Services{% else %}Services{% endif %}</a></p>
 <h1>{% if locale == 'es' %}{{ offering.service.title_es }}{% elif locale == 'fr' %}{{ offering.service.title_fr }}{% else %}{{ offering.service.title_en }}{% endif %}</h1>
 <div class="progress"><span>1 Service</span><span>2 Information</span><span>3 Documents</span><span>4 Review</span><span>5 Payment</span><span>6 Confirmation</span></div>
 <section class="panel"><h2>{% if locale == 'es' %}Tu servicio{% elif locale == 'fr' %}Votre service{% else %}Your service{% endif %}</h2>
 <p>{{ offering.municipality|default:offering.region|default:offering.country }}</p>
-<p><strong>{% if offering.price_type == 'quote' %}Quote required{% elif offering.price_type == 'starting' %}Starting at {{ offering.currency }} {{ offering.price }}{% else %}{{ offering.currency }} {{ offering.price }}{% endif %}</strong></p>
+<p><strong>{% if offering.price_type == 'quote' %}Quote required{% elif offering.price_type == 'starting' %}{% if locale == 'es' %}Desde{% elif locale == 'fr' %}À partir de{% else %}From{% endif %} {% if offering.currency == 'EUR' %}€{% else %}${% endif %}{{ offering.price }} {{ offering.currency }}{% if offering.price_unit %} · {{ offering.price_unit }}{% endif %}{% else %}{{ offering.currency }} {{ offering.price }}{% endif %}</strong></p>
 {% if offering.price_type == 'starting' %}<p>Deposit: {% if offering.deposit_amount %}{{ offering.currency }} {{ offering.deposit_amount }}{% else %}To be quoted{% endif %}</p>{% endif %}
 <p class="muted">Estimated duration: {% if offering.estimated_min_business_days != None and offering.estimated_max_business_days != None %}{{ offering.estimated_min_business_days }}–{{ offering.estimated_max_business_days }} business days{% else %}To be confirmed{% endif %}</p>
+{% if offering.is_temporary_price %}<p class="muted">{% if locale == 'es' %}{{ offering.estimated_price_note_es }}{% elif locale == 'fr' %}{{ offering.estimated_price_note_fr }}{% else %}{{ offering.estimated_price_note }}{% endif %}</p>{% endif %}
 <p class="muted">Your application will be saved as a draft. You can return to it in My processes. No payment will be collected until you review and explicitly authorize checkout.</p>
 {% if user.is_staff %}<p>Staff accounts cannot create client applications.</p>{% else %}
 <form method="post" action="{% url 'application_start' offering.pk %}">{% csrf_token %}<button type="submit">Start service →</button></form>{% endif %}

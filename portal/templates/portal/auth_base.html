@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}Galiel · Account{% endblock %}</title>
@@ -32,7 +33,9 @@ input:focus,textarea:focus{border-color:var(--forest)}
 .mobile-head{display:none}
 @media(max-width:900px){.layout{grid-template-columns:1fr}.brand{position:relative;min-height:180px;padding:28px 28px 35px}.brand h2{font-size:30px;max-width:700px}.brand p{display:none}.brand-foot{display:none}.content{padding:32px 28px 60px;max-width:650px}}
 @media(max-width:520px){.brand{min-height:145px;padding:22px 20px 25px}.brand h2{font-size:24px;line-height:1.15;margin:16px 0 0}.logo{font-size:28px}.content{padding:28px 20px 65px}.fields-two{grid-template-columns:1fr}h1{font-size:38px}.sub{font-size:14px}.action{min-height:52px}}
-</style></head><body><div class="layout">
-<aside class="brand"><div><a href="{% url 'home' %}" class="logo">galiel<em>.</em></a><div class="by">BY WARDENCLYFFE</div></div><div><h2>Everything in its right place.</h2><p>A thoughtful home for your services, documents, and updates. Private, organized, and made for you.</p></div><div class="brand-foot">Your client space · Wardenclyffe Inc.</div></aside>
+</style><style>.layout>.brand{background:#161616!important;color:#fff!important}.layout>.brand:after{display:none}.layout>.brand h2{font-family:Inter,system-ui,sans-serif!important;font-weight:800!important}.layout>.brand p{color:#dedede}.layout>.brand .galiel-by{color:#fff}.layout>.content{background:#F2F1EC}.layout>.content form .action{width:100%}</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
+</head><body><div class="layout">
+<aside class="brand"><div><a href="{% url 'home' %}" class="galiel-brand" style="color:white!important"><img class="galiel-signature" src="{% static 'portal/galiel-signature.svg' %}" alt="Galiel" style="filter:invert(1)"><span class="galiel-by"><span>by</span> WARDENCLYFFE</span></a></div><div><h2>Everything in its right place.</h2><p>A thoughtful home for your services, documents, and updates. Private, organized, and made for you.</p></div><div class="brand-foot">Your client space · Wardenclyffe Inc.</div></aside>
 <main class="content">{% if messages %}{% for message in messages %}<div role="status" class="notice {% if message.tags == 'error' %}error{% else %}success{% endif %}">{{ message }}</div>{% endfor %}{% endif %}
 {% block content %}{% endblock %}</main></div></body></html>
