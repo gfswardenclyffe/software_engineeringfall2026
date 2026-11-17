@@ -407,7 +407,7 @@ def conversation_detail(request, conversation_id):
 @login_required
 def service_catalog(request):
     """Published services only, filtered in country -> region -> municipality order."""
-    locale = request.GET.get("lang", "")
+    locale = request.GET.get("lang") or request.COOKIES.get("galiel_lang", "")
     if locale not in ("en", "es", "fr"):
         try:
             locale = request.user.profile.preferred_language
@@ -443,7 +443,7 @@ def service_catalog(request):
 
 
 def _catalog_locale(request):
-    lang = request.GET.get("lang", "")
+    lang = request.GET.get("lang") or request.COOKIES.get("galiel_lang", "")
     if lang not in ("en", "es", "fr") and request.user.is_authenticated:
         lang = getattr(getattr(request.user, "profile", None), "preferred_language", "en")
     return lang if lang in ("en", "es", "fr") else "en"
