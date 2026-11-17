@@ -143,3 +143,56 @@
  .ws-secondary .ws-content .ws-size-toggle{grid-template-columns:repeat(2,44px)!important}
  .ws-secondary .ws-content .ws-size-toggle button{width:44px!important}
 }
+
+
+/* Release: client workflow usability. Scoped to Galiel, no global green theme. */
+.workspace-redesign .ws-content,.workspace-redesign .galiel-flow-panel{min-width:0;overflow-wrap:anywhere}
+.workspace-redesign .galiel-steps{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;margin:20px 0 28px;width:100%;border:1px solid #161616}
+.workspace-redesign .galiel-steps a{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0;min-height:95px;padding:14px 10px;border-right:1px solid #161616;color:#161616;text-decoration:none!important;background:white;overflow-wrap:anywhere}
+.workspace-redesign .galiel-steps a:last-child{border-right:0}
+.workspace-redesign .galiel-steps a>span{font:300 33px/1 "Inter Tight",Inter,sans-serif;color:#D9714A}
+.workspace-redesign .galiel-steps a>strong{font:750 12px/1.35 Inter,Arial,sans-serif}
+.workspace-redesign .galiel-steps a.is-complete{background:#F2F1EC}
+.workspace-redesign .galiel-steps a.is-current{background:#161616;color:white;box-shadow:inset 0 4px #D9714A}
+.workspace-redesign .galiel-steps a.is-current>span{color:#D9714A}
+.workspace-redesign .galiel-flow-panel{border:1px solid #161616!important;padding:clamp(18px,3vw,36px)!important;background:#fff!important;border-radius:0!important}
+.workspace-redesign .galiel-flow-panel .galiel-info-row{display:flex;align-items:start;justify-content:space-between;gap:20px;border-top:1px solid #aaa;padding:15px 0;min-width:0}
+.workspace-redesign .galiel-flow-panel .galiel-info-row span{min-width:110px;flex:0 0 38%;color:#464646}
+.workspace-redesign .galiel-flow-panel .galiel-info-row strong{flex:1;min-width:0;text-align:right}
+.workspace-redesign .galiel-flow-panel .galiel-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:18px;background:#F2F1EC;border:1px solid #161616}
+.workspace-redesign .galiel-flow-panel .galiel-info-grid>div{min-width:0}
+.workspace-redesign .galiel-flow-panel .galiel-info-grid span{display:block;color:#555;font-size:12px}
+.workspace-redesign .galiel-flow-panel .galiel-info-grid strong{font-size:14px}
+.workspace-redesign .galiel-field{margin:18px 0;min-width:0}
+.workspace-redesign .galiel-field label{display:block;font-size:12px;font-weight:800;margin:0 0 8px}
+.workspace-redesign .galiel-field input:not([type=checkbox]),.workspace-redesign .galiel-field select,.workspace-redesign .galiel-field textarea{display:block;width:100%;min-height:45px;padding:12px!important;background:white;border:1px solid #161616;border-radius:0;line-height:1.5}
+.workspace-redesign .galiel-field textarea{min-height:125px;resize:vertical}
+.workspace-redesign .galiel-field small{display:block;margin-top:5px;color:#555}
+.workspace-redesign .galiel-doc-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;border-top:1px solid #aaa;padding:18px 0}
+.workspace-redesign .galiel-doc-row>div{min-width:150px;flex:1}
+.workspace-redesign .galiel-doc-row small{display:block;color:#555}
+.workspace-redesign .galiel-upload{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.workspace-redesign .galiel-upload input[type=file]{max-width:260px;min-width:160px}
+.workspace-redesign .galiel-optional-drop{display:flex;flex-direction:column;align-items:flex-start;padding:25px;border:1px dashed #161616;background:#F2F1EC;margin:15px 0}
+.workspace-redesign .galiel-optional-drop label{font-weight:800}
+.workspace-redesign .galiel-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.workspace-redesign .galiel-secondary{display:inline-flex!important;justify-content:center!important;align-items:center!important;min-height:44px!important;padding:10px 16px!important;background:#fff!important;color:#161616!important;border:1px solid #161616!important;border-radius:0!important;text-decoration:none!important;font-weight:750!important;cursor:pointer}
+.workspace-redesign .galiel-flow-panel .btn.orange{display:inline-flex!important;align-items:center!important;justify-content:center!important;background:#D9714A!important;border:1px solid #161616!important;border-radius:0!important;padding:12px 18px!important;min-height:46px!important;color:#161616!important;font-weight:800}
+.workspace-redesign .galiel-flow-size{max-width:560px;margin:24px 0}
+.workspace-redesign .galiel-flow-size .ws-size-field{display:flex;align-items:stretch;gap:10px}
+.workspace-redesign .galiel-flow-size .ws-size-field input{flex:1 1 140px;min-width:0;width:100%;padding:10px}
+.workspace-redesign .galiel-flow-size .ws-size-toggle{display:grid!important;grid-template-columns:repeat(2,52px);flex:0 0 auto;border:1px solid #161616!important}
+.workspace-redesign .galiel-flow-size .ws-size-toggle button{display:flex;align-items:center;justify-content:center;width:52px;height:44px;padding:0!important;background:#fff!important;border:0!important;border-right:1px solid #161616!important}
+.workspace-redesign .galiel-flow-size .ws-size-toggle button[aria-pressed=true]{background:#161616!important;color:white!important}
+.workspace-redesign .galiel-flow-size .ws-size-toggle button:last-child{border:0!important}
+.workspace-redesign .galiel-profile-form{display:block;max-width:850px;padding:clamp(18px,3vw,32px);background:#fff;border:1px solid #161616}
+.workspace-redesign .galiel-profile-form .fields-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.workspace-redesign .galiel-profile-form p{margin:0 0 18px}
+.workspace-redesign .galiel-profile-form label{display:block;font-size:12px;font-weight:800;margin:0 0 7px}
+.workspace-redesign .galiel-profile-form input,.workspace-redesign .galiel-profile-form select,.workspace-redesign .galiel-profile-form textarea{width:100%;min-height:46px;padding:12px!important;border:1px solid #161616!important;background:#fff!important;border-radius:0!important}
+.workspace-redesign .galiel-profile-form h2{margin:25px 0 18px}
+.workspace-redesign .galiel-profile-form .errorlist{color:#9d2929;margin:5px 0}
+.workspace-redesign .galiel-agree{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.workspace-redesign .galiel-agree input{width:auto;min-height:auto}
+@media(max-width:1000px){.workspace-redesign .galiel-steps{grid-template-columns:repeat(3,minmax(0,1fr))}.workspace-redesign .galiel-steps a:nth-child(3){border-right:0}.workspace-redesign .galiel-steps a:nth-child(-n+3){border-bottom:1px solid #161616}}
+@media(max-width:570px){.workspace-redesign .galiel-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-redesign .galiel-steps a{padding:12px 8px;min-height:83px;border-bottom:1px solid #161616}.workspace-redesign .galiel-steps a:nth-child(3){border-right:1px solid #161616}.workspace-redesign .galiel-steps a:nth-child(2n){border-right:0}.workspace-redesign .galiel-steps a:nth-last-child(-n+2){border-bottom:0}.workspace-redesign .galiel-flow-panel .galiel-info-row{flex-direction:column;gap:4px}.workspace-redesign .galiel-flow-panel .galiel-info-row span{flex:none}.workspace-redesign .galiel-flow-panel .galiel-info-row strong{text-align:left}.workspace-redesign .galiel-flow-panel .galiel-info-grid,.workspace-redesign .galiel-profile-form .fields-two{grid-template-columns:1fr}}
