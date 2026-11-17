@@ -81,9 +81,6 @@ def _price_for(app):
     offer = app.offering
     if app.quoted_amount is not None and app.status in ("quoted", "awaiting_payment"):
         return app.quoted_amount.quantize(CENT), Decimal("0.00"), app.quoted_amount.quantize(CENT)
-    if offer.is_temporary_price:
-        # Published research estimates are never automatically chargeable.
-        return None, None, None
     if offer.price_type == "quote" or offer.price is None:
         return None, None, None
     if offer.price_type == "starting":
@@ -144,7 +141,7 @@ def _notify_client(app, subject, summary):
     html = (
         '<div style="background:#F2F1EC;padding:32px;font:15px Arial,sans-serif;color:#211c19">'
         '<div style="max-width:600px;margin:auto;background:#fffdf9;border:1px solid #e9dbcf;padding:30px">'
-        '<div style="display:flex;align-items:center;gap:12px"><img src="https://galiel.wardenclyffefirm.com/brand/galiel-signature.png" width="96" height="60" alt="Galiel" style="display:inline-block"><span style="font:700 11px Arial,sans-serif;letter-spacing:2px;color:#161616">by WARDENCLYFFE</span></div>'
+        '<div style="display:flex;align-items:center;gap:12px"><strong style="font:italic 25px Georgia,serif;letter-spacing:-1px;color:#161616">Galiel</strong><span style="font:700 11px Arial,sans-serif;letter-spacing:2px;color:#161616">by WARDENCLYFFE</span></div>'
         '<p style="font-size:20px;margin-top:28px">' + escape(subject) + '</p>'
         '<p>Hello ' + escape(_full_name(app.client)) + ',</p>'
         '<p>' + escape(summary) + '</p>'
