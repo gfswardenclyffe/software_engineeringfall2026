@@ -1,9 +1,9 @@
-{% extends "portal/workspace_base.html" %}
+{% extends "portal/workspace_base.html" %}{% load galiel_ui %}
 {% block title %}profile · Galiel{% endblock %}
 {% block content %}
 
-<a class="back" href="{% url 'dashboard' %}">← Back to overview</a>
-<div class="hero"><div><div class="eyebrow">Account settings / 01</div><h1>My profile</h1><p class="subtitle">Your information, all in one place. Keep it current so we can serve you better.</p></div><a class="button" href="{% url 'profile_edit' %}">Edit my information ↗</a></div>
+<a class="back" href="{% url 'dashboard' %}">← {% ui "Back to overview" %}</a>
+<div class="hero"><div><div class="eyebrow">Account settings / 01</div><h1>{% ui "My profile" %}</h1><p class="subtitle">Your information, all in one place. Keep it current so we can serve you better.</p></div><a class="button" href="{% url 'profile_edit' %}">{% ui "Edit my information" %} ↗</a></div>
 {% if messages %}{% for message in messages %}<div class="message" role="status">{{ message }}</div>{% endfor %}{% endif %}
 <div class="columns">
 <section class="card"><div class="avatar" aria-hidden="true">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div><h2 class="name">{{ user.get_full_name|default:user.email }}</h2><p class="subtitle">{% if user.is_superuser %}Manager account{% elif user.is_staff %}Staff account{% else %}Client account{% endif %}</p>
