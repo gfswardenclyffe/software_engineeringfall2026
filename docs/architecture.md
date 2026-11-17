@@ -3,7 +3,8 @@
 ```mermaid
 classDiagram
   class User
-  class Profile {
+  class Profile
+  class FiscalProfile {
     rfc
     razon_social
     regimen_fiscal
@@ -39,13 +40,20 @@ classDiagram
     status
     requested_at
   }
+  class InvoiceRequest {
+    requested_at
+    staff_notified_at
+    handled_at
+  }
   User "1" -- "1" Profile
+  User "1" -- "0..1" FiscalProfile
   User "1" -- "*" ServiceApplication
   User "1" -- "*" Reminder
   User "1" -- "*" AccountDeletionRequest
   User "0..1" <-- "*" Announcement : author
   ServiceApplication "0..1" <-- "*" Reminder
   ServiceApplication "1" --> "*" ApplicationDocument
+  ServiceApplication "1" -- "0..1" InvoiceRequest
 ```
 
 ## Flow
