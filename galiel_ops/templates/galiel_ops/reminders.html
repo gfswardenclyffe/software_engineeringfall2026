@@ -6,8 +6,8 @@
 <p class="subtitle">{% if lang == 'es' %}Pendientes: {{ unread_count }}{% elif lang == 'fr' %}Non lues : {{ unread_count }}{% else %}Unread: {{ unread_count }}{% endif %}</p>
 {% for alert in items %}
 <article class="galiel-ops-card">
-<div class="eyebrow">{{ alert.get_kind_display }} · {{ alert.created_at|date:"M d, Y" }}</div>
-<p>{{ alert.message }}</p>
+<div class="eyebrow">{% if lang == 'es' %}{% if alert.kind == 'documents' %}Documentos solicitados{% elif alert.kind == 'quote' %}Cotización disponible{% elif alert.kind == 'renewal' %}Renovación de permiso{% elif alert.kind == 'invoice' %}Solicitud de factura{% else %}Aviso{% endif %}{% elif lang == 'fr' %}{% if alert.kind == 'documents' %}Documents demandés{% elif alert.kind == 'quote' %}Devis disponible{% elif alert.kind == 'renewal' %}Renouvellement de permis{% elif alert.kind == 'invoice' %}Demande de facture{% else %}Alerte{% endif %}{% else %}{{ alert.get_kind_display }}{% endif %} · {{ alert.created_at|date:"M d, Y" }}</div>
+<p>{% if lang == 'es' %}{{ alert.message_es|default:alert.message }}{% elif lang == 'fr' %}{{ alert.message_fr|default:alert.message }}{% else %}{{ alert.message }}{% endif %}</p>
 {% if alert.due_date %}<p><strong>{% if lang == 'es' %}Fecha límite{% elif lang == 'fr' %}Échéance{% else %}Due date{% endif %}:</strong> {{ alert.due_date }}</p>{% endif %}
 {% if alert.application %}<a href="{% url 'application_track' alert.application.pk %}">{{ alert.application.number }} ↗</a>{% endif %}
 <div class="galiel-ops-actions">
