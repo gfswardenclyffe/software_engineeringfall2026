@@ -1,7 +1,6 @@
 {% extends "portal/workspace_base.html" %}
-{% block title %}service intake · Galiel<script src="{% static 'portal/galiel-service-pricing.js' %}" defer></script>
-{% endblock %}
 {% load static %}
+{% block title %}service intake · Galiel{% endblock %}
 {% block content %}
 
 <p><a href="{% url 'service_catalog' %}">← {% if locale == 'es' %}Servicios{% elif locale == 'fr' %}Services{% else %}Services{% endif %}</a></p>
@@ -22,4 +21,5 @@
 <form method="post" action="{% url 'application_start' offering.pk %}">{% csrf_token %}<button type="submit">Start service →</button></form>{% endif %}
 </section>
 
+<script src="{% static 'portal/galiel-service-pricing.js' %}" defer></script>
 {% endblock %}
