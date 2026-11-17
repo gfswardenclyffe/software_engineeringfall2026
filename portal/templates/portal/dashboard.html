@@ -52,6 +52,8 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 <a href="#invoices" data-page="invoices"><span class="ws-num">05</span>Invoices & payments</a>
 <a href="#messages" data-page="messages"><span class="ws-num">06</span>Messages</a>
 <a href="{% url 'profile' %}"><span class="ws-num">07</span>My profile</a>
+<a href="{% url 'galiel_announcements' %}"><span class="ws-num">08</span>News &amp; updates</a>
+<a href="{% url 'galiel_reminders' %}"><span class="ws-num">09</span>Alerts</a>
 </nav><div class="ws-sidebar-footer"><img class="ws-logo" src="{% static 'portal/galiel-signature-light.svg' %}" alt="Galiel"><small>by WARDENCLYFFE</small></div></aside>
 <main>
 {% if messages %}{% for message in messages %}<div role="status" style="background:#e7f3ea;padding:14px 18px;border-radius:12px;margin-bottom:20px">{{ message }}</div>{% endfor %}{% endif %}
