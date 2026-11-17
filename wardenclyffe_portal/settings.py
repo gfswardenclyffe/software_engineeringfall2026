@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "portal.apps.PortalConfig",
+    "galiel_ops.apps.GalielOpsConfig",
 ]
 
 MIDDLEWARE = [
