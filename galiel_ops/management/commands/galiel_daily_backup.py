@@ -3,7 +3,7 @@
 Requires the operator to set a private directory outside the web document root.
 A complete archive is written atomically, with no symlinks followed.
 """
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 import hashlib
 import os
@@ -70,7 +70,13 @@ class Command(BaseCommand):
             os.chmod(pending,0o600)
             os.replace(pending,completed)
         archives=sorted(destination.glob("galiel-????????T??????Z.tar.gz"))
-        for obsolete in archives[:-options["keep"]]:
-            obsolete.unlink()
+        cutoff=datetime.now(timezone.utc)-timedelta(days=options["keep"])
+        for obsolete in archives:
+            try:
+                stamped=datetime.strptime(obsolete.name[len("galiel-"):-len(".tar.gz")],"%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
+            except ValueError:
+                continue
+            if stamped<cutoff:
+                obsolete.unlink()
         digest=hashlib.sha256(completed.read_bytes()).hexdigest()
         self.stdout.write(f"BACKUP OK: {completed} SHA256 {digest}")
