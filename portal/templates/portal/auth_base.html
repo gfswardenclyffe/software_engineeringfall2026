@@ -19,4 +19,4 @@ document.querySelectorAll('.auth-languages a').forEach(link => {
   link.href = url.pathname + url.search + url.hash;
   link.addEventListener('click', () => {document.cookie = 'galiel_lang='+link.lang+'; Path=/; Max-Age=31536000; Secure; SameSite=Lax';});
 });
-</script><script src="{% static 'portal/galiel-locale.js' %}" defer></script></body></html>
+</script>{% include 'galiel_ops/_help.html' %}<script src="{% static 'portal/galiel-locale.js' %}" defer></script></body></html>
