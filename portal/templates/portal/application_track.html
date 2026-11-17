@@ -107,4 +107,9 @@ h1{font:normal 44px Georgia,serif;margin:12px 0}.sub{color:#74675d}
   });
 })();
 </script>
+{% if application.status == 'draft' %}<div class="galiel-ops-card"><a href="{% url 'galiel_delete_draft' application.pk %}">Delete my draft →</a></div>{% endif %}
+<div class="galiel-ops-card"><form method="post" action="{% url 'galiel_request_invoice' application.pk %}">{% csrf_token %}
+<label><input type="checkbox" name="invoice_requested" value="yes" required> Necesito factura</label>
+<button type="submit">Request a manual invoice</button></form></div>
+{% include 'galiel_ops/_help.html' %}
 <script src="{% static 'portal/galiel-locale.js' %}" defer></script></body></html>
