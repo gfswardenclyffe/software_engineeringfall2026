@@ -27,6 +27,11 @@
 </section>
 <section class="card"><h2>Account & privacy</h2><div class="secure"><span class="dot"></span>Signed in securely</div><p class="note">Only you and authorized Wardenclyffe personnel should have access to your client information.</p><div class="separator"></div><div class="eyebrow">Member since</div><p >{{ user.date_joined|date:"F j, Y" }}</p><div class="separator"></div><div class="eyebrow">Need something corrected?</div><p class="note">Update your contact and billing details anytime using the Edit button. Password changes are managed separately for security.</p><a class="button" href="{% url 'profile_edit' %}">Manage my details</a></section>
 </div>
-
-
+<section class="galiel-ops-card"><h2>Account requests and fiscal details</h2>
+<p>Fiscal information is optional and is used only when you request a manually issued invoice.</p>
+<a class="galiel-secondary" href="{% url 'galiel_fiscal_profile' %}">Edit fiscal details →</a>
+<h3>Request account deletion</h3>
+<p>This submits a review request to authorized Galiel staff. Your account will not be instantly deleted.</p>
+<form method="post" action="{% url 'galiel_request_account_deletion' %}">{% csrf_token %}
+<button type="submit" class="galiel-secondary">Request account deletion</button></form></section>
 {% endblock %}
