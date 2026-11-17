@@ -11,7 +11,7 @@
 <p>{{ offering.municipality|default:offering.region|default:offering.country }}</p>
 <p><strong>{{ offering.currency }} · {% if locale == 'es' %}Cotización pendiente{% elif locale == 'fr' %}Devis à confirmer{% else %}Quote required{% endif %}</strong></p>
 <p class="ws-pricing-pending">Official fee, first 100 m² base, additional m² rate and any approximate FX equivalents will appear after the approved fee sheet is entered. The amount charged will use the jurisdiction currency.</p>
-<div class="ws-service-size"><label for="business-size">Business size</label><input data-locale="{{ locale }}" id="business-size" type="number" min="0" step="0.01" placeholder="Enter area" aria-describedby="size-notice">
+<div class="ws-service-size"><label for="business-size">Business size</label><input data-locale="{{ locale }}" id="business-size" type="number" min="0" step="0.01" placeholder="{% if locale == 'en' %}e.g. 1,200 ft²{% elif locale == 'es' %}p. ej. 100 m²{% else %}p. ex. 100 m²{% endif %}" aria-describedby="size-notice">
 <div class="ws-size-toggle"><button type="button" data-area-unit="ft2" aria-pressed="true">ft²</button><button type="button" data-area-unit="m2" aria-pressed="false">m²</button></div>
 <p id="size-notice" class="ws-pricing-pending">Planning estimate only; this value is not submitted or saved to your application yet.</p></div>
 
