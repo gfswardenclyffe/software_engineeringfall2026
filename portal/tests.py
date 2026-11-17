@@ -410,8 +410,10 @@ class ProductionOperationsPrivacyTests(TestCase):
     def test_payment_hold(self):
         self.client.force_login(self.alice)
         response=self.client.post(reverse("application_checkout",args=[self.app_a.pk]))
-        self.assertNotEqual(response.status_code,200)
-        self.assertFalse(ServiceApplication.objects.get(pk=self.app_a.pk).payment_confirmed_at)
+        self.assertEqual(response.status_code,403)
+        self.app_a.refresh_from_db()
+        self.assertFalse(self.app_a.payment_confirmed_at)
+        self.assertEqual(self.app_a.stripe_checkout_session,"")
 
     def test_invoice_request_is_owner_only(self):
         self.client.force_login(self.alice)
