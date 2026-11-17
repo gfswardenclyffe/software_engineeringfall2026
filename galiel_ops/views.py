@@ -188,3 +188,10 @@ def help_my_processes(request):
     apps=ServiceApplication.objects.filter(client=request.user).order_by("-updated_at")
     return JsonResponse({"processes":[{"reference":a.number,"status":a.get_status_display(),
              "url":reverse("application_track",args=[a.pk])} for a in apps[:20]]})
+
+@require_GET
+def help_services(request):
+    lang=locale_for(request)
+    rows=ServiceOffering.objects.filter(is_published=True).select_related("service").order_by("service__title_en")[:250]
+    return JsonResponse({"services":[{"id":entry.pk,
+       "title":getattr(entry.service,"title_"+lang)} for entry in rows]})
