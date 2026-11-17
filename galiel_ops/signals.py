@@ -25,7 +25,9 @@ def _case_alert(sender,instance,created,**kwargs):
     if instance.status not in spec:
         return
     kind,message=spec[instance.status]
-    reminder=Reminder.objects.create(user=instance.client,application=instance,kind=kind,message=message,\n        message_es=("" if kind=="other" else ("Se requieren documentos adicionales para tu trámite." if kind=="documents" else "Hay una cotización actualizada disponible. Los pagos están suspendidos.")),\n        message_fr=("" if kind=="other" else ("Des documents supplémentaires sont demandés pour votre démarche." if kind=="documents" else "Un devis mis à jour est disponible. Les paiements sont suspendus.")))
+    reminder=Reminder.objects.create(user=instance.client,application=instance,kind=kind,message=message,
+        message_es=("" if kind=="other" else ("Se requieren documentos adicionales para tu trámite." if kind=="documents" else "Hay una cotización actualizada disponible. Los pagos están suspendidos.")),
+        message_fr=("" if kind=="other" else ("Des documents supplémentaires sont demandés pour votre démarche." if kind=="documents" else "Un devis mis à jour est disponible. Les paiements sont suspendus.")))
     transaction.on_commit(lambda: send_reminder_copy(reminder.pk))
 
 @receiver(pre_save,sender=ApplicationDocument,dispatch_uid="galiel_reminder_pre_document")
@@ -38,5 +40,7 @@ def _document_alert(sender,instance,created,**kwargs):
     if created or instance.review_status!="rejected" or instance._galiel_previous_review=="rejected":
         return
     reminder=Reminder.objects.create(user=instance.application.client,application=instance.application,
-        kind="documents",message="A document needs replacement. Please review the file requirements in your process.",\n        message_es="Es necesario reemplazar un documento. Revisa los requisitos en tu trámite.",\n        message_fr="Un document doit être remplacé. Consultez les exigences de votre démarche.")
+        kind="documents",message="A document needs replacement. Please review the file requirements in your process.",
+        message_es="Es necesario reemplazar un documento. Revisa los requisitos en tu trámite.",
+        message_fr="Un document doit être remplacé. Consultez les exigences de votre démarche.")
     transaction.on_commit(lambda: send_reminder_copy(reminder.pk))
