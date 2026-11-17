@@ -121,3 +121,14 @@ Git branches and commits will be used throughout the project to document develop
 Michelle Lopez Dieckmann - Development and UI
 
 Ryan Garza - Development and User Management.
+## Production client operations documentation
+
+Galiel is operated as a production administrative-services portal. Public client pages must not present the service as a classroom exercise or demonstration. Technical/project documentation remains in this repository only.
+
+- [Requirements and security invariants](docs/requirements.md)
+- [User stories](docs/user-stories.md)
+- [Data-model UML (Mermaid)](docs/architecture.md)
+- [Client and staff user manual](docs/user-manual.md)
+- [Migration, cron and security deployment review](docs/deployment-review.md)
+
+Operational features (announcements, reminders, draft controls, fiscal details and deterministic help) are developed under `galiel_ops` and subject to a pinned, reviewed deployment. The approved 107-service price import, Stripe checkout, and filesystem relocation remain out of scope.
