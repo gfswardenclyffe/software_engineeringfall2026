@@ -107,4 +107,4 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 </main></div>
 <script>
 function showPage(){const id=location.hash.slice(1)||"overview";const safe=document.getElementById(id)?.classList.contains("page")?id:"overview";document.querySelectorAll(".page").forEach(el=>el.classList.toggle("active",el.id===safe));document.querySelectorAll("nav [data-page]").forEach(el=>{const active=el.dataset.page===safe;el.classList.toggle("active",active);active?el.setAttribute("aria-current","page"):el.removeAttribute("aria-current")})}addEventListener("hashchange",showPage);showPage();
-</script></body></html>
+</script><script src="{% static 'portal/galiel-locale.js' %}" defer></script></body></html>
