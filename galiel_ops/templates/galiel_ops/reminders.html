@@ -1,0 +1,19 @@
+{% extends "portal/workspace_base.html" %}
+{% block title %}Alerts · Galiel{% endblock %}
+{% block content %}
+<div class="eyebrow">Galiel / {% if lang == 'es' %}Avisos{% elif lang == 'fr' %}Alertes{% else %}Alerts{% endif %}</div>
+<h1>{% if lang == 'es' %}Mis avisos{% elif lang == 'fr' %}Mes alertes{% else %}My alerts{% endif %}</h1>
+<p class="subtitle">{% if lang == 'es' %}Pendientes: {{ unread_count }}{% elif lang == 'fr' %}Non lues : {{ unread_count }}{% else %}Unread: {{ unread_count }}{% endif %}</p>
+{% for alert in items %}
+<article class="galiel-ops-card">
+<div class="eyebrow">{{ alert.get_kind_display }} · {{ alert.created_at|date:"M d, Y" }}</div>
+<p>{{ alert.message }}</p>
+{% if alert.due_date %}<p><strong>{% if lang == 'es' %}Fecha límite{% elif lang == 'fr' %}Échéance{% else %}Due date{% endif %}:</strong> {{ alert.due_date }}</p>{% endif %}
+{% if alert.application %}<a href="{% url 'application_track' alert.application.pk %}">{{ alert.application.number }} ↗</a>{% endif %}
+<div class="galiel-ops-actions">
+{% if not alert.read_at %}<form method="post" action="{% url 'galiel_reminder_read' alert.pk %}">{% csrf_token %}<button type="submit">{% if lang == 'es' %}Marcar como leído{% elif lang == 'fr' %}Marquer comme lu{% else %}Mark as read{% endif %}</button></form>{% endif %}
+<form method="post" action="{% url 'galiel_reminder_dismiss' alert.pk %}">{% csrf_token %}<button type="submit">{% if lang == 'es' %}Descartar{% elif lang == 'fr' %}Masquer{% else %}Dismiss{% endif %}</button></form>
+</div>
+</article>
+{% empty %}<div class="galiel-ops-card">{% if lang == 'es' %}No tienes avisos activos.{% elif lang == 'fr' %}Vous n’avez aucune alerte active.{% else %}You have no active alerts.{% endif %}</div>{% endfor %}
+{% endblock %}
