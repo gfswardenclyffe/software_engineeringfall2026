@@ -388,12 +388,15 @@ class ProductionOperationsPrivacyTests(TestCase):
 
     def test_private_documents_and_upload_validation(self):
         upload=SimpleUploadedFile("private.pdf",b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\n%%EOF",content_type="application/pdf")
-        document=ApplicationDocument.objects.create(application=self.app_b,requirement=None,
-            original_filename="private.pdf",file=upload,content_type="application/pdf",size=upload.size)
-        self.client.force_login(self.alice)
-        self.assertEqual(self.client.post(reverse("galiel_delete_draft_file",args=[self.app_b.pk,document.pk])).status_code,404)
-        self.assertEqual(self.client.get(reverse("application_download",args=[self.app_b.pk,document.pk])).status_code,404)
-        self.assertTrue(ApplicationDocument.objects.filter(pk=document.pk).exists())
+        import tempfile
+        with tempfile.TemporaryDirectory(prefix="galiel-test-upload-") as private_test_media:
+            with override_settings(MEDIA_ROOT=private_test_media):
+                document=ApplicationDocument.objects.create(application=self.app_b,requirement=None,
+                    original_filename="private.pdf",file=upload,content_type="application/pdf",size=upload.size)
+                self.client.force_login(self.alice)
+                self.assertEqual(self.client.post(reverse("galiel_delete_draft_file",args=[self.app_b.pk,document.pk])).status_code,404)
+                self.assertEqual(self.client.get(reverse("application_download",args=[self.app_b.pk,document.pk])).status_code,404)
+                self.assertTrue(ApplicationDocument.objects.filter(pk=document.pk).exists())
 
     def test_wizard_steps_do_not_show_other_clients_data(self):
         self.client.force_login(self.alice)
