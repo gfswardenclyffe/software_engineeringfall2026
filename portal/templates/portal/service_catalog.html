@@ -5,7 +5,7 @@
 
 <div class="eyebrow">Galiel / {% if locale == 'es' %}Servicios{% else %}Services{% endif %}</div>
 <h1>{% if locale == 'es' %}Explorar servicios{% elif locale == 'fr' %}Explorer les services{% else %}Explore services{% endif %}</h1>
-<p class="subtitle">{% if locale == 'es' %}Seleccione el país, estado y municipio. Los servicios y sus precios se actualizan automáticamente.{% elif locale == 'fr' %}Sélectionnez un pays, une région et une commune. Les services se mettent à jour automatiquement.{% else %}Choose a country, state or region, and municipality. Available services update automatically. Fees await approval.{% endif %}</p>
+<p class="subtitle">{% if locale == 'es' %}Seleccione el país, estado y municipio. Los servicios y sus precios se actualizan automáticamente.{% elif locale == 'fr' %}Sélectionnez un pays, une région et une commune. Les services se mettent à jour automatiquement.{% else %}Choose a country, state or region, and municipality. Available services update automatically. Fees appear after service selection.{% endif %}</p>
 <div class="filters" aria-label="Location filters">
 <div><label for="country">{% if locale == 'es' %}País{% elif locale == 'fr' %}Pays{% else %}Country{% endif %}</label><select id="country"><option value="">{% if locale == 'es' %}Todos los países{% elif locale == 'fr' %}Tous les pays{% else %}All countries{% endif %}</option>
 {% for country in countries %}<option value="{{ country.code }}">{% if locale == 'es' %}{{ country.name_es }}{% elif locale == 'fr' %}{{ country.name_fr }}{% else %}{{ country.name_en }}{% endif %}</option>{% endfor %}</select></div>
