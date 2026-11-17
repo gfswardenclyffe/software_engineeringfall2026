@@ -26,7 +26,7 @@
   window.GalielPricingPreview = Object.freeze({sqm, calculateFee, approximatePayment});
   const input = document.getElementById("business-size");
   if (!input) return;
-  const lang = document.documentElement.lang || "en";
+  const lang = input.dataset.locale || document.documentElement.lang || "en";
   let unit = lang === "en" ? "ft2" : "m2";
   const buttons = [...document.querySelectorAll("[data-area-unit]")];
   function refresh() {
