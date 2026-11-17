@@ -231,7 +231,7 @@ class ServiceApplicationAdmin(admin.ModelAdmin):
             def send_notification():
                 try:
                     if obj.status == "quoted":
-                        text = f"Your quotation is ready: {obj.currency} {obj.quoted_amount} (total payable). Sign in and select Pay now from your process."
+                        text = f"Your quotation is ready: {obj.currency} {obj.quoted_amount} (total payable). Sign in and review your quotation; payments remain on hold."
                     else:
                         text = f"Your process status changed to: {obj.get_status_display()}."
                     _notify_client(obj, "Process update", text)
