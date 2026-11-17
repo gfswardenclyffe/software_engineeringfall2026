@@ -1,27 +1,8 @@
+{% extends "portal/workspace_base.html" %}
+{% block title %}service catalog · Galiel{% endblock %}
 {% load static %}
-<!doctype html>
-<html lang="{{ locale }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Explore services · Galiel</title>
-<style>
-:root{--paper:#f6f8f5;--ink:#1d2d2a;--green:#173e39;--line:#e5eae4;--muted:#697872;--accent:#b75a32}*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,sans-serif}a{color:inherit;text-decoration:none}
-.top{padding:20px clamp(16px,4vw,56px);background:#fff;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px}
-.brand{font-size:29px;font-weight:800;letter-spacing:-.06em}.brand span{color:var(--accent)}main{max-width:1120px;margin:0 auto;padding:45px 22px}
-.eyebrow{color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-size:12px;font-weight:750}
-h1{font:normal clamp(38px,5vw,60px) Georgia,serif;margin:10px 0}.subtitle,.muted{color:var(--muted);line-height:1.65}
-.filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;background:#fff;border:1px solid var(--line);padding:20px;border-radius:18px;margin:30px 0}
-label{display:block;font-size:12px;font-weight:750;margin-bottom:8px}select{width:100%;border:1px solid #cbd4cd;background:#fff;padding:11px;border-radius:10px;font:inherit}
-.btn{background:var(--green);color:white;padding:12px 17px;border:0;border-radius:22px;font-weight:700;cursor:pointer;display:inline-block}
-.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:#fff;border:1px solid var(--line);padding:25px;border-radius:18px}
-.card h2{font:normal 25px Georgia,serif;line-height:1.25}.meta{display:flex;gap:15px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:20px;padding-top:16px}
-.card .btn{margin-top:20px}.count{font-size:14px;color:var(--muted);margin-bottom:16px}
-#error{border:1px solid #d39898;background:#fff1f1;color:#8c2424;border-radius:12px;padding:15px;margin:15px 0}
-@media(max-width:760px){.filters,.cards{grid-template-columns:1fr}.top{flex-wrap:wrap}}
-</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
-<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
-</head><body>
-{% include 'portal/_site_header.html' %}
-<main>
+{% block content %}
+
 <div class="eyebrow">Galiel / {% if locale == 'es' %}Servicios{% else %}Services{% endif %}</div>
 <h1>{% if locale == 'es' %}Explorar servicios{% elif locale == 'fr' %}Explorer les services{% else %}Explore services{% endif %}</h1>
 <p class="subtitle">{% if locale == 'es' %}Seleccione el país, estado y municipio. Los servicios y sus precios se actualizan automáticamente.{% elif locale == 'fr' %}Sélectionnez un pays, une région et une commune. Les services se mettent à jour automatiquement.{% else %}Choose a country, state or region, and municipality. Services and prices update automatically.{% endif %}</p>
@@ -32,12 +13,13 @@ label{display:block;font-size:12px;font-weight:750;margin-bottom:8px}select{widt
 <select id="region" disabled><option value="">{% if locale == 'es' %}Todas las regiones{% elif locale == 'fr' %}Toutes les régions{% else %}All regions{% endif %}</option></select></div>
 <div><label for="municipality">{% if locale == 'es' %}Municipio{% elif locale == 'fr' %}Commune{% else %}Municipality{% endif %}</label>
 <select id="municipality" disabled><option value="">{% if locale == 'es' %}Todos los municipios{% elif locale == 'fr' %}Toutes les communes{% else %}All municipalities{% endif %}</option></select></div>
-</div>
+<div><label for="business-size">Business size</label><div class="ws-size-field"><input id="business-size" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Enter area" aria-describedby="size-notice"><div class="ws-size-toggle"><button type="button" data-area-unit="ft2" aria-pressed="true">ft²</button><button type="button" data-area-unit="m2" aria-pressed="false">m²</button></div></div></div></div>
+<p class="ws-pricing-pending" id="size-notice">Size is for planning only. Fees and conversion rates are awaiting approval; no payable quote is calculated.</p>
 <div id="loading" role="status">{% if locale == 'es' %}Cargando servicios…{% elif locale == 'fr' %}Chargement des services…{% else %}Loading services…{% endif %}</div>
 <div id="error" role="alert" hidden></div>
 <p class="count" id="count" aria-live="polite"></p>
 <div class="cards" id="cards" aria-live="polite"></div>
-</main>
+
 <script>
 (()=> {
 const language="{{ locale|escapejs }}";
@@ -89,4 +71,6 @@ const initial=new URLSearchParams(location.search);country.value=initial.get("co
 refresh("initial").then(async()=>{const wantedRegion=initial.get("region"),wantedMunicipality=initial.get("municipality");
 if(wantedRegion&&[...region.options].some(o=>o.value===wantedRegion)){region.value=wantedRegion;await refresh("region");if(wantedMunicipality&&[...municipality.options].some(o=>o.value===wantedMunicipality)){municipality.value=wantedMunicipality;await refresh("municipality");}}});
 })();
-</script></body></html>
+</script>
+<script src="{% static 'portal/galiel-service-pricing.js' %}" defer></script>
+{% endblock %}
