@@ -1,58 +1,7 @@
-{% load static %}
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>My Profile · Galiel</title>
-<style>
-:root{--ink:#20221f;--muted:#70766e;--line:#e5e5df;--paper:#f7f8f4;--orange:#ed7139;--dark:#18211d}
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--paper);color:var(--ink)}
-a{color:inherit;text-decoration:none}
-header{min-height:76px}\n.logo{font-size:26px;font-weight:800;letter-spacing:-.07em}.logo span{color:var(--orange)}.identity{font-size:13px;color:var(--muted)}
-.layout{display:grid;grid-template-columns:245px minmax(0,1fr);min-height:calc(100vh - 76px)}
-aside{background:#fff;border-right:1px solid var(--line);padding:32px 16px}
-.eyebrow{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:800}
-nav{display:grid;gap:5px;margin-top:25px}nav a{padding:13px 16px;border-radius:12px;font-size:14px;color:#444a43}nav a:hover,nav a.active{background:#f5ece5;color:#9d431d}nav a.active{font-weight:800}
-main{padding:clamp(24px,4vw,65px);max-width:1150px;width:100%;margin:0 auto}
-.back{font-size:13px;color:var(--muted)}
-.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:25px 0 32px}
-h1{font-family:Georgia,serif;font-size:clamp(36px,5vw,58px);font-weight:400;letter-spacing:-.045em;line-height:1.05;margin:10px 0}
-.subtitle{color:var(--muted);margin:0;font-size:15px;line-height:1.6}
-.button{display:inline-flex;justify-content:center;align-items:center;padding:13px 19px;border-radius:100px;background:var(--dark);color:#fff;font-size:13px;font-weight:700;white-space:nowrap}.button:hover{background:#3a443b}
-.columns{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(255px,.85fr);gap:22px}
-.card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 14px 30px rgba(20,30,20,.025);padding:clamp(22px,3vw,32px)}
-.card h2{font-size:17px;letter-spacing:-.02em;margin:0 0 22px}
-.avatar{width:68px;height:68px;display:grid;place-items:center;border-radius:20px;background:#fae9dc;color:#ab4e28;font:30px Georgia,serif;margin-bottom:15px}
-.name{font:30px Georgia,serif;letter-spacing:-.03em;margin:0 0 6px}
-.data{display:grid;grid-template-columns:1fr 1fr;gap:25px 18px;margin-top:30px}
-.data>div{min-width:0}.data span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}.data strong{font-size:14px;font-weight:600;overflow-wrap:anywhere;line-height:1.5}
-.wide{grid-column:1/-1}
-.note{color:var(--muted);font-size:14px;line-height:1.7}
-.separator{height:1px;background:var(--line);margin:22px 0}
-.secure{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:650}
-.dot{height:9px;width:9px;border-radius:50%;background:#3b9e6d}
-.message{padding:13px 18px;border-radius:12px;margin:0 0 18px;background:#e7f3e8;color:#235c37;font-size:14px}
-.logout{font-size:13px;color:var(--muted)}
-@media(max-width:850px){.layout{display:block}aside{padding:10px 16px;border-bottom:1px solid var(--line);border-right:0}aside .eyebrow{display:none}nav{display:flex;overflow:auto;margin:0;gap:4px}nav a{white-space:nowrap;padding:10px}.columns{grid-template-columns:1fr}.hero{align-items:flex-start}.identity{display:none}}
-@media(max-width:520px){header{height:65px}.hero{flex-direction:column;align-items:stretch}.button{align-self:flex-start}.data{grid-template-columns:1fr}.wide{grid-column:auto}}
-</style>
-<link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
-<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
-</head>
-<body>
-{% include 'portal/_site_header.html' %}
-<div class="layout">
-<aside><div class="eyebrow">Workspace</div><nav aria-label="Client navigation">
-<a href="{% url 'dashboard' %}#overview">Overview</a>
-<a href="{% url 'dashboard' %}#processes">My processes</a><a href="{% url 'dashboard' %}#services">Services</a>
-<a href="{% url 'dashboard' %}#documents">Documents</a>
-<a href="{% url 'dashboard' %}#invoices">Invoices & payments</a>
-<a href="{% url 'dashboard' %}#messages">Messages</a>
-<a class="active" href="{% url 'profile' %}" aria-current="page">My profile</a>
-</nav></aside>
-<main>
+{% extends "portal/workspace_base.html" %}
+{% block title %}profile · Galiel{% endblock %}
+{% block content %}
+
 <a class="back" href="{% url 'dashboard' %}">← Back to overview</a>
 <div class="hero"><div><div class="eyebrow">Account settings / 01</div><h1>My profile</h1><p class="subtitle">Your information, all in one place. Keep it current so we can serve you better.</p></div><a class="button" href="{% url 'profile_edit' %}">Edit my information ↗</a></div>
 {% if messages %}{% for message in messages %}<div class="message" role="status">{{ message }}</div>{% endfor %}{% endif %}
@@ -76,7 +25,8 @@ h1{font-family:Georgia,serif;font-size:clamp(36px,5vw,58px);font-weight:400;lett
 {% if user.profile.address and not user.profile.street %}<div class="wide"><span>Previously saved address</span><strong>{{ user.profile.address|linebreaksbr }}</strong></div>{% endif %}
 </div>
 </section>
-<section class="card"><h2>Account & privacy</h2><div class="secure"><span class="dot"></span>Signed in securely</div><p class="note">Only you and authorized Wardenclyffe personnel should have access to your client information.</p><div class="separator"></div><div class="eyebrow">Member since</div><p style="font-size:16px;margin:9px 0">{{ user.date_joined|date:"F j, Y" }}</p><div class="separator"></div><div class="eyebrow">Need something corrected?</div><p class="note">Update your contact and billing details anytime using the Edit button. Password changes are managed separately for security.</p><a class="button" href="{% url 'profile_edit' %}">Manage my details</a></section>
+<section class="card"><h2>Account & privacy</h2><div class="secure"><span class="dot"></span>Signed in securely</div><p class="note">Only you and authorized Wardenclyffe personnel should have access to your client information.</p><div class="separator"></div><div class="eyebrow">Member since</div><p >{{ user.date_joined|date:"F j, Y" }}</p><div class="separator"></div><div class="eyebrow">Need something corrected?</div><p class="note">Update your contact and billing details anytime using the Edit button. Password changes are managed separately for security.</p><a class="button" href="{% url 'profile_edit' %}">Manage my details</a></section>
 </div>
-</main></div>
-</body></html>
+
+
+{% endblock %}
