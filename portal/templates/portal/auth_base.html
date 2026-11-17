@@ -9,6 +9,6 @@
 <ol class="auth-journey"><li>{% translate "Choose a service" %}</li><li>{% translate "Upload your documents" %}</li><li>{% translate "Track every step" %}</li></ol>
 <small>Galiel · Wardenclyffe Inc.</small>
 </aside>
-<section class="auth-content"><nav class="auth-languages" aria-label="{% translate 'Language' %}"><a href="?lang=en" lang="en">EN</a><a href="?lang=es" lang="es">ES</a><a href="?lang=fr" lang="fr">FR</a></nav>
+<section class="auth-content">{% with current=request.GET.lang|default:"en" %}<nav class="auth-languages" aria-label="{% translate 'Language' %}"><a href="?lang=en" lang="en" {% if current == 'en' %}aria-current="page"{% endif %}>EN</a><a href="?lang=es" lang="es" {% if current == 'es' %}aria-current="page"{% endif %}>ES</a><a href="?lang=fr" lang="fr" {% if current == 'fr' %}aria-current="page"{% endif %}>FR</a></nav>{% endwith %}
 <div class="auth-form-content">{% if messages %}{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% endif %}{% block content %}{% endblock %}</div>
 </section></div></body></html>
