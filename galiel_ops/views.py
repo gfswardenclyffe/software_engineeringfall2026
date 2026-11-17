@@ -33,6 +33,7 @@ def _active_announcements():
 
 from django.db import models
 
+@login_required
 @require_GET
 def announcement_list(request):
     category = request.GET.get("category", "")
@@ -78,7 +79,7 @@ def unread_count(request):
 @login_required
 def delete_draft(request, application_id):
     app=get_object_or_404(ServiceApplication,pk=application_id,client=request.user)
-    if app.status!="draft":
+    if app.status!="draft" or app.payment_confirmed_at or app.stripe_checkout_session:
         return HttpResponseForbidden("Only draft applications can be deleted.")
     if request.method=="GET":
         return render(request,"galiel_ops/confirm_delete.html",{"application":app,"lang":locale_for(request)})
@@ -104,7 +105,7 @@ def delete_draft(request, application_id):
 @login_required
 @require_POST
 def delete_draft_file(request, application_id, document_id):
-    app=get_object_or_404(ServiceApplication,pk=application_id,client=request.user,status="draft")
+    app=get_object_or_404(ServiceApplication,pk=application_id,client=request.user,status="draft",payment_confirmed_at__isnull=True,stripe_checkout_session="")
     doc=get_object_or_404(ApplicationDocument,pk=document_id,application=app,is_deliverable=False)
     name=doc.file.name
     storage=doc.file.storage
