@@ -15,11 +15,18 @@
     return Math.round((baseFee + Math.max(0, sizeSqm - 100) * extraPerSqm) * 100) / 100;
   }
   // Banxico FIX is MXN per USD. EUR/MXN must have its own dated approved reference.
-  function approximatePayment(primaryAmount, currency, fx) {
-    if (!Number.isFinite(primaryAmount) || primaryAmount < 0 || !fx || !fx.approved) return null;
-    if (currency === "MXN" && fx.mxnPerUsd > 0) return {unit:"USD", amount: primaryAmount / fx.mxnPerUsd};
-    if (currency === "MXN" && fx.mxnPerEur > 0) return {unit:"EUR", amount: primaryAmount / fx.mxnPerEur};
-    return null;
+  function approximatePayment(primaryAmount, currency, fx, locale) {
+    if (!Number.isFinite(primaryAmount) || primaryAmount < 0 || !fx ||
+        fx.approved !== true || !fx.rateDate ||
+        !(fx.mxnPerUsd > 0) || !(fx.mxnPerEur > 0)) return null;
+    const target = locale === "fr" ? "EUR" : locale === "en" ? "USD" : null;
+    if (!target || target === currency) return null;
+    const mxn = currency === "MXN" ? primaryAmount :
+                currency === "USD" ? primaryAmount * fx.mxnPerUsd :
+                currency === "EUR" ? primaryAmount * fx.mxnPerEur : NaN;
+    if (!Number.isFinite(mxn)) return null;
+    return {unit:target, amount: target === "USD" ?
+      mxn / fx.mxnPerUsd : mxn / fx.mxnPerEur, rateDate: fx.rateDate};
   }
   // Helpers exported for later isolated, fee-sheet-backed tests. They do not
   // render a fee until reviewed inputs exist.
