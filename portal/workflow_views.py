@@ -254,6 +254,7 @@ def application_step(request, application_id, step):
         "service_name": _display_title(offer, lang),
         "place_name": _display_place(offer, lang), "form": form,
         "requirements": requirements, "questions": questions,
+        "optional_documents": app.documents.filter(requirement__isnull=True, is_deliverable=False),
         "base": base, "tax": tax, "total": total,
         "checkout_cancelled": request.GET.get("canceled") == "1",
         "is_quote": total is None, "stripe_configured": bool(
@@ -393,6 +394,8 @@ def application_receipt(request, application_id):
 @require_POST
 def application_checkout(request, application_id):
     app = _application(request, application_id)
+    # Product decision: payments remain on hold. Never open Stripe checkout.
+    return HttpResponseForbidden("Card payments are temporarily unavailable.")
     if app.status in PAYMENT_STATUSES:
         return redirect("application_track", application_id=app.pk)
     if app.status not in ("draft", "quoted", "awaiting_payment") or not app.terms_accepted_at:
