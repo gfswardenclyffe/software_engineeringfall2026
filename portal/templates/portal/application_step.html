@@ -1,35 +1,7 @@
-{% load static %}
-<!doctype html>
-<html lang="{{ locale }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ application.number }} · Galiel</title>
-<style>
-:root{--cream:#f6f1ea;--black:#201d1a;--orange:#e96c3c;--line:#e5dad0;--muted:#706961}*{box-sizing:border-box}
-body{margin:0;background:var(--cream);color:var(--black);font-family:Arial,system-ui,sans-serif}
-a{color:inherit}.top{padding:20px clamp(16px,4vw,48px);background:#fffaf5;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:15px;align-items:center}
-.brand{font:italic 32px Georgia,serif;letter-spacing:-.035em;text-decoration:none}.brand small{font:12px Arial;letter-spacing:.03em}
-main{max-width:920px;margin:38px auto;padding:0 18px 70px}.eyebrow{color:#a94c25;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-h1{font:normal clamp(32px,5vw,47px) Georgia,serif;letter-spacing:-.035em;margin:10px 0}
-.progress{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:30px 0 22px}
-.progress a{text-decoration:none;border-top:5px solid #ded4c9;padding:12px 4px;color:var(--muted);font-size:12px}
-.progress a.current{border-color:var(--orange);color:var(--black);font-weight:700}.progress a.past{border-color:#ca9879}
-.panel{background:#fffdf9;border:1px solid var(--line);border-radius:16px;padding:clamp(20px,4vw,36px);margin:16px 0}
-.panel h2{font:normal 27px Georgia,serif;margin-top:0}.muted{color:var(--muted);line-height:1.6}
-label{display:block;font-size:14px;font-weight:700;margin:17px 0 8px}
-input[type=text],textarea{width:100%;border:1px solid #c9bdb2;border-radius:8px;padding:12px;font:inherit;background:white}
-input[type=checkbox]{width:auto}.btn{border:0;background:#201d1a;color:white;border-radius:25px;padding:14px 21px;font-weight:bold;cursor:pointer;font-size:14px;display:inline-block;text-decoration:none}
-.btn.orange{background:var(--orange);color:#21170f}.btn.outline{border:1px solid #a89a8c;background:transparent;color:var(--black)}
-.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px}
-.doc{border:1px dashed #bdafa4;border-radius:12px;padding:15px;margin:12px 0;background:#fffaf5}
-.drop{display:block;cursor:pointer;border:1px dashed #bfa99a;border-radius:10px;padding:18px;margin:10px 0}
-.drop.drag{background:#f7e4d8;border-color:var(--orange)}
-.row{display:flex;justify-content:space-between;gap:20px;padding:10px 0;border-bottom:1px solid var(--line)}
-.status{font-size:12px;color:#276647}.errors,.errorlist{color:#a52b1b}
-.notice{padding:14px;border-left:4px solid var(--orange);background:#fff3ea;line-height:1.6}
-@media(max-width:650px){.progress a{font-size:10px;overflow-wrap:anywhere}.top{flex-wrap:wrap}}
-</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
-<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
-</head><body>
-{% include 'portal/_site_header.html' %}
-<main>
+{% extends "portal/workspace_base.html" %}
+{% block title %}application step · Galiel{% endblock %}
+{% block content %}
+
 <div class="eyebrow">{{ application.number }} · {{ application.get_status_display }} · {{ user.get_full_name|default:user.email }}</div>
 <h1>{{ service_name }}</h1><p class="muted">{{ place_name }} · {{ application.currency }}</p>
 <nav class="progress" aria-label="Application progress">
@@ -113,7 +85,7 @@ input[type=checkbox]{width:auto}.btn{border:0;background:#201d1a;color:white;bor
 <p><strong>Order {{ application.number }}</strong></p><p>Estimated delivery: {{ application.estimated_delivery|default:"To be confirmed" }}</p>
 <a class="btn orange" href="{% url 'application_track' application.pk %}">Track my process →</a></section>
 {% endif %}
-</main>
+
 <script>
 const url="{% url 'application_autosave' application.pk %}";
 const form=document.querySelector("#answers-form")||document.querySelector("#notes-form");
@@ -129,4 +101,4 @@ const drop=form.querySelector(".drop"),input=form.querySelector("input[type=file
 drop.addEventListener("drop",e=>{if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;form.requestSubmit();}});
 });
 </script>
-</body></html>
+{% endblock %}
