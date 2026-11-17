@@ -292,3 +292,154 @@ class StructuredProfileAddressTests(TestCase):
         page = self.client.get(reverse("profile_edit"))
         self.assertContains(page, "Tax ID (if applicable)")
         self.assertNotContains(page, "RFC / Tax ID")
+
+
+# Production operations regression tests: run via python manage.py test portal.
+from datetime import timedelta
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils import timezone
+from django.contrib.auth.models import User as PortalTestUser
+from portal.models import CatalogCountry, CatalogService, ServiceOffering, ServiceApplication, ApplicationDocument, ServiceRequirement
+from galiel_ops.models import Announcement, Reminder, FiscalProfile, InvoiceRequest, AccountDeletionRequest
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class ProductionOperationsPrivacyTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.alice = PortalTestUser.objects.create_user(username="client-one@example.test", email="client-one@example.test",
+                                                       password="StrongPrivatePass001!")
+        cls.bob = PortalTestUser.objects.create_user(username="client-two@example.test", email="client-two@example.test",
+                                                     password="StrongPrivatePass002!")
+        cls.staff = PortalTestUser.objects.create_user(username="staff@example.test",email="staff@example.test",
+                                                       password="StrongPrivatePass003!",is_staff=True)
+        cls.country = CatalogCountry.objects.create(code="MX",name_en="Mexico",name_es="México",name_fr="Mexique")
+        cls.service = CatalogService.objects.create(slug="portal-smoke",title_en="Administrative filing",
+                                                     title_es="Trámite administrativo",title_fr="Démarche administrative")
+        cls.offering = ServiceOffering.objects.create(service=cls.service,country=cls.country,
+                                                      is_published=True,currency="MXN",price_type="quote")
+        cls.app_a = ServiceApplication.objects.create(client=cls.alice,offering=cls.offering,
+            status="draft",step=5,service_title=cls.service.title_en,currency="MXN")
+        cls.app_b = ServiceApplication.objects.create(client=cls.bob,offering=cls.offering,
+            status="draft",step=5,service_title=cls.service.title_en,currency="MXN")
+
+    def test_login_required_for_private_operations(self):
+        for name in ("galiel_announcements","galiel_reminders","galiel_fiscal_profile","galiel_help_processes"):
+            response=self.client.get(reverse(name))
+            self.assertEqual(response.status_code,302,name)
+            self.assertIn("/login/",response.url)
+
+    def test_announcements_filter_and_expiry(self):
+        self.client.force_login(self.alice)
+        Announcement.objects.create(title_en="Current",title_es="Actual",title_fr="Actuelle",body_en="EN",body_es="ES",
+            body_fr="FR",category="news",author=self.staff,published_at=timezone.now()-timedelta(days=1))
+        Announcement.objects.create(title_en="Expired",title_es="Caducada",title_fr="Expirée",
+            body_en="x",body_es="x",body_fr="x",category="news",
+            published_at=timezone.now()-timedelta(days=2),expires_at=timezone.now()-timedelta(days=1))
+        Announcement.objects.create(title_en="Future",title_es="Futura",title_fr="À venir",
+            body_en="x",body_es="x",body_fr="x",category="news",published_at=timezone.now()+timedelta(days=1))
+        response=self.client.get(reverse("galiel_announcements")+"?category=news&lang=es")
+        self.assertContains(response,"Actual")
+        self.assertNotContains(response,"Expired")
+        self.assertNotContains(response,"Future")
+
+    def test_alerts_never_leak_between_clients(self):
+        alert=Reminder.objects.create(user=self.bob,application=self.app_b,
+            kind="renewal",message="Bob private renewal",due_date=timezone.localdate())
+        self.client.force_login(self.alice)
+        response=self.client.get(reverse("galiel_reminders"))
+        self.assertNotContains(response,"Bob private renewal")
+        self.assertEqual(self.client.post(reverse("galiel_reminder_read",args=[alert.pk])).status_code,404)
+        self.assertEqual(self.client.post(reverse("galiel_reminder_dismiss",args=[alert.pk])).status_code,404)
+        self.assertEqual(self.client.get(reverse("galiel_unread_count")).json()["unread"],0)
+
+    def test_read_and_dismiss_own_alert(self):
+        alert=Reminder.objects.create(user=self.alice,kind="other",message="Private update")
+        self.client.force_login(self.alice)
+        self.assertEqual(self.client.get(reverse("galiel_unread_count")).json()["unread"],1)
+        self.assertEqual(self.client.post(reverse("galiel_reminder_read",args=[alert.pk])).status_code,302)
+        self.assertEqual(self.client.get(reverse("galiel_unread_count")).json()["unread"],0)
+        self.assertEqual(self.client.post(reverse("galiel_reminder_dismiss",args=[alert.pk])).status_code,302)
+        self.assertFalse(Reminder.objects.filter(pk=alert.pk,dismissed=False).exists())
+
+    def test_client_cannot_delete_another_clients_draft(self):
+        self.client.force_login(self.alice)
+        response=self.client.post(reverse("galiel_delete_draft",args=[self.app_b.pk]),
+            {"confirm":self.app_b.number})
+        self.assertEqual(response.status_code,404)
+        self.assertTrue(ServiceApplication.objects.filter(pk=self.app_b.pk).exists())
+
+    def test_submitted_application_is_immutable(self):
+        self.app_a.status="submitted"
+        self.app_a.save(update_fields=["status"])
+        self.client.force_login(self.alice)
+        self.assertEqual(self.client.post(reverse("galiel_delete_draft",args=[self.app_a.pk]),
+            {"confirm":self.app_a.number}).status_code,403)
+        self.assertTrue(ServiceApplication.objects.filter(pk=self.app_a.pk).exists())
+
+    def test_delete_own_draft_requires_exact_confirmation(self):
+        self.client.force_login(self.alice)
+        url=reverse("galiel_delete_draft",args=[self.app_a.pk])
+        self.assertContains(self.client.get(url),self.app_a.number)
+        self.assertEqual(self.client.post(url,{"confirm":"wrong"}).status_code,403)
+        self.assertTrue(ServiceApplication.objects.filter(pk=self.app_a.pk).exists())
+        self.assertEqual(self.client.post(url,{"confirm":self.app_a.number}).status_code,302)
+        self.assertFalse(ServiceApplication.objects.filter(pk=self.app_a.pk).exists())
+
+    def test_private_documents_and_upload_validation(self):
+        upload=SimpleUploadedFile("private.pdf",b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\n%%EOF",content_type="application/pdf")
+        document=ApplicationDocument.objects.create(application=self.app_b,requirement=None,
+            original_filename="private.pdf",file=upload,content_type="application/pdf",size=upload.size)
+        self.client.force_login(self.alice)
+        self.assertEqual(self.client.post(reverse("galiel_delete_draft_file",args=[self.app_b.pk,document.pk])).status_code,404)
+        self.assertEqual(self.client.get(reverse("application_download",args=[self.app_b.pk,document.pk])).status_code,404)
+        self.assertTrue(ApplicationDocument.objects.filter(pk=document.pk).exists())
+
+    def test_wizard_steps_do_not_show_other_clients_data(self):
+        self.client.force_login(self.alice)
+        for step in range(1,7):
+            response=self.client.get(reverse("application_step",args=[self.app_b.pk,step]))
+            self.assertEqual(response.status_code,404,step)
+        for step in range(1,6):
+            response=self.client.get(reverse("application_step",args=[self.app_a.pk,step]))
+            self.assertIn(response.status_code,(200,302),step)
+
+    def test_payment_hold(self):
+        self.client.force_login(self.alice)
+        response=self.client.post(reverse("application_checkout",args=[self.app_a.pk]))
+        self.assertNotEqual(response.status_code,200)
+        self.assertFalse(ServiceApplication.objects.get(pk=self.app_a.pk).payment_confirmed_at)
+
+    def test_invoice_request_is_owner_only(self):
+        self.client.force_login(self.alice)
+        url=reverse("galiel_request_invoice",args=[self.app_b.pk])
+        self.assertEqual(self.client.post(url,{"invoice_requested":"yes"}).status_code,404)
+        url=reverse("galiel_request_invoice",args=[self.app_a.pk])
+        self.assertEqual(self.client.post(url,{"invoice_requested":"yes"}).status_code,302)
+        self.assertEqual(InvoiceRequest.objects.filter(application=self.app_a,user=self.alice).count(),1)
+
+    def test_fiscal_data_and_deletion_request_are_private(self):
+        self.client.force_login(self.alice)
+        data={"rfc":"ABCD990101XYZ","razon_social":"Alice Enterprise","regimen_fiscal":"601",
+              "uso_cfdi":"G03","invoice_email":"invoice-alice@example.test"}
+        self.assertEqual(self.client.post(reverse("galiel_fiscal_profile"),data).status_code,302)
+        self.assertEqual(FiscalProfile.objects.get(user=self.alice).rfc,"ABCD990101XYZ")
+        self.client.force_login(self.bob)
+        self.assertNotContains(self.client.get(reverse("galiel_fiscal_profile")),"Alice Enterprise")
+        self.client.force_login(self.alice)
+        self.assertEqual(self.client.post(reverse("galiel_request_account_deletion")).status_code,302)
+        self.assertTrue(PortalTestUser.objects.filter(pk=self.alice.pk,is_active=True).exists())
+        self.assertEqual(AccountDeletionRequest.objects.filter(user=self.alice,status="pending").count(),1)
+
+    def test_help_processes_list_owner_only(self):
+        self.client.force_login(self.alice)
+        result=self.client.get(reverse("galiel_help_processes"))
+        self.assertEqual(result.status_code,200)
+        self.assertIn(self.app_a.number,str(result.json()))
+        self.assertNotIn(self.app_b.number,str(result.json()))
+
+    def test_staff_status_generates_alert(self):
+        self.app_a.status="missing_documents"
+        self.app_a.save(update_fields=["status"])
+        self.assertTrue(Reminder.objects.filter(user=self.alice,application=self.app_a,kind="documents").exists())
+        self.assertFalse(Reminder.objects.filter(user=self.bob,application=self.app_a).exists())
