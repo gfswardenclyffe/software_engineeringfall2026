@@ -89,6 +89,12 @@
   <div class="galiel-info-row"><span>{% ui "Applicable tax" %}</span><strong>{% if tax != None %}{{ application.currency }} {{ tax }}{% else %}—{% endif %}</strong></div>
   <div class="galiel-info-row"><span>{% ui "Total" %}</span><strong>{% if total != None %}{{ application.currency }} {{ total }}{% else %}{% ui "Quote required" %}{% endif %}</strong></div>
   <p class="notice">{% ui "Payments are currently on hold." %}</p>
+  <div class="galiel-ops-card"><form method="post" action="{% url 'galiel_request_invoice' application.pk %}">
+  {% csrf_token %}<label><input name="invoice_requested" type="checkbox" value="yes" required>
+  {% if gl_lang == 'es' %}Necesito factura{% elif gl_lang == 'fr' %}Je souhaite une facture{% else %}I need an invoice{% endif %}</label>
+  <p>{% if gl_lang == 'es' %}La factura se emitirá manualmente después de la revisión.{% elif gl_lang == 'fr' %}La facture sera établie manuellement après vérification.{% else %}An invoice will be issued manually after review.{% endif %}</p>
+  <button type="submit" class="galiel-secondary">{% if gl_lang == 'es' %}Solicitar factura{% elif gl_lang == 'fr' %}Demander une facture{% else %}Request invoice{% endif %}</button>
+  </form><a href="{% url 'galiel_fiscal_profile' %}">Fiscal details →</a></div>
   <form method="post">{% csrf_token %}<label class="galiel-agree"><input type="checkbox" name="terms" value="yes" required> {% if gl_lang == 'es' %}Acepto los{% elif gl_lang == 'fr' %}J’accepte les{% else %}I agree to the{% endif %} <a href="{% url 'application_terms' %}" target="_blank" rel="noopener">{% if gl_lang == 'es' %}términos del servicio{% elif gl_lang == 'fr' %}conditions du service{% else %}service terms{% endif %}</a></label>
     <div class="galiel-actions"><a class="galiel-secondary" href="{% url 'application_step' application.pk 3 %}">← {% ui "Back" %}</a><button type="submit" class="btn orange">{% ui "Accept & continue" %} →</button></div>
   </form>
