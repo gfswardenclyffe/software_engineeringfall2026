@@ -128,6 +128,84 @@
       "Confirmation":"Confirmation","Continue":"Continuer","Service":"Service"
     }
   };
+
+  const longerStrings = {
+    es: {
+      "Sign in to access your account, documents, and service updates.":"Inicia sesión para acceder a tus datos, documentos y actualizaciones.",
+      "Forgot your password?":"¿Olvidaste tu contraseña?",
+      "New to Galiel?":"¿Aún no tienes cuenta?",
+      "← Back to Galiel":"← Volver a Galiel",
+      "Create your client account. We'll email you a confirmation link before you can access your private workspace.":"Crea tu cuenta. Te enviaremos un enlace de confirmación por correo antes de acceder a tu espacio privado.",
+      "Create account and send confirmation →":"Crear cuenta y enviar confirmación →",
+      "We verify your email before activating the account. Phone verification is not yet enabled; your phone number is used only as contact information.":"Verificamos tu correo antes de activar tu cuenta. El teléfono solo se usa como dato de contacto.",
+      "Already registered?":"¿Ya tienes cuenta?",
+      "For security, unconfirmed accounts cannot sign in. Verification links expire after 24 hours.":"Por seguridad, las cuentas sin confirmar no pueden iniciar sesión. Los enlaces vencen a las 24 horas.",
+      "Need a new link?":"¿Necesitas otro enlace?",
+      "Resend confirmation":"Reenviar confirmación",
+      "Already confirmed? Sign in":"¿Ya confirmaste? Inicia sesión",
+      "Account confirmation":"Confirmación de cuenta",
+      "Link unavailable.":"Enlace no disponible.",
+      "This confirmation link is invalid, expired, or already used. You can request a fresh link below.":"Este enlace no es válido, venció o ya fue utilizado. Puedes solicitar uno nuevo.",
+      "Request a new link":"Solicitar enlace nuevo",
+      "Back to sign in":"Volver a iniciar sesión",
+      "Enter your account email. If an active account exists, we'll send a recovery link.":"Escribe tu correo. Si existe una cuenta activa, enviaremos un enlace de recuperación.",
+      "Send reset link":"Enviar enlace de recuperación",
+      "Your password has been updated. You can now sign in.":"Tu contraseña se actualizó. Ya puedes iniciar sesión.",
+      "Your workspace is ready.":"Tu espacio está listo.",
+      "No processes yet. Choose a service and save your application as a draft.":"Aún no tienes trámites. Elige un servicio y guarda la solicitud como borrador.",
+      "Your profile stores the contact details you provided when registering. You can review or update them at any time.":"Tu perfil guarda los datos de contacto de tu registro. Puedes revisarlos o actualizarlos cuando quieras.",
+      "Resume a saved draft, respond to a quotation, or follow an active process.":"Continúa un borrador, responde a una cotización o consulta un trámite activo.",
+      "Explore within your workspace":"Explora servicios desde tu espacio",
+      "Find services by location, review published fees and estimates, and start a saved application without leaving your workspace.":"Busca servicios por ubicación, revisa precios y comienza una solicitud sin salir de tu espacio.",
+      "Your information, all in one place. Keep it current so we can serve you better.":"Tus datos en un solo lugar. Mantenlos actualizados para brindarte un mejor servicio.",
+      "Only you and authorized Wardenclyffe personnel should have access to your client information.":"Solo tú y el personal autorizado de Wardenclyffe deben poder consultar tus datos.",
+      "Update your contact and billing details anytime using the Edit button. Password changes are managed separately for security.":"Actualiza tus datos de contacto y facturación con Editar. Los cambios de contraseña se gestionan por separado.",
+      "Update the information Wardenclyffe uses to contact you about your services.":"Actualiza los datos que Wardenclyffe utiliza para comunicarse contigo.",
+      "Messages are saved in Galiel so you can return to your conversation at any time.":"Los mensajes se guardan en Galiel para que puedas consultar tus conversaciones.",
+      "PDF files up to 10 MB. Only you and authorized administrators can access documents you upload.":"PDF de hasta 10 MB. Solo tú y los administradores autorizados pueden acceder a los archivos.",
+      "Your files stay private. Only documents requested for this process can be uploaded here.":"Tus archivos son privados. Aquí puedes subir los documentos solicitados.",
+      "No documents uploaded yet.":"Todavía no hay documentos cargados."
+    },
+    fr: {
+      "Sign in to access your account, documents, and service updates.":"Connectez-vous pour accéder à votre compte, vos documents et vos mises à jour.",
+      "Forgot your password?":"Mot de passe oublié ?",
+      "New to Galiel?":"Vous découvrez Galiel ?",
+      "← Back to Galiel":"← Retour à Galiel",
+      "Create your client account. We'll email you a confirmation link before you can access your private workspace.":"Créez votre compte. Nous vous enverrons un lien de confirmation avant l’accès à votre espace privé.",
+      "Create account and send confirmation →":"Créer le compte et envoyer la confirmation →",
+      "We verify your email before activating the account. Phone verification is not yet enabled; your phone number is used only as contact information.":"Nous vérifions votre adresse e-mail avant l’activation. Le téléphone sert uniquement aux échanges.",
+      "Already registered?":"Déjà inscrit ?",
+      "For security, unconfirmed accounts cannot sign in. Verification links expire after 24 hours.":"Pour votre sécurité, les comptes non confirmés ne peuvent pas se connecter. Les liens expirent après 24 heures.",
+      "Need a new link?":"Besoin d’un nouveau lien ?",
+      "Resend confirmation":"Renvoyer la confirmation",
+      "Already confirmed? Sign in":"Déjà confirmé ? Se connecter",
+      "Account confirmation":"Confirmation du compte",
+      "Link unavailable.":"Lien indisponible.",
+      "This confirmation link is invalid, expired, or already used. You can request a fresh link below.":"Ce lien est invalide, expiré ou déjà utilisé. Vous pouvez en demander un nouveau.",
+      "Request a new link":"Demander un nouveau lien",
+      "Back to sign in":"Retour à la connexion",
+      "Enter your account email. If an active account exists, we'll send a recovery link.":"Saisissez votre adresse e-mail. Si le compte est actif, nous enverrons un lien de récupération.",
+      "Send reset link":"Envoyer le lien de réinitialisation",
+      "Your password has been updated. You can now sign in.":"Votre mot de passe a été modifié. Vous pouvez vous connecter.",
+      "Your workspace is ready.":"Votre espace est prêt.",
+      "No processes yet. Choose a service and save your application as a draft.":"Aucune démarche pour le moment. Choisissez un service et enregistrez votre demande en brouillon.",
+      "Your profile stores the contact details you provided when registering. You can review or update them at any time.":"Votre profil conserve vos coordonnées. Vous pouvez les consulter ou les modifier à tout moment.",
+      "Resume a saved draft, respond to a quotation, or follow an active process.":"Reprenez un brouillon, répondez à un devis ou suivez une démarche en cours.",
+      "Explore within your workspace":"Explorez les services dans votre espace",
+      "Find services by location, review published fees and estimates, and start a saved application without leaving your workspace.":"Recherchez des services par région, consultez les tarifs et commencez une demande depuis votre espace.",
+      "Your information, all in one place. Keep it current so we can serve you better.":"Vos informations réunies au même endroit. Tenez-les à jour.",
+      "Only you and authorized Wardenclyffe personnel should have access to your client information.":"Seuls vous et le personnel autorisé de Wardenclyffe doivent avoir accès à vos données.",
+      "Update your contact and billing details anytime using the Edit button. Password changes are managed separately for security.":"Modifiez vos coordonnées et informations de facturation à l’aide du bouton Modifier. Les mots de passe sont gérés séparément.",
+      "Update the information Wardenclyffe uses to contact you about your services.":"Modifiez les informations utilisées par Wardenclyffe pour vous contacter.",
+      "Messages are saved in Galiel so you can return to your conversation at any time.":"Les messages sont conservés dans Galiel pour vous permettre de retrouver vos échanges.",
+      "PDF files up to 10 MB. Only you and authorized administrators can access documents you upload.":"PDF de 10 Mo maximum. Seuls vous et les administrateurs autorisés peuvent accéder à vos fichiers.",
+      "Your files stay private. Only documents requested for this process can be uploaded here.":"Vos fichiers restent privés. Vous pouvez y téléverser les documents demandés.",
+      "No documents uploaded yet.":"Aucun document téléversé."
+    }
+  };
+  Object.assign(dictionaries.es, longerStrings.es);
+  Object.assign(dictionaries.fr, longerStrings.fr);
+
   function readCookie() {
     const part = document.cookie.split(";").map(x=>x.trim()).find(x=>x.startsWith("galiel_lang="));
     return part ? decodeURIComponent(part.split("=")[1]) : "";
