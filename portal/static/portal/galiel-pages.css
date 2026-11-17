@@ -58,3 +58,88 @@
 .galiel-auth .helptext{display:block;font-size:12px;color:#555}
 @media(max-width:920px){.galiel-auth .auth-layout{grid-template-columns:1fr}.galiel-auth .auth-brand{min-height:auto;padding:30px}.galiel-auth .auth-brand-content{margin:30px 0}.galiel-auth .auth-brand-content h2{font-size:38px}.galiel-auth .auth-journey{display:none}.ws-secondary .ws-content .filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.galiel-auth .auth-form-content{padding:34px 20px}.galiel-auth .fields-two,.ws-secondary .ws-content .data,.ws-secondary .ws-content .columns,.ws-secondary .ws-content .grid,.ws-secondary .ws-content .cards,.ws-secondary .ws-content .filters{grid-template-columns:1fr}.ws-secondary .ws-content .hero{display:block}.galiel-auth .auth-languages a{padding:14px 12px}}
+
+
+/* 2026-11-16 UI QA: aligned language switchers, buttons and size selection. */
+.galiel-auth .auth-languages,
+.workspace-redesign .ws-languages{
+  display:grid!important;grid-template-columns:repeat(3,48px)!important;
+  gap:0!important;align-items:stretch!important;flex-shrink:0;
+  border:1px solid #161616!important;border-radius:0!important;
+  padding:0!important;margin:0!important;background:#F2F1EC!important;
+}
+.galiel-auth .auth-languages{align-self:flex-end;margin:16px 24px 0!important}
+.galiel-auth .auth-languages a,
+.workspace-redesign .ws-languages a{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  min-height:46px!important;width:48px!important;padding:0!important;margin:0!important;
+  border:0!important;border-right:1px solid #161616!important;border-radius:0!important;
+  color:#161616!important;background:#F2F1EC!important;font:800 12px/1 Inter,Arial,sans-serif!important;
+  text-decoration:none!important;
+}
+.galiel-auth .auth-languages a:last-child,
+.workspace-redesign .ws-languages a:last-child{border-right:0!important}
+.galiel-auth .auth-languages a[aria-current="page"],
+.workspace-redesign .ws-languages a[aria-current="page"]{
+  background:#161616!important;color:#fff!important;
+}
+.galiel-auth .auth-journey li{
+  display:grid!important;grid-template-columns:38px minmax(0,1fr)!important;
+  align-items:center!important;gap:12px!important;
+}
+.galiel-auth .auth-journey li::before{
+  margin:0!important;width:38px!important;display:block!important;
+  font-variant-numeric:tabular-nums;font-weight:800;
+}
+.galiel-auth .action,
+.galiel-auth button[type="submit"],
+.ws-secondary .action,
+.ws-secondary .btn,
+.ws-secondary .button,
+.ws-secondary button[type="submit"]{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  vertical-align:middle!important;line-height:1.25!important;
+  min-height:48px!important;padding:12px 20px!important;
+  text-align:center!important;white-space:normal;
+}
+.workspace-redesign .ws-header-right{
+  display:flex!important;gap:14px!important;align-items:center!important;
+  justify-content:flex-end!important;flex-wrap:wrap!important;min-width:0;
+}
+.workspace-redesign .ws-header-right .ws-logout{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:46px!important;background:transparent!important;
+  border:1px solid #161616!important;color:#161616!important;
+  padding:0 16px!important;white-space:nowrap;font-weight:750!important;
+}
+.workspace-redesign .ws-header-right form{margin:0!important;flex-shrink:0}
+.ws-secondary .ws-content .ws-size-field{
+  display:flex!important;align-items:stretch!important;gap:8px!important;min-width:0;
+}
+.ws-secondary .ws-content .ws-size-field input{
+  width:100%!important;flex:1 1 120px!important;min-width:0!important;
+  height:46px!important;line-height:1.3!important;
+}
+.ws-secondary .ws-content .ws-size-toggle{
+  display:grid!important;grid-template-columns:repeat(2,52px)!important;flex:0 0 auto;
+  border:1px solid #161616!important;min-height:46px!important;
+}
+.ws-secondary .ws-content .ws-size-toggle button{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:52px!important;height:44px!important;min-height:44px!important;
+  line-height:1!important;padding:0!important;margin:0!important;
+  border:0!important;border-right:1px solid #161616!important;border-radius:0!important;
+  background:#fff!important;color:#161616!important;
+  font:750 13px/1 Inter,Arial,sans-serif!important;
+}
+.ws-secondary .ws-content .ws-size-toggle button:last-child{border-right:0!important}
+.ws-secondary .ws-content .ws-size-toggle button[aria-pressed="true"]{
+  background:#161616!important;color:white!important;
+}
+@media(max-width:520px){
+ .workspace-redesign .ws-header-right{gap:8px!important}
+ .workspace-redesign .ws-languages{grid-template-columns:repeat(3,42px)!important}
+ .workspace-redesign .ws-languages a{width:42px!important;min-height:44px!important}
+ .ws-secondary .ws-content .ws-size-toggle{grid-template-columns:repeat(2,44px)!important}
+ .ws-secondary .ws-content .ws-size-toggle button{width:44px!important}
+}
