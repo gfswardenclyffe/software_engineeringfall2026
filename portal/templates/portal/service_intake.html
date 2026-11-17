@@ -1,5 +1,7 @@
 {% extends "portal/workspace_base.html" %}
-{% block title %}service intake · Galiel{% endblock %}
+{% block title %}service intake · Galiel<script src="{% static 'portal/galiel-service-pricing.js' %}" defer></script>
+{% endblock %}
+{% load static %}
 {% block content %}
 
 <p><a href="{% url 'service_catalog' %}">← {% if locale == 'es' %}Servicios{% elif locale == 'fr' %}Services{% else %}Services{% endif %}</a></p>
@@ -7,8 +9,12 @@
 <div class="progress"><span>1 Service</span><span>2 Information</span><span>3 Documents</span><span>4 Review</span><span>5 Payment</span><span>6 Confirmation</span></div>
 <section class="panel"><h2>{% if locale == 'es' %}Tu servicio{% elif locale == 'fr' %}Votre service{% else %}Your service{% endif %}</h2>
 <p>{{ offering.municipality|default:offering.region|default:offering.country }}</p>
-<p><strong>{% if offering.price_type == 'quote' %}Quote required{% elif offering.price_type == 'starting' %}{% if locale == 'es' %}Desde{% elif locale == 'fr' %}À partir de{% else %}From{% endif %} {% if offering.currency == 'EUR' %}€{% else %}${% endif %}{{ offering.price }} {{ offering.currency }}{% if offering.price_unit %} · {{ offering.price_unit }}{% endif %}{% else %}{{ offering.currency }} {{ offering.price }}{% endif %}</strong></p>
-{% if offering.price_type == 'starting' %}<p>Deposit: {% if offering.deposit_amount %}{{ offering.currency }} {{ offering.deposit_amount }}{% else %}To be quoted{% endif %}</p>{% endif %}
+<p><strong>{{ offering.currency }} · {% if locale == 'es' %}Cotización pendiente{% elif locale == 'fr' %}Devis à confirmer{% else %}Quote required{% endif %}</strong></p>
+<p class="ws-pricing-pending">Official fee, first 100 m² base, additional m² rate and any approximate FX equivalents will appear after the approved fee sheet is entered. The amount charged will use the jurisdiction currency.</p>
+<div class="ws-service-size"><label for="business-size">Business size</label><input data-locale="{{ locale }}" id="business-size" type="number" min="0" step="0.01" placeholder="Enter area" aria-describedby="size-notice">
+<div class="ws-size-toggle"><button type="button" data-area-unit="ft2" aria-pressed="true">ft²</button><button type="button" data-area-unit="m2" aria-pressed="false">m²</button></div>
+<p id="size-notice" class="ws-pricing-pending">Planning estimate only; this value is not submitted or saved to your application yet.</p></div>
+
 <p class="muted">Estimated duration: {% if offering.estimated_min_business_days != None and offering.estimated_max_business_days != None %}{{ offering.estimated_min_business_days }}–{{ offering.estimated_max_business_days }} business days{% else %}To be confirmed{% endif %}</p>
 {% if offering.is_temporary_price %}<p class="muted">{% if locale == 'es' %}{{ offering.estimated_price_note_es }}{% elif locale == 'fr' %}{{ offering.estimated_price_note_fr }}{% else %}{{ offering.estimated_price_note }}{% endif %}</p>{% endif %}
 <p class="muted">Your application will be saved as a draft. You can return to it in My processes. No payment will be collected until you review and explicitly authorize checkout.</p>
