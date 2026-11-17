@@ -1,14 +1,22 @@
-{% load static i18n %}
+{% load static i18n galiel_ui %}
+{% galiel_locale as gl_lang %}
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}Galiel · Account{% endblock %}</title>
 <link rel="stylesheet" href="{% static 'portal/galiel-pages.css' %}">
 <link rel="icon" href="{% static 'portal/galiel-signature-dark.svg' %}" type="image/svg+xml"></head>
 <body class="galiel-auth"><div class="auth-layout">
 <aside class="auth-brand">
-<a href="{% url 'home' %}" class="auth-logo" aria-label="Galiel by Wardenclyffe"><img src="{% static 'portal/galiel-signature-light.svg' %}" alt="Galiel"><span>by WARDENCLYFFE</span></a>
-<div class="auth-brand-content"><div class="auth-eyebrow">{% translate "YOUR CLIENT SPACE" %}</div><h2>{% translate "Everything in its right place." %}</h2><p>{% translate "A private home for your services, documents, and updates. Organized, secure, and made for you." %}</p></div>
+<a href="{% url 'login' %}" class="auth-logo" aria-label="Galiel by Wardenclyffe"><img src="{% static 'portal/galiel-signature-light.svg' %}" alt="Galiel"><span>by WARDENCLYFFE</span></a>
+<div class="auth-brand-content"><div class="auth-eyebrow">{% translate "YOUR CLIENT SPACE" %}</div><h2>{% ui "Everything in its right place." %}</h2><p>{% translate "A private home for your services, documents, and updates. Organized, secure, and made for you." %}</p></div>
 <ol class="auth-journey"><li>{% translate "Choose a service" %}</li><li>{% translate "Upload your documents" %}</li><li>{% translate "Track every step" %}</li></ol>
 <small>Galiel · Wardenclyffe Inc.</small>
 </aside>
-<section class="auth-content">{% with current=request.GET.lang|default:"en" %}<nav class="auth-languages" aria-label="{% translate 'Language' %}"><a href="?lang=en" lang="en" {% if current == 'en' %}aria-current="page"{% endif %}>EN</a><a href="?lang=es" lang="es" {% if current == 'es' %}aria-current="page"{% endif %}>ES</a><a href="?lang=fr" lang="fr" {% if current == 'fr' %}aria-current="page"{% endif %}>FR</a></nav>{% endwith %}
+<section class="auth-content">{% with current=gl_lang %}<nav class="auth-languages" aria-label="{% translate 'Language' %}"><a href="?lang=en" lang="en" {% if current == 'en' %}aria-current="page"{% endif %}>EN</a><a href="?lang=es" lang="es" {% if current == 'es' %}aria-current="page"{% endif %}>ES</a><a href="?lang=fr" lang="fr" {% if current == 'fr' %}aria-current="page"{% endif %}>FR</a></nav>{% endwith %}
 <div class="auth-form-content">{% if messages %}{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% endif %}{% block content %}{% endblock %}</div>
-</section></div></body></html>
+</section></div><script>
+document.querySelectorAll('.auth-languages a').forEach(link => {
+  const url = new URL(window.location.href);
+  url.searchParams.set('lang', link.lang);
+  link.href = url.pathname + url.search + url.hash;
+  link.addEventListener('click', () => {document.cookie = 'galiel_lang='+link.lang+'; Path=/; Max-Age=31536000; Secure; SameSite=Lax';});
+});
+</script></body></html>
