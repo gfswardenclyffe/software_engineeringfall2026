@@ -28,6 +28,8 @@ class Migration(migrations.Migration):
             ("id",models.BigAutoField(auto_created=True,primary_key=True,serialize=False,verbose_name="ID")),
             ("kind",models.CharField(max_length=16,choices=[("documents","Documents requested"),("quote","Quotation ready"),("renewal","Permit renewal due"),("invoice","Invoice request"),("other","Other")])),
             ("message",models.TextField(max_length=1200)),
+            ("message_es",models.TextField(max_length=1200,blank=True)),
+            ("message_fr",models.TextField(max_length=1200,blank=True)),
             ("due_date",models.DateField(blank=True,null=True)),
             ("read_at",models.DateTimeField(blank=True,null=True)),
             ("dismissed",models.BooleanField(db_index=True,default=False)),
