@@ -177,10 +177,15 @@ def help_choices(request):
 
 @require_GET
 def help_requirements(request,offering_id):
-    offering=get_object_or_404(ServiceOffering.objects.select_related("service"),pk=offering_id,is_published=True)
     lang=locale_for(request)
-    fields=list(offering.requirements.filter(kind="document").order_by("display_order","pk").values("label_en","label_es","label_fr","is_required"))
-    return JsonResponse({"service":getattr(offering.service,"title_"+lang),
+    # Fetch only schema-0011 fields. Unapproved pricing columns may not exist in production.
+    offering=(ServiceOffering.objects.filter(pk=offering_id,is_published=True)
+        .values("pk","service__title_en","service__title_es","service__title_fr").first())
+    if offering is None:
+        raise Http404
+    from portal.models import ServiceRequirement
+    fields=list(ServiceRequirement.objects.filter(offering_id=offering_id,kind="document").order_by("display_order","pk").values("label_en","label_es","label_fr","is_required"))
+    return JsonResponse({"service":offering["service__title_"+lang],
                          "requirements":[{"label":x["label_"+lang],"required":x["is_required"]} for x in fields]})
 
 @login_required
@@ -193,6 +198,8 @@ def help_my_processes(request):
 @require_GET
 def help_services(request):
     lang=locale_for(request)
-    rows=ServiceOffering.objects.filter(is_published=True).select_related("service").order_by("service__title_en")[:250]
-    return JsonResponse({"services":[{"id":entry.pk,
-       "title":getattr(entry.service,"title_"+lang)} for entry in rows]})
+    rows=(ServiceOffering.objects.filter(is_published=True)
+        .values("pk","service__title_en","service__title_es","service__title_fr")
+        .order_by("service__title_en")[:250])
+    return JsonResponse({"services":[{"id":entry["pk"],
+       "title":entry["service__title_"+lang]} for entry in rows]})
