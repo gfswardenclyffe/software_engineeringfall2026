@@ -26,6 +26,8 @@ class Reminder(models.Model):
     application=models.ForeignKey("portal.ServiceApplication",null=True,blank=True,on_delete=models.SET_NULL,related_name="galiel_reminders")
     kind=models.CharField(max_length=16,choices=KINDS)
     message=models.TextField(max_length=1200)
+    message_es=models.TextField(max_length=1200,blank=True)
+    message_fr=models.TextField(max_length=1200,blank=True)
     due_date=models.DateField(null=True,blank=True)
     read_at=models.DateTimeField(null=True,blank=True)
     dismissed=models.BooleanField(default=False,db_index=True)
