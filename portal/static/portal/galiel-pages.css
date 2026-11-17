@@ -143,3 +143,22 @@
  .ws-secondary .ws-content .ws-size-toggle{grid-template-columns:repeat(2,44px)!important}
  .ws-secondary .ws-content .ws-size-toggle button{width:44px!important}
 }
+
+
+/* Consistent fixed-width index columns for public authentication steps. */
+.galiel-auth .auth-journey li{
+  display:grid!important;
+  grid-template-columns:48px minmax(0,1fr)!important;
+  column-gap:12px!important;
+  align-items:baseline!important;
+}
+.galiel-auth .auth-journey li::before{
+  display:block!important;
+  box-sizing:border-box!important;
+  width:48px!important;
+  margin:0!important;
+  padding:0!important;
+  font:800 13px/1.4 Inter,Arial,sans-serif!important;
+  font-variant-numeric:tabular-nums;
+  text-align:left!important;
+}
