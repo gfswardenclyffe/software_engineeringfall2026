@@ -1,16 +1,7 @@
-{% load static %}
-<!doctype html><html lang="{{ locale }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Galiel · {{ offering.service.title_en }}</title><style>
-:root{--cream:#f6f1ea;--orange:#e96c3c;--line:#e6d9cf}*{box-sizing:border-box}
-body{margin:0;background:var(--cream);color:#241b17;font:15px Arial,sans-serif}main{max-width:860px;margin:6vh auto;padding:0 22px}
-h1{font:normal 43px Georgia,serif}h2{font:normal 25px Georgia,serif}.brand{font:italic 32px Georgia,serif;text-decoration:none}.brand small{font:12px Arial}
-a{color:inherit}.panel{background:#fffdfa;border:1px solid var(--line);border-radius:18px;padding:28px;margin-top:23px}
-.progress{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:30px 0}
-.progress span{border-top:4px solid #dacfc4;padding-top:10px;font-size:12px}.progress span:first-child{border-color:var(--orange);font-weight:bold}
-button{background:var(--orange);border:0;border-radius:25px;padding:14px 25px;font-weight:bold;cursor:pointer}.muted{color:#6b615a;line-height:1.6}
-@media(max-width:570px){.progress span{font-size:10px}h1{font-size:31px}}
-</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
-<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
-</head><body>{% include 'portal/_site_header.html' %}<main>
+{% extends "portal/workspace_base.html" %}
+{% block title %}service intake · Galiel{% endblock %}
+{% block content %}
+
 <p><a href="{% url 'service_catalog' %}">← {% if locale == 'es' %}Servicios{% elif locale == 'fr' %}Services{% else %}Services{% endif %}</a></p>
 <h1>{% if locale == 'es' %}{{ offering.service.title_es }}{% elif locale == 'fr' %}{{ offering.service.title_fr }}{% else %}{{ offering.service.title_en }}{% endif %}</h1>
 <div class="progress"><span>1 Service</span><span>2 Information</span><span>3 Documents</span><span>4 Review</span><span>5 Payment</span><span>6 Confirmation</span></div>
@@ -23,4 +14,6 @@ button{background:var(--orange);border:0;border-radius:25px;padding:14px 25px;fo
 <p class="muted">Your application will be saved as a draft. You can return to it in My processes. No payment will be collected until you review and explicitly authorize checkout.</p>
 {% if user.is_staff %}<p>Staff accounts cannot create client applications.</p>{% else %}
 <form method="post" action="{% url 'application_start' offering.pk %}">{% csrf_token %}<button type="submit">Start service →</button></form>{% endif %}
-</section></main></body></html>
+</section>
+
+{% endblock %}
