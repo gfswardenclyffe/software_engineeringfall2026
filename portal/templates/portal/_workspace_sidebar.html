@@ -1,0 +1,15 @@
+{% load static i18n %}
+<aside class="ws-sidebar">
+  <div class="mini">{% translate "YOUR WORKSPACE" %}</div>
+  <div class="user-name">{{ user.get_full_name|default:user.email }}</div>
+  <nav aria-label="{% translate 'Workspace navigation' %}">
+    <a href="{% url 'dashboard' %}#overview" {% if ws_active == 'overview' %}class="active" aria-current="page"{% endif %}><span class="ws-num">01</span>{% translate "Overview" %}</a>
+    <a href="{% url 'dashboard' %}#processes" {% if ws_active == 'processes' %}class="active" aria-current="page"{% endif %}><span class="ws-num">02</span>{% translate "My processes" %}</a>
+    <a href="{% url 'service_catalog' %}" {% if ws_active == 'services' %}class="active" aria-current="page"{% endif %}><span class="ws-num">03</span>{% translate "Services" %}</a>
+    <a href="{% url 'dashboard' %}#documents" {% if ws_active == 'documents' %}class="active" aria-current="page"{% endif %}><span class="ws-num">04</span>{% translate "Documents" %}</a>
+    <a href="{% url 'dashboard' %}#invoices" {% if ws_active == 'invoices' %}class="active" aria-current="page"{% endif %}><span class="ws-num">05</span>{% translate "Invoices & payments" %}</a>
+    <a href="{% url 'messages_inbox' %}" {% if ws_active == 'messages' %}class="active" aria-current="page"{% endif %}><span class="ws-num">06</span>{% translate "Messages" %}</a>
+    <a href="{% url 'profile' %}" {% if ws_active == 'profile' %}class="active" aria-current="page"{% endif %}><span class="ws-num">07</span>{% translate "My profile" %}</a>
+  </nav>
+  <div class="ws-sidebar-footer"><img class="ws-logo" src="{% static 'portal/galiel-signature-light.svg' %}" alt="Galiel"><small>by WARDENCLYFFE</small></div>
+</aside>
