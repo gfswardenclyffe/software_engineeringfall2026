@@ -13,7 +13,7 @@ def send_reminder_copy(reminder_id, *, due_notice=False):
     field="due_notice_sent_at" if due_notice else "emailed_at"
     if getattr(reminder,field):
         return False
-    application_label = reminder.application.number if reminder.application_id else ""
+    language = "en"\n    try:\n        language = reminder.user.profile.preferred_language\n    except (AttributeError, Exception):\n        pass\n    body_text = reminder.message_es if language=="es" and reminder.message_es else (reminder.message_fr if language=="fr" and reminder.message_fr else reminder.message)\n    application_label = reminder.application.number if reminder.application_id else ""
     message=(f"Galiel · {reminder.get_kind_display()}\n\n{reminder.message}\n"
              f"{application_label}\n\nSign in securely: https://galiel.wardenclyffefirm.com/alerts/\n")
     try:
