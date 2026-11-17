@@ -84,3 +84,18 @@ body.workspace-redesign{margin:0;background:var(--ws-cream)!important;color:var(
 .workspace-redesign .ws-step .ws-step-num{font-weight:300}
 .workspace-redesign .ws-step.is-current{background:#FCF4EF;color:#B64929;border-top:4px solid #D9714A;padding-top:17px}
 .workspace-redesign .ws-step.is-complete{background:white;color:#161616;border-top:4px solid #161616;padding-top:17px}
+
+
+/* Align workspace sidebar numbers in a dedicated, fixed-width column. */
+.workspace-redesign .ws-sidebar nav a .ws-num,
+.workspace-redesign aside nav a .ws-num{
+  display:inline-block!important;
+  box-sizing:border-box!important;
+  width:36px!important;
+  min-width:36px!important;
+  margin:0!important;
+  padding:0!important;
+  font-variant-numeric:tabular-nums;
+  vertical-align:baseline!important;
+  text-align:left!important;
+}
