@@ -5,6 +5,6 @@
 <div class="notice">For security, unconfirmed accounts cannot sign in. Verification links expire after 24 hours.</div>
 <form method="post" action="{% url 'resend_activation' %}">{% csrf_token %}
 <label for="email">Need a new link?</label><input id="email" type="email" name="email" value="{{ registered_email }}" autocomplete="email" required>
-<button type="submit" class="secondary" style="margin-top:12px">Resend confirmation</button></form>
+<button type="submit" class="secondary">Resend confirmation</button></form>
 <p class="links"><a href="{% url 'login' %}">Already confirmed? Sign in</a><br><a href="{% url 'home' %}">← Back to Galiel</a></p>
 {% endblock %}
