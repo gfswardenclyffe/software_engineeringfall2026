@@ -121,3 +121,13 @@ Git branches and commits will be used throughout the project to document develop
 Michelle Lopez Dieckmann - Development and UI
 
 Ryan Garza - Development and User Management.
+
+## Production Galiel operations documentation
+
+- [Requirements](docs/requirements.md)
+- [User stories](docs/user-stories.md)
+- [Data model and Mermaid UML](docs/architecture.md)
+- [Client and staff user manual](docs/user-manual.md)
+- [Deployment and security review](docs/deployment-review.md)
+
+Operations features live in `galiel_ops` and are reviewed against the production `portal.0011_contact_leads` baseline. Pricing imports, payments, and document-root relocation are separate, unapproved workstreams.
