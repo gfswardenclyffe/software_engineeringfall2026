@@ -78,6 +78,7 @@ class BackupScopeTests(SimpleTestCase):
         other=self.root/"other"
         other.mkdir()
         target=self.media/"daily-backups"
+        (target/"old.tar.gz").unlink()
         target.rmdir()
         target.symlink_to(other,target_is_directory=True)
         with self.assertRaises(CommandError):
