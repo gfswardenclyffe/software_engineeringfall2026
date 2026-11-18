@@ -20,7 +20,7 @@ class GalielOpsTests(TestCase):
         cls.alice=User.objects.create_user(username="alice-ops@example.test",email="alice-ops@example.test",password="SafeTestAccount1!")
         cls.bob=User.objects.create_user(username="bob-ops@example.test",email="bob-ops@example.test",password="SafeTestAccount2!")
         cls.staff=User.objects.create_user(username="staff-ops@example.test",email="staff-ops@example.test",password="SafeTestAccount3!",is_staff=True)
-        cls.country=CatalogCountry.objects.create(code="MX",name_en="Mexico",name_es="México",name_fr="Mexique")
+        cls.country, _ = CatalogCountry.objects.get_or_create(code="MX", defaults={"name_en":"Mexico","name_es":"México","name_fr":"Mexique"})
         cls.service=CatalogService.objects.create(slug="ops-check",title_en="Administrative paperwork",title_es="Trámite",title_fr="Démarche")
         cls.offering=ServiceOffering.objects.create(country=cls.country,service=cls.service,currency="MXN",is_published=True,price_type="quote")
         cls.case_a=ServiceApplication.objects.create(client=cls.alice,offering=cls.offering,status="draft",step=5,service_title="Client A paperwork")
