@@ -3,7 +3,7 @@
 This is a **CSS-only, no database** maintenance release. The public homepage is unchanged.
 
 ## Design decision
-**Hide the nine-tab sidebar below 768px.** The existing accessible hamburger menu already contains links to primary client sections. Do not show a second scrolling navigation row.
+**Keep the nine-tab navigation below 768px as a single, independently horizontally scrollable row.** The mobile hamburger does not contain all client destinations. The tab strip scrolls within its 100%-width container, uses nowrap links, and has a 24px pointer-events-none black gradient at its right edge.
 
 ## Scope
 - `portal/static/portal/galiel-workspace.css`
@@ -15,7 +15,7 @@ No Django templates need to change. The deployed shared header and authenticatio
 
 ## Acceptance checks
 - 390px: `document.documentElement.scrollWidth === window.innerWidth` on all protected client routes, wizard steps 1–5 (including upload), Services/filters, profile/fiscal/account request, News/Alerts, login/register/reset.
-- The black nine-tab sidebar is hidden; menu remains visible, uses divider-only styling.
+- All nine tabs remain reachable by horizontal scrolling inside one bar (overflow-x:auto, no horizontal page overflow), with a soft black fade at the right edge. The mobile menu remains visible and uses divider-only styling.
 - Draft banner and Continue link are both visible; long process names wrap.
 - Stats use a single full-width column; process list/cards/filters/uploads never exceed viewport width.
 - The help bubble is 42px wide and placed 8px from the bottom/right; content has 84px of bottom breathing room.
