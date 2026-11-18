@@ -8,6 +8,10 @@ On **November 18, 2026**, the project operator reported that the deployed operat
 
 This is a **user-reported result summary**, not a verbatim captured console log. The complete HostGator command output was not supplied, so no raw log has been fabricated. For a graded evidence artifact, capture the next real run into `hostgator-tests-YYYYMMDD.log` (remove credentials, email addresses, and client data before committing).
 
+## Independently verified CI
+
+[GitHub Actions run #44359860542 — 99 tests OK](github-actions-99-tests-20261118.md), on November 18, 2026, with isolated data and migrations through portal.0011 plus galiel_ops.0001.
+
 ## Run locally (Python 3.9+)
 
 ```bash
