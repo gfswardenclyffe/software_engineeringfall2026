@@ -15,7 +15,7 @@ import tempfile
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-UPLOAD_FOLDERS = ("case_documents", "client_documents")
+UPLOAD_FOLDERS = ("case_documents", "client_documents", "contact_leads")
 BLOCKED_SUFFIXES = (".env", ".lock", ".log")
 
 def inside(child, parent):
@@ -58,14 +58,14 @@ def collect_uploads(media):
                 path = base / name
                 if path.is_symlink():
                     raise CommandError("Symlink in upload directory: " + str(path))
-                if not stat.S_ISREG(path.stat(follow_symlinks=False).st_mode):
+                if not stat.S_ISREG(path.lstat().st_mode):
                     raise CommandError("Special file in upload directory: " + str(path))
                 relative = Path(folder_name) / path.relative_to(root)
                 result.append((path, relative))
     return roots, result
 
 class Command(BaseCommand):
-    help = "Snapshot SQLite and case_documents/client_documents only; 14-day retention."
+    help = "Snapshot SQLite and case_documents/client_documents/contact_leads only; 14-day retention."
 
     def add_arguments(self, parser):
         parser.add_argument("--dry-run", action="store_true")
