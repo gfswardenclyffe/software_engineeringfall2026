@@ -1,0 +1,139 @@
+# Verified GitHub Actions test log excerpt — 2026-11-18
+# Run: https://github.com/gfswardenclyffe/software_engineeringfall2026/actions/runs/44360360520
+# Source: job 134999713403
+# Test command: .venv/bin/python manage.py test portal galiel_ops --noinput --verbosity 2
+# This is an excerpt of the real runner log, not the missing HostGator terminal transcript.
+
+System check identified no issues (0 silenced).
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying portal.0001_profile... OK
+  Applying portal.0002_profile_client_fields... OK
+  Applying portal.0003_profile_safe_defaults... OK
+  Applying portal.0004_clientdocument... OK
+  Applying portal.0005_messaging... OK
+  Applying portal.0006_profile_structured_address... OK
+  Applying portal.0007_catalog... OK
+  Applying portal.0008_seed_countries... OK
+  Applying portal.0009_seed_homepage_catalog... OK
+  Applying portal.0010_service_checkout... OK
+  Applying portal.0011_contact_leads... OK
+  Applying galiel_ops.0001_initial... OK
+  Applying sessions.0001_initial... OK
+System check identified no issues (0 silenced).
+test_bad_confirmation_link_does_not_activate (portal.tests.AccountLifecycleTests) ... Bad Request: /activate/MQ/not-a-valid-token/
+test_email_delivery_failure_rolls_back_registration (portal.tests.AccountLifecycleTests) ... Galiel account registration or activation email failed
+test_password_reset_for_verified_account (portal.tests.AccountLifecycleTests) ... ok
+test_profile_email_cannot_be_changed_without_verification (portal.tests.AccountLifecycleTests) ... ok
+test_registration_and_login_forms_are_responsive (portal.tests.AccountLifecycleTests) ... ok
+test_resend_confirmation_is_throttled (portal.tests.AccountLifecycleTests) ... ok
+test_signup_sends_confirmation_and_blocks_login (portal.tests.AccountLifecycleTests) ... ok
+test_verification_activates_and_signs_in_user (portal.tests.AccountLifecycleTests) ... Bad Request: /activate/MQ/di8ljk-ae520df4eec51fafc3fda79cd0be7dc9/
+test_logout_uses_post (portal.tests.ClientProfileTests) ... ok
+test_profile_displays_existing_user_data (portal.tests.ClientProfileTests) ... ok
+test_profile_requires_authentication (portal.tests.ClientProfileTests) ... ok
+test_profile_update_saves_and_redirects_to_profile (portal.tests.ClientProfileTests) ... ok
+test_registration_complete_route_exists (portal.tests.ClientProfileTests) ... ok
+test_dashboard_is_not_cached_and_logout_post_succeeds (portal.tests.LogoutCsrfTests) ... ok
+test_profile_not_cached (portal.tests.LogoutCsrfTests) ... ok
+test_legacy_address_visible_until_user_updates (portal.tests.StructuredProfileAddressTests) ... ok
+test_structured_address_is_saved_without_erasing_previous_address (portal.tests.StructuredProfileAddressTests) ... ok
+test_tax_id_label (portal.tests.StructuredProfileAddressTests) ... ok
+test_invalid_service_does_not_prefill_message (portal.tests.WorkspaceServicesTests) ... ok
+test_service_inquiry_prefills_message_subject (portal.tests.WorkspaceServicesTests) ... ok
+test_services_are_inside_client_workspace (portal.tests.WorkspaceServicesTests) ... ok
+test_staff_can_browse_catalog_without_client_message_form (portal.tests.WorkspaceServicesTests) ... ok
+test_catalog_requires_login (portal.tests_catalog.CatalogTests) ... ok
+test_existing_message_workflow_unchanged (portal.tests_catalog.CatalogTests) ... ok
+test_filters_and_currency_and_estimate (portal.tests_catalog.CatalogTests) ... ok
+test_language_selection (portal.tests_catalog.CatalogTests) ... ok
+test_location_validation (portal.tests_catalog.CatalogTests) ... ok
+test_manager_admin_requires_staff (portal.tests_catalog.CatalogTests) ... ok
+test_offering_prefills_inquiry_subject (portal.tests_catalog.CatalogTests) ... ok
+test_price_validation (portal.tests_catalog.CatalogTests) ... ok
+test_unpublished_service_is_hidden (portal.tests_catalog.CatalogTests) ... ok
+test_checkout_disabled_without_stripe (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_client_cannot_see_other_clients_cases_or_files (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_draft_saved_and_visible_in_dashboard (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_forged_payment_mismatch_does_not_activate_case (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_only_staff_can_view_private_file_via_staff_preview (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_quote_locks_answers_but_allows_payment_step (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_quote_ready_follows_staff_approved_price (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_receipts_only_after_verified_payment_and_are_private (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_required_questions_and_document_block_review (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_review_snapshots_tax_and_requires_terms (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_status_timeline_and_no_direct_success_redirect (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_step2_autosaves_and_refuses_foreign_fields (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_stripe_redirect_without_webhook_is_pending_not_paid (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_unpriced_offer_uses_quote_path (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_unsigned_webhook_is_rejected (portal.tests_checkout.CheckoutFlowTests) ... Stripe webhook signature or payload rejected
+test_valid_document_upload_replacement_and_delete (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_verified_payment_creates_case_event_and_thread (portal.tests_checkout.CheckoutFlowTests) ... ok
+test_french_and_spanish_responses (portal.tests_contact.ContactLeadTests) ... ok
+test_get_disallowed (portal.tests_contact.ContactLeadTests) ... ok
+test_home_has_public_form_and_real_service_options (portal.tests_contact.ContactLeadTests) ... ok
+test_honeypot_discards_bot_message (portal.tests_contact.ContactLeadTests) ... ok
+test_invalid_email_missing_consent_and_invalid_service (portal.tests_contact.ContactLeadTests) ... ok
+test_invalid_signature_and_oversized_files_rejected (portal.tests_contact.ContactLeadTests) ... ok
+test_ip_submission_limit (portal.tests_contact.ContactLeadTests) ... ok
+test_lead_attachment_only_available_to_staff (portal.tests_contact.ContactLeadTests) ... ok
+test_mail_failure_still_preserves_lead_and_flags_admin (portal.tests_contact.ContactLeadTests) ... Galiel lead 1: email delivery failure for visitor_notified
+test_service_options_are_catalog_services (portal.tests_contact.ContactLeadTests) ... ok
+test_signed_in_lead_creates_workspace_thread (portal.tests_contact.ContactLeadTests) ... ok
+test_valid_guest_lead_sends_two_emails_and_saves_privacy (portal.tests_contact.ContactLeadTests) ... ok
+test_valid_pdf_is_attached_to_team_email_only (portal.tests_contact.ContactLeadTests) ... ok
+test_auth_required (portal.tests_documents.ClientDocumentTests) ... ok
+test_other_user_cannot_view_or_download (portal.tests_documents.ClientDocumentTests) ... ok
+test_rejects_non_pdf_and_fake_pdf (portal.tests_documents.ClientDocumentTests) ... ok
+test_rejects_oversize (portal.tests_documents.ClientDocumentTests) ... ok
+test_upload_list_download_and_private_storage (portal.tests_documents.ClientDocumentTests) ... ok
+test_authentication_required (portal.tests_messages.MessagingTests) ... ok
+test_client_cannot_read_or_reply_to_other_clients_thread (portal.tests_messages.MessagingTests) ... ok
+test_client_creates_and_reads_conversation (portal.tests_messages.MessagingTests) ... ok
+test_get_does_not_create_thread_and_create_requires_post (portal.tests_messages.MessagingTests) ... ok
+test_staff_can_read_and_reply_but_cannot_create_as_client (portal.tests_messages.MessagingTests) ... ok
+test_superuser_can_read_reply (portal.tests_messages.MessagingTests) ... ok
+test_validation_rejects_blank_messages_and_long_subject (portal.tests_messages.MessagingTests) ... ok
+test_all_region_and_municipality_are_not_exclusionary (portal.tests_unified_catalog.UnifiedCatalogTests) ... ok
+test_api_lists_regions_municipalities_and_all_service_cards (portal.tests_unified_catalog.UnifiedCatalogTests) ... ok
+test_api_returns_translations (portal.tests_unified_catalog.UnifiedCatalogTests) ... ok
+test_homepage_and_catalog_share_published_data (portal.tests_unified_catalog.UnifiedCatalogTests) ... ok
+test_login_preserves_service_intake_destination (portal.tests_unified_catalog.UnifiedCatalogTests) ... ok
+test_no_intake_for_unpublished_offering (portal.tests_unified_catalog.UnifiedCatalogTests) ... ok
+test_seed_has_homepage_regions_and_19_published_services (portal.tests_unified_catalog.UnifiedCatalogTests) ... ok
+test_start_service_requires_login_and_opens_saved_draft (portal.tests_unified_catalog.UnifiedCatalogTests) ... ok
+test_unpublished_offering_disappears_from_both_home_and_api (portal.tests_unified_catalog.UnifiedCatalogTests) ... ok
+test_checkout_retains_existing_payment_hold (galiel_ops.tests.GalielOpsTests) ... ok
+test_client_wizard_and_document_access_is_private (galiel_ops.tests.GalielOpsTests) ... ok
+test_deletion_request_does_not_deactivate_account (galiel_ops.tests.GalielOpsTests) ... ok
+test_draft_delete_ownership_and_confirmation (galiel_ops.tests.GalielOpsTests) ... ok
+test_expired_and_future_news_hidden (galiel_ops.tests.GalielOpsTests) ... ok
+test_fiscal_data_is_private (galiel_ops.tests.GalielOpsTests) ... ok
+test_help_processes_never_leak_cross_client (galiel_ops.tests.GalielOpsTests) ... ok
+test_invoice_request_owner_only (galiel_ops.tests.GalielOpsTests) ... ok
+test_private_pages_require_login (galiel_ops.tests.GalielOpsTests) ... ok
+test_read_and_dismiss_own_alert (galiel_ops.tests.GalielOpsTests) ... ok
+test_reminders_isolated_and_post_only (galiel_ops.tests.GalielOpsTests) ... ok
+test_status_transition_creates_private_reminder (galiel_ops.tests.GalielOpsTests) ... ok
+test_submitted_cannot_delete (galiel_ops.tests.GalielOpsTests) ... ok
+test_archive_contains_db_and_three_upload_roots (galiel_ops.tests_backup.BackupScopeTests) ... /usr/lib/python3.10/unittest/case.py:546: UserWarning: Overriding setting DATABASES can lead to unexpected behavior.
+test_backup_destination_symlink_refused (galiel_ops.tests_backup.BackupScopeTests) ... ok
+test_dry_run_lists_only_uploads_and_writes_nothing (galiel_ops.tests_backup.BackupScopeTests) ... ok
+test_upload_symlink_refused (galiel_ops.tests_backup.BackupScopeTests) ... ok
+Ran 99 tests in 13.830s
+OK
