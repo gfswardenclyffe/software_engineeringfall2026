@@ -10,7 +10,7 @@ This is a **user-reported result summary**, not a verbatim captured console log.
 
 ## Independently verified CI
 
-[GitHub Actions run #44359860542 — 99 tests OK](github-actions-99-tests-20261118.md), on November 18, 2026, with isolated data and migrations through portal.0011 plus galiel_ops.0001.
+[Main-branch GitHub Actions run #44360360520 — 99 tests OK](https://github.com/gfswardenclyffe/software_engineeringfall2026/actions/runs/44360360520), on November 18, 2026, with isolated data and migrations through portal.0011 plus galiel_ops.0001. A [sanitized authentic log excerpt](github-actions-main-99-tests.log) is included.
 
 ## Run locally (Python 3.9+)
 
