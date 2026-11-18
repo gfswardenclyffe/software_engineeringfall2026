@@ -133,7 +133,7 @@ class CheckoutFlowTests(TestCase):
         app = self.start()
         self.complete_to_review(app)
         self.assertIsNone(app.total)
-        self.assertContains(self.client.get(reverse("application_step", args=[app.pk, 5])), "Request a quote")
+        self.assertContains(self.client.get(reverse("application_step", args=[app.pk, 5])), "Payments are currently on hold.")
         self.client.post(reverse("application_step", args=[app.pk, 5]), {"action": "quote"})
         app.refresh_from_db()
         self.assertEqual(app.status, "quote_requested")
@@ -151,7 +151,7 @@ class CheckoutFlowTests(TestCase):
         app.quoted_amount = Decimal("450.00")
         app.save(update_fields=["status", "quoted_amount"])
         payment = self.client.get(reverse("application_step", args=[app.pk, 5]))
-        self.assertContains(payment, "450.00")
+        self.assertContains(payment, "Payments are currently on hold.")
 
     def test_client_cannot_see_other_clients_cases_or_files(self):
         app = self.start()
@@ -166,7 +166,8 @@ class CheckoutFlowTests(TestCase):
         self.complete_to_review(app)
         with patch.dict("os.environ", {"GALIEL_STRIPE_SECRET_KEY": "", "GALIEL_STRIPE_WEBHOOK_SECRET": ""}):
             response = self.client.post(reverse("application_checkout", args=[app.pk]))
-            self.assertRedirects(response, reverse("application_step", args=[app.pk, 5]))
+            self.assertEqual(response.status_code, 403)
+            self.assertIn("Card payments are temporarily unavailable.", response.content.decode("utf-8"))
         app.refresh_from_db()
         self.assertEqual(app.status, "draft")
         self.assertIsNone(app.payment_confirmed_at)
@@ -234,7 +235,7 @@ class CheckoutFlowTests(TestCase):
         self.assertRedirects(post, reverse("application_track", args=[app.pk]))
         app.refresh_from_db()
         self.assertEqual(app.answers, original)
-        self.assertContains(self.client.get(reverse("application_step", args=[app.pk, 5])), "450.00")
+        self.assertContains(self.client.get(reverse("application_step", args=[app.pk, 5])), "Payments are currently on hold.")
 
     def test_receipts_only_after_verified_payment_and_are_private(self):
         app = self.start()

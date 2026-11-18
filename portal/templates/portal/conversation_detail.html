@@ -1,20 +1,7 @@
-{% load static %}
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{ conversation.subject }} · Galiel</title>
-<style>
-:root{--dark:#211c19;--border:#e9dbcf;--muted:#74685f}*{box-sizing:border-box}
-body{margin:0;background:#f6f1ea;color:#211c19;font-family:system-ui,-apple-system,sans-serif}
-main{max-width:850px;margin:5vh auto;padding:20px}h1{font:normal clamp(30px,5vw,44px) Georgia,serif}
-a{color:var(--dark)}.card{background:white;border:1px solid var(--border);border-radius:17px;padding:24px;margin:18px 0}
-.entry{padding:18px 0;border-bottom:1px solid var(--border)}.entry:last-child{border-bottom:0}
-.entry p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}.meta{font-size:13px;color:var(--muted)}
-label{display:block;font-weight:600;margin-bottom:8px}textarea{width:100%;padding:12px;border:1px solid #bbc8c0;border-radius:9px;font:inherit}
-button{background:var(--dark);border:0;border-radius:24px;color:white;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer}
-.errorlist{color:#a52820}
-</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
-<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
-</head><body>{% include 'portal/_site_header.html' %}<main><a href="{% url 'messages_inbox' %}">← All messages</a>
+{% extends "portal/workspace_base.html" %}
+{% block title %}conversation detail · Galiel{% endblock %}
+{% block content %}
+<a href="{% url 'messages_inbox' %}">← All messages</a>
 <h1>{{ conversation.subject }}</h1>
 <p class="meta">Client: {{ conversation.client.get_full_name|default:conversation.client.email }} · {{ conversation.client.email }}{% if conversation.application %} · Process <a href="{% url 'application_track' conversation.application.pk %}">{{ conversation.application.number }}</a>{% endif %}</p>
 <section class="card" aria-label="Conversation history">
@@ -24,4 +11,6 @@ button{background:var(--dark);border:0;border-radius:24px;color:white;padding:12
 <section class="card"><h2>Reply</h2>
 <form method="post">{% csrf_token %}
 <label for="{{ form.body.id_for_label }}">Your message</label>{{ form.body.errors }}{{ form.body }}
-<p><button type="submit">Send reply</button></p></form></section></main></body></html>
+<p><button type="submit">Send reply</button></p></form></section>
+
+{% endblock %}

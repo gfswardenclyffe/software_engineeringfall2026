@@ -1,0 +1,15 @@
+{% extends "portal/workspace_base.html" %}
+{% block title %}Delete draft · Galiel{% endblock %}
+{% block content %}
+<div class="eyebrow">Galiel / {% if lang == 'es' %}Borrar borrador{% elif lang == 'fr' %}Supprimer le brouillon{% else %}Delete draft{% endif %}</div>
+<h1>{% if lang == 'es' %}Confirmar eliminación{% elif lang == 'fr' %}Confirmer la suppression{% else %}Confirm deletion{% endif %}</h1>
+<section class="galiel-ops-card">
+<p><strong>{{ application.number }}</strong> · {{ application.service_title }}</p>
+<p>{% if lang == 'es' %}Esto eliminará el borrador y sus archivos privados. No se puede deshacer.{% elif lang == 'fr' %}Cette action supprimera le brouillon et ses fichiers privés. Elle est irréversible.{% else %}This permanently removes your draft and its private uploaded files. This cannot be undone.{% endif %}</p>
+<form method="post">{% csrf_token %}
+<label for="confirm">{% if lang == 'es' %}Escribe la referencia exactamente{% elif lang == 'fr' %}Saisissez la référence exacte{% else %}Type the exact reference{% endif %}: {{ application.number }}</label>
+<input id="confirm" name="confirm" required autocomplete="off" placeholder="{{ application.number }}">
+<div class="galiel-ops-actions"><button class="galiel-ops-danger" type="submit">{% if lang == 'es' %}Eliminar borrador{% elif lang == 'fr' %}Supprimer le brouillon{% else %}Delete this draft{% endif %}</button>
+<a href="{% url 'dashboard' %}#processes">{% if lang == 'es' %}Cancelar{% elif lang == 'fr' %}Annuler{% else %}Cancel{% endif %}</a></div></form>
+</section>
+{% endblock %}

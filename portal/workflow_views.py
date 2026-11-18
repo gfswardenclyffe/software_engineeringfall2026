@@ -36,7 +36,7 @@ PAYMENT_STATUSES = {"paid", "under_review", "missing_documents", "submitted", "i
 
 
 def _language(request):
-    lang = request.GET.get("lang") or getattr(getattr(request.user, "profile", None), "preferred_language", "en")
+    lang = request.GET.get("lang") or request.COOKIES.get("galiel_lang") or getattr(getattr(request.user, "profile", None), "preferred_language", "en")
     return lang if lang in ("en", "es", "fr") else "en"
 
 
@@ -81,9 +81,6 @@ def _price_for(app):
     offer = app.offering
     if app.quoted_amount is not None and app.status in ("quoted", "awaiting_payment"):
         return app.quoted_amount.quantize(CENT), Decimal("0.00"), app.quoted_amount.quantize(CENT)
-    if offer.is_temporary_price:
-        # Published research estimates are never automatically chargeable.
-        return None, None, None
     if offer.price_type == "quote" or offer.price is None:
         return None, None, None
     if offer.price_type == "starting":
@@ -144,7 +141,7 @@ def _notify_client(app, subject, summary):
     html = (
         '<div style="background:#F2F1EC;padding:32px;font:15px Arial,sans-serif;color:#211c19">'
         '<div style="max-width:600px;margin:auto;background:#fffdf9;border:1px solid #e9dbcf;padding:30px">'
-        '<div style="display:flex;align-items:center;gap:12px"><img src="https://galiel.wardenclyffefirm.com/brand/galiel-signature.png" width="96" height="60" alt="Galiel" style="display:inline-block"><span style="font:700 11px Arial,sans-serif;letter-spacing:2px;color:#161616">by WARDENCLYFFE</span></div>'
+        '<div style="display:flex;align-items:center;gap:12px"><strong style="font:italic 25px Georgia,serif;letter-spacing:-1px;color:#161616">Galiel</strong><span style="font:700 11px Arial,sans-serif;letter-spacing:2px;color:#161616">by WARDENCLYFFE</span></div>'
         '<p style="font-size:20px;margin-top:28px">' + escape(subject) + '</p>'
         '<p>Hello ' + escape(_full_name(app.client)) + ',</p>'
         '<p>' + escape(summary) + '</p>'
@@ -215,8 +212,9 @@ def application_step(request, application_id, step):
             form = _form_for(app, request)
             if form.is_valid():
                 app.answers = {key[7:]: val for key, val in form.cleaned_data.items()}
+                app.notes = request.POST.get("notes", app.notes)[:5000]
                 app.step = max(app.step, 3)
-                app.save(update_fields=["answers", "step", "updated_at"])
+                app.save(update_fields=["answers", "notes", "step", "updated_at"])
                 return redirect("application_step", application_id=app.pk, step=3)
         if step == 3:
             app.notes = request.POST.get("notes", "")[:5000]
@@ -253,6 +251,7 @@ def application_step(request, application_id, step):
         "service_name": _display_title(offer, lang),
         "place_name": _display_place(offer, lang), "form": form,
         "requirements": requirements, "questions": questions,
+        "optional_documents": app.documents.filter(requirement__isnull=True, is_deliverable=False),
         "base": base, "tax": tax, "total": total,
         "checkout_cancelled": request.GET.get("canceled") == "1",
         "is_quote": total is None, "stripe_configured": bool(
@@ -300,7 +299,9 @@ def application_upload(request, application_id, requirement_id):
     app = _application(request, application_id)
     if app.status not in ("draft", "missing_documents"):
         return HttpResponseForbidden("Files can be changed only in a draft or when documents are requested.")
-    req = get_object_or_404(ServiceRequirement, pk=requirement_id, offering=app.offering, kind="document")
+    # ID 0 is the optional client-supplied document slot; a requirement is not required.
+    req = None if requirement_id == 0 else get_object_or_404(
+        ServiceRequirement, pk=requirement_id, offering=app.offering, kind="document")
     file = request.FILES.get("file")
     if not file:
         messages.error(request, "Select a PDF, JPG or PNG file.")
@@ -310,7 +311,7 @@ def application_upload(request, application_id, requirement_id):
         except forms.ValidationError as exc:
             messages.error(request, str(exc.message))
         else:
-            previous = list(app.documents.filter(requirement=req))
+            previous = list(app.documents.filter(requirement=req)) if req is not None else []
             doc = ApplicationDocument.objects.create(
                 application=app, requirement=req,
                 file=file, original_filename=Path(file.name).name[:255],
@@ -390,6 +391,8 @@ def application_receipt(request, application_id):
 @require_POST
 def application_checkout(request, application_id):
     app = _application(request, application_id)
+    # Product decision: payments remain on hold. Never open Stripe checkout.
+    return HttpResponseForbidden("Card payments are temporarily unavailable.")
     if app.status in PAYMENT_STATUSES:
         return redirect("application_track", application_id=app.pk)
     if app.status not in ("draft", "quoted", "awaiting_payment") or not app.terms_accepted_at:

@@ -161,9 +161,9 @@ def _send_mail(lead, visitor):
         "fr": "Merci — nous avons reçu votre message et répondrons sous un jour ouvré.",
     }[locale]
     body = f"{introduction}\n\n{_lead_details(lead, locale if visitor else 'en')}\n\nGaliel by Wardenclyffe"
-    logo = '<div style="display:flex;align-items:center;gap:12px"><img src="https://galiel.wardenclyffefirm.com/brand/galiel-signature.png" width="96" height="60" alt="Galiel" style="display:inline-block"><span style="font:700 11px Arial,sans-serif;letter-spacing:2px;color:#161616">by WARDENCLYFFE</span></div>'
+    logo = '<strong style="font:italic 32px Georgia,serif;color:#211c19">Galiel</strong> <span style="font:12px Arial;color:#211c19">by Wardenclyffe</span>'
     html = (
-        '<div style="background:#F2F1EC;padding:32px;color:#161616;font:15px Arial,sans-serif">'
+        '<div style="background:#f6f1ea;padding:32px;color:#211c19;font:15px Arial,sans-serif">'
         '<div style="background:#fffdf9;max-width:610px;margin:auto;padding:30px;border:1px solid #211c19">'
         + logo + '<p style="font-size:18px">' + escape(introduction) + '</p>'
         + '<p style="white-space:pre-wrap;line-height:1.65">' + escape(_lead_details(lead, locale)) + '</p>'

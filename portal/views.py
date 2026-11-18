@@ -21,6 +21,9 @@ from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCo
 from .document_forms import ClientDocumentForm
 from .message_forms import NewConversationForm, ReplyForm
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 SERVICE_LABELS = {
@@ -159,6 +162,7 @@ def register(request):
                     profile.save()
                     send_activation_email(request, user)
             except Exception:
+                logger.exception("Galiel account registration or activation email failed")
                 form.add_error(None, "We couldn't send your confirmation email. Please try again later.")
             else:
                 request.session["registered_email"] = user.email
@@ -231,6 +235,7 @@ def resend_activation(request):
         try:
             send_activation_email(request, user)
         except Exception:
+            logger.exception("Galiel activation email resend failed")
             messages.error(request, "Email delivery is unavailable. Please try again later.")
             return redirect("registration_complete")
     messages.info(request, "If this email has an unverified account, a new link has been sent.")
@@ -402,7 +407,7 @@ def conversation_detail(request, conversation_id):
 @login_required
 def service_catalog(request):
     """Published services only, filtered in country -> region -> municipality order."""
-    locale = request.GET.get("lang", "")
+    locale = request.GET.get("lang") or request.COOKIES.get("galiel_lang", "")
     if locale not in ("en", "es", "fr"):
         try:
             locale = request.user.profile.preferred_language
@@ -438,7 +443,7 @@ def service_catalog(request):
 
 
 def _catalog_locale(request):
-    lang = request.GET.get("lang", "")
+    lang = request.GET.get("lang") or request.COOKIES.get("galiel_lang", "")
     if lang not in ("en", "es", "fr") and request.user.is_authenticated:
         lang = getattr(getattr(request.user, "profile", None), "preferred_language", "en")
     return lang if lang in ("en", "es", "fr") else "en"
@@ -491,15 +496,6 @@ def catalog_api(request):
             "country": item.country_id,
             "location": _localized(place, "name", locale),
             "price_type": item.price_type,
-            "is_temporary_price": item.is_temporary_price,
-            "pricing_review_required": item.pricing_review_required,
-            "price_unit": item.price_unit,
-            "estimated_price_note": (
-                item.estimated_price_note_es if locale == "es"
-                else item.estimated_price_note_fr if locale == "fr"
-                else item.estimated_price_note
-            ) if item.is_temporary_price else "",
-
             "price": str(item.price) if item.price is not None else None,
             "currency": item.currency,
             "estimated_min_business_days": item.estimated_min_business_days,

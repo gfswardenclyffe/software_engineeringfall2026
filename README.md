@@ -1,123 +1,80 @@
-# Wardenclyffe Client Management Platform
+# Galiel by Wardenclyffe
 
-## Project Description
+**Galiel** is Wardenclyffe's client portal for administrative services in Mexico, Texas and France. Clients can create accounts, select administrative services, manage applications, exchange private documents, communicate with staff, track process status, receive reminders, and submit optional invoice and account-deletion requests.
 
-This project is a web-based client management platform for Wardenclyffe Inc. It is based on the existing Wardenclyffe website and is intended to expand its current functionality by adding interactive features for clients and consultants.
+Production business site: https://galiel.wardenclyffefirm.com
 
-The current Wardenclyffe website provides Consulting, Finance, and Technology services. This project will use the existing website as a reference for the business structure, services, terminology, and visual identity.
+## Features
 
-The new application will allow clients to create and manage accounts, request services, communicate with consultants, upload documents, track ongoing matters, receive notifications, review invoices and balances, and maintain a record of their services and payments.
+- **Accounts and profiles:** registration, email verification, password reset, EN/ES/FR client experience, structured contact information and optional fiscal details.
+- **Services and workflow:** jurisdiction-based service discovery, six-step application wizard, configurable requirements, draft autosave, status tracking, and client-owned draft deletion.
+- **Private files and messages:** PDF/JPG/PNG uploads, secure downloads, client/staff conversations and document review.
+- **News & updates:** staff-created announcements with three-language titles/bodies, publication/expiration dates and category filtering.
+- **Process alerts:** private reminders, unread bell count, email copies, read/dismiss actions and staff-scheduled renewal dates.
+- **Client requests:** review-only account-deletion request and manual fiscal-invoice request.
+- **Scripted help:** a deterministic, non-AI button assistant for catalog, requirements, case status and contacting staff.
+- **Operations:** Django admin management, daily due-soon reminder command, and private SQLite/client-upload backup with 14-day retention.
 
-The goal is not to replace the existing Wardenclyffe website, but to develop an additional client-management system that supports the services already offered by the company.
+**On hold:** approved pricing import, automated payments, and production filesystem relocation. No automated SAT invoices are issued by this application.
 
-## Team Members
+## Technology
 
-- Michelle Lopez Dieckmann
-- Gustavo Franco-Sanchez
-- Ryan Garza
+Python **3.9+**, Django, SQLite, HTML/CSS, vanilla JavaScript, Django templates, Django admin, Git/GitHub and SMTP. Production currently uses HostGator cPanel/Apache with a FastCGI entry point. Files containing private client uploads and credentials belong **outside the public document root**.
 
-## Initial Features
+The code is organized as:
+- `portal/`: authentication, catalog, workflows, client documents, messaging, views, forms, templates and baseline migrations through `0011_contact_leads`.
+- `galiel_ops/`: announcements, reminders, fiscal records, deletion requests, scripted-help endpoints, daily commands and related tests.
+- `wardenclyffe_portal/`: Django settings and URL configuration.
+- `docs/`: requirements, UML, user stories, operational instructions and design/test evidence.
 
-The planned application will allow users to:
+## Local setup
 
-- Create and manage user accounts.
-- Review Consulting, Finance, and Technology services.
-- Submit consultation and service requests.
-- Communicate with an assigned consultant.
-- Upload and exchange documents.
-- Track the status of ongoing matters.
-- Receive notifications regarding deadlines, documents, and project updates.
-- Review invoices, balances, and payment history.
-- Maintain a record of services and payments.
+Use an isolated project directory. **Never download or copy the production database, client uploads, credentials or staging environment into Git.**
 
-## CRUD Structure
+```bash
+git clone https://github.com/gfswardenclyffe/software_engineeringfall2026.git
+cd software_engineeringfall2026
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 
-The application will follow the CRUD convention required for the final project:
+# Development-only secret generated on your own machine:
+export DJANGO_SECRET_KEY="$(python -c 'from secrets import token_urlsafe; print(token_urlsafe(48))')"
+export DJANGO_DEBUG=True
+export DJANGO_PRIVATE_MEDIA_ROOT="$(pwd)/../galiel-local-private-media"
+python manage.py migrate
+python manage.py runserver
+```
 
-- **Create:** Users will be able to create accounts, consultation requests, service requests, and project-related information.
-- **Read:** Users will be able to review services, active matters, project information, invoices, notifications, and account information.
-- **Update:** Users and consultants will be able to update project status, user information, consultation information, and other permitted records.
-- **Delete:** Authorized users will be able to remove or cancel selected records when appropriate.
+The private media root must be **outside** the Django application directory. SQLite for local development is created automatically by migrations and should not be committed.
 
-## Development Environment
+## Tests
 
-The project will use the following tools and technologies:
+```bash
+python manage.py test portal galiel_ops
+```
 
-- Python
-- Django
-- HTML
-- CSS
-- SQLite
-- Git
-- GitHub
-- Visual Studio Code / GitHub Codespaces
+The operations tests cover client ownership boundaries, draft deletion, alerts, published announcements, account requests and backup allowlists. The real production checkout remains on hold. Before grading, run the entire suite in a fresh isolated environment and retain the complete sanitized output.
 
-A Python virtual environment will be used to isolate the project dependencies and keep the development environment consistent.
+**Verified GitHub Actions:** [99 tests OK](docs/testing/github-actions-99-tests-20261118.md) on November 18, 2026. Separately, the operator reported 95 tests OK on HostGator; see [testing evidence](docs/testing/README.md) for provenance.
 
+## Documentation
 
-## Agile Planning
+- [Functional requirements](docs/requirements.md)
+- [User stories](docs/user-stories.md)
+- [UML: use-case, class and sequence diagrams](docs/uml.md)
+- [User manual](docs/user-manual.md)
+- [Approved design mockups](docs/mockups/README.md)
+- [EN/ES screenshot index](docs/screenshots/README.md)
+- [Testing and HostGator results](docs/testing/README.md)
+- [Verified GitHub Actions: 99 tests OK](docs/testing/github-actions-99-tests-20261118.md)
+- [Operations and security deployment review](docs/deployment-review.md)
+- [Scoped backup design](docs/daily-backup-scope.md)
 
-The project will follow the Agile methodology discussed in class. Development will be divided into short Sprints, and the team will review requirements and project progress throughout the development process.
+## Team
 
-### Sprint 1 – Project Setup and Planning
+Michelle Lopez Dieckmann · Gustavo Franco-Sanchez · Ryan Garza
 
-**Goal:**  
-Create the development environment and initial project structure required to begin development.
+## Security notes
 
-**Completed Tasks:**
-
-- Created and organized the GitHub repository.
-- Added the project team members as collaborators.
-- Defined the project description and initial scope.
-- Created and updated the README file.
-- Created a Python virtual environment.
-- Installed Django.
-- Created the `wardenclyffe_portal` Django project.
-- Created the initial `portal` application.
-- Added the `portal` application to the Django project settings.
-- Ran the initial Django migrations.
-- Verified that the Django development server runs successfully.
-- Created the `.gitignore` file.
-- Created `requirements.txt` to document the project dependencies.
-- Reviewed the existing user stories.
-- Established the initial development responsibilities.
-
-**Sprint Result:**  
-The initial project environment is functional and has been pushed to the shared GitHub repository. The Django development server was successfully tested, and the project is ready for implementation of the first application features.
-
-### Sprint 2 – Initial Application Structure
-
-**Goal:**  
-Begin implementation of the client-facing application structure and user-management features.
-
-**Current Progress:**
-
-- Created the initial client platform visual preview.
-- Created the Django home view.
-- Added basic user registration, login, logout, and a protected client dashboard.
-- Added navigation for Services, Matters, Documents, Messages, and Billing.
-- Kept the Consulting, Finance, and Technology service structure defined in the project scope.
-- Began translating the existing user stories into visible application modules.
-- Continued development of the initial wireframes and interface design.
-
-**Next Tasks:**
-
-- Refine the existing user stories.
-- Add functional service-request forms.
-- Add matter and document models.
-- Expand dashboard functionality.
-- Continue testing and documentation.
-
-## Repository
-
-The project repository is hosted on GitHub:
-
-https://github.com/gfswardenclyffe/software_engineeringfall2026
-
-The repository will be used to maintain the project source code, documentation, version history, and team contributions.
-
-Git branches and commits will be used throughout the project to document development progress and support collaboration among team members.
-
-Michelle Lopez Dieckmann - Development and UI
-
-Ryan Garza - Development and User Management.
+Do not add `.env`, `db.sqlite3`, private uploads, API keys, credentials or real-client screenshots to this repository. Case and document views must always enforce authentication and client ownership. Production deployment requires a separate reviewed migration plan, backup, dry-run, and rollback.

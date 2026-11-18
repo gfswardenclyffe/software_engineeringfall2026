@@ -1,132 +1,131 @@
-{% load static %}
-<!doctype html>
-<html lang="{{ locale }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ application.number }} · Galiel</title>
-<style>
-:root{--cream:#f6f1ea;--black:#201d1a;--orange:#e96c3c;--line:#e5dad0;--muted:#706961}*{box-sizing:border-box}
-body{margin:0;background:var(--cream);color:var(--black);font-family:Arial,system-ui,sans-serif}
-a{color:inherit}.top{padding:20px clamp(16px,4vw,48px);background:#fffaf5;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:15px;align-items:center}
-.brand{font:italic 32px Georgia,serif;letter-spacing:-.035em;text-decoration:none}.brand small{font:12px Arial;letter-spacing:.03em}
-main{max-width:920px;margin:38px auto;padding:0 18px 70px}.eyebrow{color:#a94c25;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-h1{font:normal clamp(32px,5vw,47px) Georgia,serif;letter-spacing:-.035em;margin:10px 0}
-.progress{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:30px 0 22px}
-.progress a{text-decoration:none;border-top:5px solid #ded4c9;padding:12px 4px;color:var(--muted);font-size:12px}
-.progress a.current{border-color:var(--orange);color:var(--black);font-weight:700}.progress a.past{border-color:#ca9879}
-.panel{background:#fffdf9;border:1px solid var(--line);border-radius:16px;padding:clamp(20px,4vw,36px);margin:16px 0}
-.panel h2{font:normal 27px Georgia,serif;margin-top:0}.muted{color:var(--muted);line-height:1.6}
-label{display:block;font-size:14px;font-weight:700;margin:17px 0 8px}
-input[type=text],textarea{width:100%;border:1px solid #c9bdb2;border-radius:8px;padding:12px;font:inherit;background:white}
-input[type=checkbox]{width:auto}.btn{border:0;background:#201d1a;color:white;border-radius:25px;padding:14px 21px;font-weight:bold;cursor:pointer;font-size:14px;display:inline-block;text-decoration:none}
-.btn.orange{background:var(--orange);color:#21170f}.btn.outline{border:1px solid #a89a8c;background:transparent;color:var(--black)}
-.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px}
-.doc{border:1px dashed #bdafa4;border-radius:12px;padding:15px;margin:12px 0;background:#fffaf5}
-.drop{display:block;cursor:pointer;border:1px dashed #bfa99a;border-radius:10px;padding:18px;margin:10px 0}
-.drop.drag{background:#f7e4d8;border-color:var(--orange)}
-.row{display:flex;justify-content:space-between;gap:20px;padding:10px 0;border-bottom:1px solid var(--line)}
-.status{font-size:12px;color:#276647}.errors,.errorlist{color:#a52b1b}
-.notice{padding:14px;border-left:4px solid var(--orange);background:#fff3ea;line-height:1.6}
-@media(max-width:650px){.progress a{font-size:10px;overflow-wrap:anywhere}.top{flex-wrap:wrap}}
-</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
-<link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
-</head><body>
-{% include 'portal/_site_header.html' %}
-<main>
-<div class="eyebrow">{{ application.number }} · {{ application.get_status_display }} · {{ user.get_full_name|default:user.email }}</div>
-<h1>{{ service_name }}</h1><p class="muted">{{ place_name }} · {{ application.currency }}</p>
-<nav class="progress" aria-label="Application progress">
-<a href="{% url 'application_step' application.pk 1 %}" class="{% if step == 1 %}current{% elif step > 1 %}past{% endif %}">1 {% if locale == 'es' %}Servicio{% elif locale == 'fr' %}Service{% else %}Service{% endif %}</a>
-<a href="{% url 'application_step' application.pk 2 %}" class="{% if step == 2 %}current{% elif step > 2 %}past{% endif %}">2 {% if locale == 'es' %}Datos{% elif locale == 'fr' %}Informations{% else %}Your information{% endif %}</a>
-<a href="{% url 'application_step' application.pk 3 %}" class="{% if step == 3 %}current{% elif step > 3 %}past{% endif %}">3 {% if locale == 'es' %}Documentos{% elif locale == 'fr' %}Documents{% else %}Documents{% endif %}</a>
-<a href="{% url 'application_step' application.pk 4 %}" class="{% if step == 4 %}current{% elif step > 4 %}past{% endif %}">4 {% if locale == 'es' %}Revisión{% elif locale == 'fr' %}Vérification{% else %}Review{% endif %}</a>
-<a href="{% url 'application_step' application.pk 5 %}" class="{% if step == 5 %}current{% elif step > 5 %}past{% endif %}">5 {% if locale == 'es' %}Pago{% elif locale == 'fr' %}Paiement{% else %}Payment{% endif %}</a>
-<a href="{% url 'application_step' application.pk 6 %}" class="{% if step == 6 %}current{% endif %}">6 {% if locale == 'es' %}Confirmación{% elif locale == 'fr' %}Confirmation{% else %}Confirmation{% endif %}</a>
+{% extends "portal/workspace_base.html" %}
+{% load static galiel_ui %}
+{% block title %}Galiel · {{ application.number }}{% endblock %}
+{% block content %}
+{% galiel_locale as gl_lang %}
+<div class="eyebrow">{{ application.number }} · {{ application.get_status_display }}</div>
+<h1>{{ service_name }}</h1>
+<p class="muted">{{ place_name }} · {{ application.currency }}</p>
+<nav class="galiel-steps" aria-label="Application progress">
+  <a href="{% url 'application_step' application.pk 1 %}" class="{% if step == 1 %}is-current{% elif step > 1 %}is-complete{% endif %}"><span>01</span><strong>{% ui "Service" %}</strong></a>
+  <a href="{% url 'application_step' application.pk 2 %}" class="{% if step == 2 %}is-current{% elif step > 2 %}is-complete{% endif %}"><span>02</span><strong>{% ui "Your information" %}</strong></a>
+  <a href="{% url 'application_step' application.pk 3 %}" class="{% if step == 3 %}is-current{% elif step > 3 %}is-complete{% endif %}"><span>03</span><strong>{% ui "Documents" %}</strong></a>
+  <a href="{% url 'application_step' application.pk 4 %}" class="{% if step == 4 %}is-current{% elif step > 4 %}is-complete{% endif %}"><span>04</span><strong>{% ui "Review" %}</strong></a>
+  <a href="{% url 'application_step' application.pk 5 %}" class="{% if step == 5 %}is-current{% elif step > 5 %}is-complete{% endif %}"><span>05</span><strong>{% ui "Payment" %}</strong></a>
+  <a href="{% url 'application_step' application.pk 6 %}" class="{% if step == 6 %}is-current{% endif %}"><span>06</span><strong>{% ui "Confirmation" %}</strong></a>
 </nav>
-{% for notice in messages %}<div class="notice" role="alert">{{ notice }}</div>{% endfor %}
+{% for notice in messages %}<p class="notice" role="status">{{ notice }}</p>{% endfor %}
 {% if step == 1 %}
-<section class="panel"><h2>{% if locale == 'es' %}Tu servicio{% elif locale == 'fr' %}Votre service{% else %}Your service{% endif %}</h2>
-<p>{{ place_name }}</p>
-{% if locale == 'es' %}<p>{{ offering.service.description_es }}</p>{% elif locale == 'fr' %}<p>{{ offering.service.description_fr }}</p>{% else %}<p>{{ offering.service.description_en }}</p>{% endif %}
-<div class="row"><span>{% if locale == 'es' %}Precio{% elif locale == 'fr' %}Prix{% else %}Price{% endif %}</span><strong>{% if offering.price_type == 'quote' %}{% if locale == 'es' %}Sujeto a cotización{% elif locale == 'fr' %}Sur devis{% else %}Quote required{% endif %}{% else %}{{ offering.currency }} {{ offering.price }}{% if offering.price_type == 'starting' %} +{% endif %}{% endif %}</strong></div>
-{% if offering.price_type == 'starting' %}<div class="row"><span>Deposit</span><strong>{% if offering.deposit_amount %}{{ offering.currency }} {{ offering.deposit_amount }}{% else %}Quote required{% endif %}</strong></div>{% endif %}
-{% if offering.is_temporary_price %}<p class="muted">{% if locale == 'es' %}{{ offering.estimated_price_note_es }}{% elif locale == 'fr' %}{{ offering.estimated_price_note_fr }}{% else %}{{ offering.estimated_price_note }}{% endif %}</p>{% endif %}
-<div class="row"><span>{% if locale == 'es' %}Plazo estimado{% elif locale == 'fr' %}Délai estimé{% else %}Estimated timeline{% endif %}</span><span>{% if offering.estimated_min_business_days != None and offering.estimated_max_business_days != None %}{{ offering.estimated_min_business_days }}–{{ offering.estimated_max_business_days }} business days{% else %}To be confirmed{% endif %}</span></div>
-<p class="muted">{% if locale == 'es' %}La aprobación y los plazos de la autoridad no están garantizados.{% elif locale == 'fr' %}Les délais et décisions des autorités ne sont pas garantis.{% else %}Authority decisions and processing times are not guaranteed.{% endif %}</p>
-<form method="post">{% csrf_token %}<button class="btn orange" type="submit">Continue →</button></form></section>
+<section class="panel galiel-flow-panel">
+  <h2>{% ui "Your service" %}</h2>
+  <p>{{ place_name }}</p>
+  <p>{% if gl_lang == 'es' %}{{ offering.service.description_es }}{% elif gl_lang == 'fr' %}{{ offering.service.description_fr }}{% else %}{{ offering.service.description_en }}{% endif %}</p>
+  <div class="galiel-info-row"><span>{% ui "Price" %}</span><strong>{% if offering.price_type == 'quote' %}{% ui "Quote required" %}{% else %}{{ offering.currency }} {{ offering.price }}{% endif %}</strong></div>
+  <div class="galiel-info-row"><span>{% ui "Estimated timeline" %}</span><strong>{% if offering.estimated_min_business_days != None and offering.estimated_max_business_days != None %}{{ offering.estimated_min_business_days }}–{{ offering.estimated_max_business_days }} {% if gl_lang == 'es' %}días hábiles{% elif gl_lang == 'fr' %}jours ouvrés{% else %}business days{% endif %}{% else %}{% ui "To be confirmed" %}{% endif %}</strong></div>
+  <div class="galiel-flow-size"><label for="business-size">{% if gl_lang == 'es' %}Superficie del negocio{% elif gl_lang == 'fr' %}Surface du local{% else %}Business size{% endif %}</label>
+    <div class="ws-size-field"><input data-locale="{{ gl_lang }}" id="business-size" type="number" min="0" step="0.01" placeholder="{% if gl_lang == 'en' %}e.g. 1200{% else %}p. ej. 100{% endif %}" aria-describedby="size-note">
+    <div class="ws-size-toggle"><button type="button" data-area-unit="ft2" aria-pressed="true">ft²</button><button type="button" data-area-unit="m2" aria-pressed="false">m²</button></div></div>
+    <p id="size-note" class="muted">{% if gl_lang == 'es' %}Este valor es informativo y aún no se guarda.{% elif gl_lang == 'fr' %}Cette valeur est indicative et n’est pas encore enregistrée.{% else %}For planning only; business size is not yet saved with this application.{% endif %}</p>
+  </div>
+  <form method="post">{% csrf_token %}<button class="btn orange" type="submit">{% ui "Continue" %} →</button></form>
+</section>
 {% elif step == 2 %}
-<section class="panel"><h2>{% if locale == 'es' %}Tu información{% elif locale == 'fr' %}Vos informations{% else %}Your information{% endif %}</h2>
-<p class="muted">Only the fields configured for this service are requested. Your changes save automatically as a draft.</p>
-<form method="post" id="answers-form">{% csrf_token %}{{ form.non_field_errors }}
-{% for field in form %}<label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>{{ field.errors }}{{ field }}{% empty %}<p>Your existing account information is sufficient for this service.</p>{% endfor %}
-<p id="save-status" class="status" aria-live="polite"></p>
-<div class="actions"><a class="btn outline" href="{% url 'application_step' application.pk 1 %}">← Back</a><button class="btn orange">Save & continue →</button></div></form></section>
+<section class="panel galiel-flow-panel">
+  <h2>{% ui "Your information" %}</h2>
+  <p class="muted">{% if gl_lang == 'es' %}Completa los campos solicitados para este trámite. Puedes editarlos desde el panel de administración de cada servicio.{% elif gl_lang == 'fr' %}Renseignez les champs demandés pour cette démarche. Les questions sont configurées par service.{% else %}Answer the questions required for this service. Staff configure them separately for each service in the admin.{% endif %}</p>
+  <div class="galiel-info-grid">
+    <div><span>{% if gl_lang == 'es' %}Nombre del cliente{% elif gl_lang == 'fr' %}Nom du client{% else %}Client name{% endif %}</span><strong>{{ user.get_full_name|default:user.email }}</strong></div>
+    <div><span>{% ui "Email address" %}</span><strong>{{ user.email }}</strong></div>
+    <div><span>{% ui "Phone number" %}</span><strong>{{ user.profile.phone|default:"—" }}</strong></div>
+    <div><span>{% ui "Company / legal name" %}</span><strong>{{ user.profile.company|default:"—" }}</strong></div>
+  </div>
+  <p><a class="galiel-secondary" href="{% url 'profile_edit' %}">{% if gl_lang == 'es' %}Editar datos de mi perfil{% elif gl_lang == 'fr' %}Modifier mon profil{% else %}Edit my profile details{% endif %} →</a></p>
+  <form method="post" id="answers-form">{% csrf_token %}{{ form.non_field_errors }}
+  {% for field in form %}<div class="galiel-field">{{ field.label_tag }}{{ field.errors }}{{ field }}</div>
+  {% empty %}<p class="muted">{% if gl_lang == 'es' %}Aún no hay preguntas adicionales configuradas para este servicio.{% elif gl_lang == 'fr' %}Aucune question supplémentaire n’est configurée pour cette démarche.{% else %}No additional service questions are configured yet.{% endif %}</p>{% endfor %}
+  <div class="galiel-field"><label for="comments">{% ui "Comments or questions for our team" %}</label>
+  <textarea id="comments" name="notes" rows="5" maxlength="5000">{{ application.notes }}</textarea><small>{% ui "This information is kept with your application." %}</small></div>
+  <p id="save-status" aria-live="polite"></p>
+  <div class="galiel-actions"><a class="galiel-secondary" href="{% url 'application_step' application.pk 1 %}">← {% ui "Back" %}</a><button type="submit" class="btn orange">{% ui "Save & continue" %} →</button></div></form>
+</section>
 {% elif step == 3 %}
-<section class="panel"><h2>{% if locale == 'es' %}Documentos necesarios{% elif locale == 'fr' %}Documents requis{% else %}Required documents{% endif %}</h2>
-<p class="muted">PDF, JPG or PNG · 10 MB maximum per file. Files are stored privately, and only you and authorized staff can open them.</p>
-{% for requirement,document in requirements %}
-<div class="doc"><strong>☐ {% if locale == 'es' %}{{ requirement.label_es }}{% elif locale == 'fr' %}{{ requirement.label_fr }}{% else %}{{ requirement.label_en }}{% endif %}{% if requirement.is_required %} *{% endif %}</strong>
-{% if document %}
-<p class="status">✓ Uploaded · {{ document.original_filename }} · {{ document.size|filesizeformat }} · {{ document.get_review_status_display }}</p>{% if document.staff_note %}<p class="muted">{{ document.staff_note }}</p>{% endif %}
-<a href="{% url 'application_download' application.pk document.pk %}" target="_blank" rel="noopener">Preview / download</a>
-<form method="post" action="{% url 'application_delete_file' application.pk document.pk %}">{% csrf_token %}<button class="btn outline" type="submit">Delete</button></form>
-{% endif %}
-<form method="post" enctype="multipart/form-data" action="{% url 'application_upload' application.pk requirement.pk %}" class="upload-form">
-{% csrf_token %}<label class="drop" tabindex="0">Drag and drop or click to {% if document %}replace{% else %}upload{% endif %} a file
-<input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required></label>
-<button class="btn" type="submit">{% if document %}Replace file{% else %}Upload file{% endif %}</button>
-</form></div>
-{% empty %}<p class="muted">No required documents are configured for this service.</p>{% endfor %}
-<form method="post" id="notes-form">{% csrf_token %}
-<label for="notes">Optional notes for the team</label><textarea id="notes" name="notes" rows="4">{{ application.notes }}</textarea><p id="save-status" class="status" aria-live="polite"></p>
-<div class="actions"><a class="btn outline" href="{% url 'application_step' application.pk 2 %}">← Back</a><button class="btn orange">Save & continue →</button></div></form></section>
+<section class="panel galiel-flow-panel">
+  <h2>{% ui "Required documents" %}</h2>
+  <p class="muted">{% ui "Upload a PDF, JPG or PNG (maximum 10 MB)." %}</p>
+  {% for requirement,document in requirements %}
+    <div class="galiel-doc-row">
+      <div><strong>{% if gl_lang == 'es' %}{{ requirement.label_es }}{% elif gl_lang == 'fr' %}{{ requirement.label_fr }}{% else %}{{ requirement.label_en }}{% endif %}{% if requirement.is_required %} *{% endif %}</strong>
+      {% if document %}<small>{{ document.original_filename }} · {{ document.get_review_status_display }}</small>{% else %}<small>{% if gl_lang == 'es' %}Pendiente{% elif gl_lang == 'fr' %}En attente{% else %}Not uploaded{% endif %}</small>{% endif %}</div>
+      <form method="post" enctype="multipart/form-data" action="{% url 'application_upload' application.pk requirement.pk %}" class="galiel-upload">{% csrf_token %}
+      <input name="file" aria-label="Choose document" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required>
+      <button class="galiel-secondary" type="submit">{% ui "Upload file" %} →</button></form>
+      {% if document %}<a href="{% url 'application_download' application.pk document.pk %}" class="galiel-secondary">{% ui "Download" %}</a>{% endif %}
+    </div>
+  {% empty %}<p>{% ui "No required documents are configured for this service." %}</p>{% endfor %}
+  <h3>{% ui "Optional documents" %}</h3>
+  <p class="muted">{% ui "You may still send optional supporting documents." %}</p>
+  <form method="post" enctype="multipart/form-data" action="{% url 'application_upload' application.pk 0 %}" class="galiel-optional-drop galiel-upload">{% csrf_token %}
+    <label for="galiel-optional-file">{% ui "Add an optional document" %} · PDF / JPG / PNG · 10 MB</label>
+    <input id="galiel-optional-file" type="file" name="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required>
+    <button type="submit" class="btn orange">{% ui "Upload file" %} →</button>
+  </form>
+  {% for doc in optional_documents %}<div class="galiel-doc-row"><strong>{{ doc.original_filename }}</strong><a href="{% url 'application_download' application.pk doc.pk %}" class="galiel-secondary">{% ui "Download" %}</a>
+    <form method="post" action="{% url 'application_delete_file' application.pk doc.pk %}">{% csrf_token %}<button type="submit" class="galiel-secondary">{% ui "Delete" %}</button></form></div>{% endfor %}
+  <form method="post" id="notes-form">{% csrf_token %}<div class="galiel-field"><label for="notes">{% ui "Comments or questions for our team" %}</label>
+  <textarea id="notes" name="notes" rows="4" maxlength="5000">{{ application.notes }}</textarea></div>
+  <p id="save-status" aria-live="polite"></p><div class="galiel-actions"><a class="galiel-secondary" href="{% url 'application_step' application.pk 2 %}">← {% ui "Back" %}</a><button type="submit" class="btn orange">{% ui "Save & continue" %} →</button></div></form>
+</section>
 {% elif step == 4 %}
-<section class="panel"><h2>{% if locale == 'es' %}Revisar solicitud{% elif locale == 'fr' %}Vérifier la demande{% else %}Review your application{% endif %}</h2>
-<div class="row"><strong>{{ service_name }}</strong><a href="{% url 'application_step' application.pk 1 %}">Edit</a></div>
-<p>{{ place_name }}</p>
-<div class="row"><strong>Your information</strong><a href="{% url 'application_step' application.pk 2 %}">Edit</a></div>
-{% for req,answer in questions %}<p>{{ req.label_en }}: {{ answer|default:"—" }}</p>{% endfor %}
-<div class="row"><strong>Documents</strong><a href="{% url 'application_step' application.pk 3 %}">Edit</a></div>
-{% for req,doc in requirements %}<p>{% if doc %}✓{% else %}☐{% endif %} {{ req.label_en }}{% if doc %}: {{ doc.original_filename }}{% endif %}</p>{% endfor %}
-<div class="row"><strong>Notes</strong><a href="{% url 'application_step' application.pk 3 %}">Edit</a></div><p>{{ application.notes|default:"None" }}</p>
-{% if offering.is_temporary_price %}<div class="notice" role="note">{% if locale == "es" %}{{ offering.estimated_price_note_es }}{% elif locale == "fr" %}{{ offering.estimated_price_note_fr }}{% else %}{{ offering.estimated_price_note }}{% endif %} {% if locale == "es" %}No se cobrará este importe estimado sin una cotización confirmada.{% elif locale == "fr" %}Aucun paiement ne sera prélevé sur ce montant estimatif sans devis confirmé.{% else %}No payment will be collected against this estimate without a confirmed quotation.{% endif %}</div>{% endif %}
-<div class="row"><strong>Subtotal / deposit</strong><strong>{% if base != None %}{{ application.currency }} {{ base }}{% else %}Quote required{% endif %}</strong></div>
-<div class="row"><strong>Configured tax (IVA where applicable)</strong><strong>{% if tax != None %}{{ application.currency }} {{ tax }}{% else %}To be quoted{% endif %}</strong></div>
-<div class="row"><strong>Total due today</strong><strong>{% if total != None %}{{ application.currency }} {{ total }}{% else %}Quote required{% endif %}</strong></div>
-<form method="post">{% csrf_token %}
-<label><input type="checkbox" name="terms" value="yes" required> I agree to Galiel's <a href="{% url 'application_terms' %}" target="_blank" rel="noopener">terms and processing estimates</a>.</label>
-<div class="actions"><a class="btn outline" href="{% url 'application_step' application.pk 3 %}">← Back</a><button class="btn orange">Accept & continue →</button></div></form></section>
+<section class="panel galiel-flow-panel">
+  <h2>{% ui "Review your application" %}</h2>
+  <div class="galiel-info-row"><strong>{{ service_name }}</strong><a class="galiel-secondary" href="{% url 'application_step' application.pk 1 %}">{% ui "Edit" %}</a></div><p>{{ place_name }}</p>
+  <div class="galiel-info-row"><strong>{% ui "Your information and comments" %}</strong><a class="galiel-secondary" href="{% url 'application_step' application.pk 2 %}">{% ui "Edit" %}</a></div>
+  {% for req, answer in questions %}<div class="galiel-info-row"><span>{% if gl_lang == 'es' %}{{ req.label_es }}{% elif gl_lang == 'fr' %}{{ req.label_fr }}{% else %}{{ req.label_en }}{% endif %}</span><strong>{{ answer|default:"—" }}</strong></div>{% endfor %}
+  <div class="galiel-info-row"><span>{% ui "Comments or questions for our team" %}</span><strong>{{ application.notes|default:"—" }}</strong></div>
+  <div class="galiel-info-row"><strong>{% ui "Documents uploaded" %}</strong><a class="galiel-secondary" href="{% url 'application_step' application.pk 3 %}">{% ui "Edit" %}</a></div>
+  {% for req, doc in requirements %}<div class="galiel-info-row"><span>{% if gl_lang == 'es' %}{{ req.label_es }}{% elif gl_lang == 'fr' %}{{ req.label_fr }}{% else %}{{ req.label_en }}{% endif %}</span><strong>{% if doc %}✓ {{ doc.original_filename }}{% else %}—{% endif %}</strong></div>{% endfor %}
+  {% for doc in optional_documents %}<div class="galiel-info-row"><span>{% ui "Optional documents" %}</span><strong>{{ doc.original_filename }}</strong></div>{% endfor %}
+  <div class="galiel-info-row"><span>{% ui "Subtotal" %}</span><strong>{% if base != None %}{{ application.currency }} {{ base }}{% else %}{% ui "Quote required" %}{% endif %}</strong></div>
+  <div class="galiel-info-row"><span>{% ui "Applicable tax" %}</span><strong>{% if tax != None %}{{ application.currency }} {{ tax }}{% else %}—{% endif %}</strong></div>
+  <div class="galiel-info-row"><span>{% ui "Total" %}</span><strong>{% if total != None %}{{ application.currency }} {{ total }}{% else %}{% ui "Quote required" %}{% endif %}</strong></div>
+  <p class="notice">{% ui "Payments are currently on hold." %}</p>
+  <div class="galiel-ops-card"><form method="post" action="{% url 'galiel_request_invoice' application.pk %}">
+  {% csrf_token %}<label><input name="invoice_requested" type="checkbox" value="yes" required>
+  {% if gl_lang == 'es' %}Necesito factura{% elif gl_lang == 'fr' %}Je souhaite une facture{% else %}I need an invoice{% endif %}</label>
+  <p>{% if gl_lang == 'es' %}La factura se emitirá manualmente después de la revisión.{% elif gl_lang == 'fr' %}La facture sera établie manuellement après vérification.{% else %}An invoice will be issued manually after review.{% endif %}</p>
+  <button type="submit" class="galiel-secondary">{% if gl_lang == 'es' %}Solicitar factura{% elif gl_lang == 'fr' %}Demander une facture{% else %}Request invoice{% endif %}</button>
+  </form><a href="{% url 'galiel_fiscal_profile' %}">Fiscal details →</a></div>
+  <form method="post">{% csrf_token %}<label class="galiel-agree"><input type="checkbox" name="terms" value="yes" required> {% if gl_lang == 'es' %}Acepto los{% elif gl_lang == 'fr' %}J’accepte les{% else %}I agree to the{% endif %} <a href="{% url 'application_terms' %}" target="_blank" rel="noopener">{% if gl_lang == 'es' %}términos del servicio{% elif gl_lang == 'fr' %}conditions du service{% else %}service terms{% endif %}</a></label>
+    <div class="galiel-actions"><a class="galiel-secondary" href="{% url 'application_step' application.pk 3 %}">← {% ui "Back" %}</a><button type="submit" class="btn orange">{% ui "Accept & continue" %} →</button></div>
+  </form>
+</section>
 {% elif step == 5 %}
-{% if checkout_cancelled %}<div class="notice" role="alert">Checkout was cancelled or not completed. No payment has been confirmed. You can retry securely.</div>{% endif %}
-<section class="panel"><h2>{% if locale == 'es' %}Pago seguro{% elif locale == 'fr' %}Paiement sécurisé{% else %}Secure payment{% endif %}</h2>
-{% if is_quote %}
-<div class="notice">This service requires a confirmed quotation before checkout. No card payment will be requested yet.</div>
-{% if application.status == 'quote_requested' %}<p>Your quotation request has been submitted. You will be notified when the team sends a price.</p>
-{% else %}<form method="post">{% csrf_token %}<input type="hidden" name="action" value="quote"><button class="btn orange">Request a quote →</button></form>{% endif %}
-{% else %}
-<div class="row"><strong>Total due today</strong><strong>{{ application.currency }} {{ total }}</strong></div>
-<p class="muted">Payment is processed by Stripe. Galiel does not collect or store your card number. Eligible payments may require 3-D Secure verification.</p>
-{% if stripe_configured %}<form method="post" action="{% url 'application_checkout' application.pk %}">{% csrf_token %}<button class="btn orange">Pay securely with Stripe →</button></form>
-{% else %}<div class="notice">Card checkout has not been enabled by the administrator. You will not be charged.</div>{% endif %}
-{% endif %}
-<div class="actions"><a class="btn outline" href="{% url 'application_step' application.pk 4 %}">← Review</a></div>
+<section class="panel galiel-flow-panel"><h2>{% ui "Payment" %}</h2><p class="notice">{% ui "Payments are currently on hold." %}</p>
+  <p>{% if gl_lang == 'es' %}Puedes solicitar una cotización, pero no se efectuará ningún cargo.{% elif gl_lang == 'fr' %}Vous pouvez demander un devis, mais aucun paiement ne sera prélevé.{% else %}You can request a quotation, but no charge will be taken.{% endif %}</p>
+  {% if is_quote and application.status != 'quote_requested' %}<form method="post">{% csrf_token %}<input type="hidden" name="action" value="quote"><button type="submit" class="btn orange">{% ui "Submit for a quote" %} →</button></form>{% endif %}
+  <p><a class="galiel-secondary" href="{% url 'application_step' application.pk 4 %}">← {% ui "Return to review" %}</a></p>
 </section>
 {% elif step == 6 %}
-<section class="panel"><h2>Payment confirmed</h2><p>Thank you. Your process is being reviewed.</p>
-<p><strong>Order {{ application.number }}</strong></p><p>Estimated delivery: {{ application.estimated_delivery|default:"To be confirmed" }}</p>
-<a class="btn orange" href="{% url 'application_track' application.pk %}">Track my process →</a></section>
+<section class="panel galiel-flow-panel"><h2>{% ui "Confirmation" %}</h2><p>{{ application.number }} · {{ application.get_status_display }}</p><a class="galiel-secondary" href="{% url 'application_track' application.pk %}">{% ui "My processes" %} →</a></section>
 {% endif %}
-</main>
+<script src="{% static 'portal/galiel-service-pricing.js' %}" defer></script>
 <script>
-const url="{% url 'application_autosave' application.pk %}";
-const form=document.querySelector("#answers-form")||document.querySelector("#notes-form");
-if(form){let timer;const status=document.getElementById("save-status");
-form.addEventListener("input",()=>{clearTimeout(timer);status.textContent="Saving…";timer=setTimeout(async()=>{
-try{const data=new FormData(form);const response=await fetch(url,{method:"POST",body:data,credentials:"same-origin"});
-if(!response.ok)throw Error("Unable to save");status.textContent="Draft saved";}catch(_){status.textContent="Could not autosave. Use Save & continue."; }
-},550);});}
-document.querySelectorAll(".upload-form").forEach(form=>{
-const drop=form.querySelector(".drop"),input=form.querySelector("input[type=file]");
-["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag");}));
-["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag");}));
-drop.addEventListener("drop",e=>{if(e.dataTransfer.files.length){input.files=e.dataTransfer.files;form.requestSubmit();}});
-});
+(function(){
+  const form=document.getElementById('answers-form')||document.getElementById('notes-form');
+  if(!form)return;
+  let timer;const status=document.getElementById('save-status');
+  form.addEventListener('input',()=>{
+    clearTimeout(timer);
+    timer=setTimeout(async()=>{
+      try{
+        const response=await fetch("{% url 'application_autosave' application.pk %}",{
+          method:'POST',body:new FormData(form),credentials:'same-origin'
+        });
+        if(!response.ok)throw new Error('save failed');
+        if(status)status.textContent='✓';
+      }catch(_){if(status)status.textContent='Unable to autosave. Use Save & continue.'}
+    },900);
+  });
+})();
 </script>
-</body></html>
+{% endblock %}
