@@ -23,11 +23,12 @@ class BackupScopeTests(SimpleTestCase):
         con.commit();con.close()
         self.media=self.root/"galiel-private-files"
         self.media.mkdir()
-        for name in ("case_documents", "client_documents", "daily-backups", "release-backups",
+        for name in ("case_documents", "client_documents", "contact_leads", "daily-backups", "release-backups",
                      "workflow-deploy-backups", "homepage-release-backups", "quarantine-staging"):
             (self.media/name).mkdir()
         (self.media/"case_documents"/"valid.pdf").write_bytes(b"%PDF test fixture")
         (self.media/"client_documents"/"other.pdf").write_bytes(b"%PDF client test fixture")
+        (self.media/"contact_leads"/"lead.png").write_bytes(b"PNG contact test fixture")
         (self.media/"case_documents"/"staging.env").write_text("SECRET_DO_NOT_BACK_UP")
         (self.media/"case_documents"/"trace.log").write_text("NOT_A_CLIENT_UPLOAD")
         (self.media/"case_documents"/"sessions.lock").write_text("NOT_A_CLIENT_UPLOAD")
@@ -46,17 +47,19 @@ class BackupScopeTests(SimpleTestCase):
         report=out.getvalue()
         self.assertIn("case_documents",report)
         self.assertIn("client_documents",report)
-        self.assertIn("Archive will contain 3 files total",report)
+        self.assertIn("contact_leads",report)
+        self.assertIn("Archive will contain 4 files total",report)
         self.assertFalse(list((self.media/"daily-backups").glob("galiel-*.tar.gz")))
 
-    def test_archive_contains_only_db_and_two_client_documents(self):
+    def test_archive_contains_db_and_three_upload_roots(self):
         call_command("galiel_daily_backup",stdout=StringIO())
         files=list((self.media/"daily-backups").glob("galiel-*.tar.gz"))
         self.assertEqual(len(files),1)
         with tarfile.open(files[0],"r:gz") as archive:
             names=set(archive.getnames())
             self.assertEqual(names,{"db.sqlite3","uploads/case_documents/valid.pdf",
-                                  "uploads/client_documents/other.pdf"})
+                                  "uploads/client_documents/other.pdf",
+                                  "uploads/contact_leads/lead.png"})
             extracted=archive.extractfile("db.sqlite3").read()
             snap=self.root/"restored.sqlite3"
             snap.write_bytes(extracted)
