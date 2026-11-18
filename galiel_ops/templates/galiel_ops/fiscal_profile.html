@@ -1,0 +1,11 @@
+{% extends "portal/workspace_base.html" %}
+{% block title %}Invoice details · Galiel{% endblock %}
+{% block content %}
+<div class="eyebrow">Galiel / {% if lang == 'es' %}Datos fiscales{% elif lang == 'fr' %}Coordonnées fiscales{% else %}Invoice details{% endif %}</div>
+<h1>{% if lang == 'es' %}Datos de facturación{% elif lang == 'fr' %}Informations de facturation{% else %}Invoice information{% endif %}</h1>
+<p class="subtitle">{% if lang == 'es' %}Opcional. Las facturas se emiten manualmente, previa revisión.{% elif lang == 'fr' %}Facultatif. Les factures sont émises manuellement après vérification.{% else %}Optional. Invoice requests are reviewed and issued manually.{% endif %}</p>
+<form class="galiel-ops-card galiel-ops-form" method="post">{% csrf_token %}{{ form.non_field_errors }}
+{% for field in form %}<p><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field.errors }}{{ field }}</p>{% endfor %}
+<button type="submit">{% if lang == 'es' %}Guardar datos fiscales{% elif lang == 'fr' %}Enregistrer{% else %}Save fiscal details{% endif %}</button>
+</form>
+{% endblock %}
