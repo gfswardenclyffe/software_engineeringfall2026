@@ -25,3 +25,7 @@
 .galiel-help-output select{width:100%;padding:10px;background:#fff;border:1px solid #161616}
 .galiel-help-output a{color:#161616;text-decoration:underline}
 @media(max-width:570px){.galiel-help{right:10px;bottom:10px}.galiel-ops-filters{display:grid;grid-template-columns:repeat(2,1fr)}.galiel-ops-bell{padding:6px 8px}}
+
+/* Accessible monochrome SVG notification bell (replaces platform-dependent emoji). */
+.galiel-ops-bell svg{width:19px;height:19px;display:block;flex:none;stroke:#161616;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.galiel-ops-bell:focus-visible{outline:2px solid #D9714A;outline-offset:3px}
