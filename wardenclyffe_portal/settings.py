@@ -5,10 +5,9 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-jdg^51c^p5j66wn#@$pgd&!qd7@++a@d54)&47dr1h3jw#$6l@",
-)
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
+if not SECRET_KEY:
+    raise RuntimeError("DJANGO_SECRET_KEY must be set in the environment; no embedded secrets are permitted.")
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
 
@@ -31,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "portal.apps.PortalConfig",
+    "galiel_ops.apps.GalielOpsConfig",
 ]
 
 MIDDLEWARE = [
