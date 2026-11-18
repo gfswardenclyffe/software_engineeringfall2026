@@ -1,0 +1,11 @@
+{% load static ops_ui %}
+<div class="galiel-help" data-galiel-help data-lang="{{ gl_lang|default:'en' }}">
+<button type="button" class="galiel-help-toggle" aria-expanded="false" aria-controls="galiel-help-panel" aria-label="Open Galiel help">?</button>
+<section class="galiel-help-panel" id="galiel-help-panel" hidden aria-label="Galiel help">
+<div class="galiel-help-head"><strong>Galiel · Help</strong><button type="button" class="galiel-help-close" aria-label="Close help">×</button></div>
+<p class="galiel-help-intro"></p>
+<div class="galiel-help-options"></div>
+<div class="galiel-help-output" role="status" aria-live="polite"></div>
+</section></div>
+<link rel="stylesheet" href="{% static 'galiel_ops/operations.css' %}">
+<script src="{% static 'galiel_ops/help.js' %}" defer></script>
