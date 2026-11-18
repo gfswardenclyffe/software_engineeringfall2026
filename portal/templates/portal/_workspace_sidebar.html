@@ -1,0 +1,18 @@
+{% load static i18n galiel_ui %}
+{% galiel_locale as gl_lang %}
+<aside class="ws-sidebar">
+  <div class="mini">{% ui "YOUR WORKSPACE" %}</div>
+  <div class="user-name">{{ user.get_full_name|default:user.email }}</div>
+  <nav aria-label="{% translate 'Workspace navigation' %}">
+    <a href="{% url 'dashboard' %}#overview" {% if request.resolver_match.url_name == 'dashboard' %}class="active" aria-current="page"{% endif %}><span class="ws-num">01</span>{% ui "Overview" %}</a>
+    <a href="{% url 'dashboard' %}#processes" {% if request.resolver_match.url_name == 'application_track' %}class="active" aria-current="page"{% endif %}><span class="ws-num">02</span>{% ui "My processes" %}</a>
+    <a href="{% url 'service_catalog' %}" {% if request.resolver_match.url_name == 'service_catalog' or request.resolver_match.url_name == 'service_intake' or request.resolver_match.url_name == 'service_start' %}class="active" aria-current="page"{% endif %}><span class="ws-num">03</span>{% ui "Services" %}</a>
+    <a href="{% url 'dashboard' %}#documents" {% if request.resolver_match.url_name == 'document_upload' %}class="active" aria-current="page"{% endif %}><span class="ws-num">04</span>{% ui "Documents" %}</a>
+    <a href="{% url 'dashboard' %}#invoices" {% if request.resolver_match.url_name == 'application_receipt' %}class="active" aria-current="page"{% endif %}><span class="ws-num">05</span>{% ui "Invoices & payments" %}</a>
+    <a href="{% url 'messages_inbox' %}" {% if request.resolver_match.url_name == 'messages_inbox' or request.resolver_match.url_name == 'conversation_detail' or request.resolver_match.url_name == 'conversation_new' %}class="active" aria-current="page"{% endif %}><span class="ws-num">06</span>{% ui "Messages" %}</a>
+    <a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'profile_edit' %}class="active" aria-current="page"{% endif %}><span class="ws-num">07</span>{% ui "My profile" %}</a>
+    <a href="{% url 'galiel_announcements' %}"><span class="ws-num">08</span>{% if gl_lang == 'es' %}Noticias y actualizaciones{% elif gl_lang == 'fr' %}Actualités et mises à jour{% else %}News &amp; updates{% endif %}</a>
+    <a href="{% url 'galiel_reminders' %}"><span class="ws-num">09</span>{% if gl_lang == 'es' %}Avisos{% elif gl_lang == 'fr' %}Alertes{% else %}Alerts{% endif %}</a>
+  </nav>
+  <div class="ws-sidebar-footer"><img class="ws-logo" src="{% static 'portal/galiel-signature-light.svg' %}" alt="Galiel"><small>by WARDENCLYFFE</small></div>
+</aside>

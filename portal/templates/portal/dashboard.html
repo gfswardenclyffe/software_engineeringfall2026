@@ -1,3 +1,4 @@
+{% load static galiel_ui %}
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My workspace · Galiel</title>
@@ -38,21 +39,26 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 
 @media(max-width:950px){.layout{display:block}aside{border-right:0;border-bottom:1px solid var(--line);padding:12px 16px}.user-name,aside .mini{display:none}nav{display:flex;overflow-x:auto;gap:3px;scrollbar-width:thin}nav a{white-space:nowrap;padding:11px 13px}.grid{grid-template-columns:1fr}}
 @media(max-width:600px){.top{height:64px}.brand{font-size:26px}.account{display:none}.stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat{padding:13px}.stat strong{font-size:30px}.stat span{font-size:11px}.card{border-radius:15px}.empty{padding:15px 0}.subtitle{font-size:14px}}
-</style></head><body>
-<header class="top"><a href="{% url 'dashboard' %}" class="brand">Galiel <span>by Wardenclyffe</span></a><div class="top-right"><span class="account">{{ user.get_full_name|default:user.email }} · {{ user.email }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="out" type="submit">Sign out</button></form></div></header>
+</style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
+<link rel="stylesheet" href="{% static 'portal/galiel-workspace.css' %}"><link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
+</head><body class="workspace-redesign">
+{% include 'portal/_workspace_header.html' %}
+{% with next_app=applications.first %}{% if next_app %}<div class="ws-current"><span><strong>{{ next_app.number }}</strong> · {{ next_app.service_title }} · {{ next_app.get_status_display }}</span><a href="{% url 'application_track' next_app.pk %}">Continue →</a></div>{% else %}<div class="ws-current"><span>Your workspace · No active process yet</span><a href="{% url 'service_catalog' %}">Explore services →</a></div>{% endif %}{% endwith %}
 <div class="layout"><aside><div class="mini">Your workspace</div><div class="user-name">{{ user.get_full_name|default:user.email }}</div><nav aria-label="Workspace navigation">
-<a href="#overview" data-page="overview" class="active">Overview</a>
-<a href="#processes" data-page="processes">My processes</a>
-<a href="#services" data-page="services">Services</a>
-<a href="#documents" data-page="documents">Documents</a>
-<a href="#invoices" data-page="invoices">Invoices & payments</a>
-<a href="#messages" data-page="messages">Messages</a>
-<a href="{% url 'profile' %}">My profile</a>
-</nav></aside>
+<a href="#overview" data-page="overview" class="active"><span class="ws-num">01</span>Overview</a>
+<a href="#processes" data-page="processes"><span class="ws-num">02</span>My processes</a>
+<a href="#services" data-page="services"><span class="ws-num">03</span>Services</a>
+<a href="#documents" data-page="documents"><span class="ws-num">04</span>Documents</a>
+<a href="#invoices" data-page="invoices"><span class="ws-num">05</span>Invoices & payments</a>
+<a href="#messages" data-page="messages"><span class="ws-num">06</span>Messages</a>
+<a href="{% url 'profile' %}"><span class="ws-num">07</span>My profile</a>
+<a href="{% url 'galiel_announcements' %}"><span class="ws-num">08</span>News &amp; updates</a>
+<a href="{% url 'galiel_reminders' %}"><span class="ws-num">09</span>Alerts</a>
+</nav><div class="ws-sidebar-footer"><img class="ws-logo" src="{% static 'portal/galiel-signature-light.svg' %}" alt="Galiel"><small>by WARDENCLYFFE</small></div></aside>
 <main>
 {% if messages %}{% for message in messages %}<div role="status" style="background:#e7f3ea;padding:14px 18px;border-radius:12px;margin-bottom:20px">{{ message }}</div>{% endfor %}{% endif %}
 <section id="overview" class="page active"><div class="eyebrow">Galiel / Client workspace</div><h1>Welcome, {{ user.first_name|default:"there" }}.</h1><p class="subtitle">Your private place to manage services with Wardenclyffe.</p>
-<div class="stats"><div class="stat"><strong>{{ active_count }}</strong><span>Active processes</span></div><div class="stat"><strong>{{ document_count }}</strong><span>Documents</span></div><div class="stat"><strong>{{ payment_count }}</strong><span>Payments</span></div></div>
+<div class="stats"><div class="stat"><strong>{{ active_count|stringformat:"02d" }}</strong><span>Active processes</span></div><div class="stat"><strong>{{ document_count|stringformat:"02d" }}</strong><span>Documents</span></div><div class="stat"><strong>{{ payment_count|stringformat:"02d" }}</strong><span>Payments</span></div></div>
 <div class="grid"><article class="card"><h2>Your processes</h2>
 {% for app in applications|slice:":4" %}
 <p style="padding:13px 0;border-bottom:1px solid var(--line)">
@@ -74,8 +80,9 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 <p>{{ app.location_label }} · {{ app.get_status_display }}</p>
 <p style="color:var(--muted)">Estimated delivery: {{ app.estimated_delivery|default:"To be confirmed" }}</p>
 {% if app.status == 'draft' or app.status == 'quoted' or app.status == 'awaiting_payment' %}
-<a class="action" href="{% if app.status == 'quoted' %}{% url 'application_step' app.pk 5 %}{% else %}{% url 'application_step' app.pk 1 %}{% endif %}">{% if app.status == 'quoted' %}Pay now{% else %}Resume draft{% endif %} →</a>
+<a class="action" href="{% if app.status == 'quoted' %}{% url 'application_step' app.pk 5 %}{% else %}{% url 'application_step' app.pk 1 %}{% endif %}">{% if app.status == 'quoted' %}Review quote{% else %}Resume draft{% endif %} →</a>
 {% else %}<a class="secondary" href="{% url 'application_track' app.pk %}">Track process →</a>{% endif %}
+{% if app.status == 'draft' %}<a class="galiel-secondary" href="{% url 'galiel_delete_draft' app.pk %}">Delete draft →</a>{% endif %}
 </div>
 {% empty %}<div class="empty"><h3>No processes yet</h3><p>Your applications and drafts will appear here.</p>
 <a href="#services" class="action">Explore services →</a></div>{% endfor %}
@@ -103,4 +110,4 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 </main></div>
 <script>
 function showPage(){const id=location.hash.slice(1)||"overview";const safe=document.getElementById(id)?.classList.contains("page")?id:"overview";document.querySelectorAll(".page").forEach(el=>el.classList.toggle("active",el.id===safe));document.querySelectorAll("nav [data-page]").forEach(el=>{const active=el.dataset.page===safe;el.classList.toggle("active",active);active?el.setAttribute("aria-current","page"):el.removeAttribute("aria-current")})}addEventListener("hashchange",showPage);showPage();
-</script></body></html>
+</script>{% include 'galiel_ops/_help.html' %}<script src="{% static 'portal/galiel-locale.js' %}" defer></script></body></html>

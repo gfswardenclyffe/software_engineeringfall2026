@@ -1,38 +1,22 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}Galiel · Account{% endblock %}</title>
-<style>
-:root{--ink:#202b29;--orange:#ed7545;--paper:#f6f7f4;--line:#e1e6df;--muted:#64726d;--card:#fff;--forest:#163f3b}
-*{box-sizing:border-box}html{font-size:16px}body{margin:0;background:var(--paper);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
-a{color:var(--forest)}button,input,textarea,select{font:inherit}a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
-.layout{min-height:100dvh;display:grid;grid-template-columns:minmax(300px,.95fr) minmax(0,1.05fr)}
-.brand{position:sticky;top:0;min-height:100dvh;padding:clamp(30px,5vw,74px);background:radial-gradient(ellipse at 25% 20%,#376960 0%,transparent 48%),linear-gradient(140deg,#174b45,#112b2b);color:#fff;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
-.brand:after{content:"";position:absolute;width:min(55vw,630px);height:min(55vw,630px);border:1px solid rgba(255,255,255,.19);border-radius:50%;bottom:-24%;right:-28%;box-shadow:0 0 0 80px rgba(255,255,255,.035),0 0 0 170px rgba(255,255,255,.025);pointer-events:none}
-.logo{font-size:clamp(30px,3.6vw,45px);letter-spacing:-.075em;font-weight:750;text-decoration:none;color:#fff}.logo em{font-style:normal;color:var(--orange)}.by{font-size:11px;letter-spacing:.18em;font-weight:750;margin-top:8px}
-.brand h2{max-width:510px;font:400 clamp(32px,3.5vw,56px)/1.07 Georgia,serif;letter-spacing:-.04em;margin:0 0 18px}
-.brand p{line-height:1.7;color:#dce8e2;max-width:480px}.brand-foot{font-size:12px;color:#bed2ca}
-.content{width:100%;max-width:760px;margin:auto;padding:clamp(25px,5vw,80px);min-width:0}
-.eyebrow{color:#bf6238;letter-spacing:.15em;text-transform:uppercase;font-weight:800;font-size:11px;margin-bottom:18px}
-h1{font:400 clamp(36px,4.3vw,58px)/1.08 Georgia,serif;letter-spacing:-.045em;margin:0 0 14px}
-.sub{margin:0 0 28px;color:var(--muted);line-height:1.7;font-size:15px}
-form p{margin:0 0 17px}label{display:block;font-size:12px;font-weight:700;margin:0 0 7px}
-input,textarea,select{width:100%;min-height:47px;padding:12px 14px;border:1px solid #d5dcd5;border-radius:11px;background:#fff;color:var(--ink);font-size:16px}
-textarea{min-height:90px;resize:vertical}
-input:focus,textarea:focus{border-color:var(--forest)}
-.helptext{display:block;color:var(--muted);font-size:12px;line-height:1.5;margin-top:5px}
-.helptext ul{padding-left:18px;margin:6px 0}
-.errorlist{padding:12px 14px!important;list-style:none;margin:0 0 14px!important;background:#fff0eb;border:1px solid #f3bba3;border-radius:10px;font-size:13px;color:#953c29}
-.action{width:100%;min-height:50px;border:0;border-radius:12px;background:var(--forest);color:#fff;font-weight:700;padding:13px 22px;cursor:pointer}.action:hover{background:#27544c}
-.links{margin:22px 0 0;line-height:2;font-size:14px;color:var(--muted)}
-.notice{background:#fff;border:1px solid var(--line);padding:16px 18px;border-radius:14px;line-height:1.6;font-size:14px;margin:16px 0}
-.success{background:#e9f5ef;color:#205d3c}.error{background:#fff0eb;color:#8b3927}
-.secondary{background:transparent;border:1px solid #cfd7d0;border-radius:11px;padding:11px 16px;color:var(--ink);cursor:pointer}
-.fields-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
-.form-note{font-size:12px;line-height:1.6;color:var(--muted);margin:16px 0}
-.mobile-head{display:none}
-@media(max-width:900px){.layout{grid-template-columns:1fr}.brand{position:relative;min-height:180px;padding:28px 28px 35px}.brand h2{font-size:30px;max-width:700px}.brand p{display:none}.brand-foot{display:none}.content{padding:32px 28px 60px;max-width:650px}}
-@media(max-width:520px){.brand{min-height:145px;padding:22px 20px 25px}.brand h2{font-size:24px;line-height:1.15;margin:16px 0 0}.logo{font-size:28px}.content{padding:28px 20px 65px}.fields-two{grid-template-columns:1fr}h1{font-size:38px}.sub{font-size:14px}.action{min-height:52px}}
-</style></head><body><div class="layout">
-<aside class="brand"><div><a href="{% url 'home' %}" class="logo">galiel<em>.</em></a><div class="by">BY WARDENCLYFFE</div></div><div><h2>Everything in its right place.</h2><p>A thoughtful home for your services, documents, and updates. Private, organized, and made for you.</p></div><div class="brand-foot">Your client space · Wardenclyffe Inc.</div></aside>
-<main class="content">{% if messages %}{% for message in messages %}<div role="status" class="notice {% if message.tags == 'error' %}error{% else %}success{% endif %}">{{ message }}</div>{% endfor %}{% endif %}
-{% block content %}{% endblock %}</main></div></body></html>
+{% load static i18n galiel_ui %}
+{% galiel_locale as gl_lang %}
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}Galiel · Account{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'portal/galiel-pages.css' %}">
+<link rel="icon" href="{% static 'portal/galiel-signature-dark.svg' %}" type="image/svg+xml"></head>
+<body class="galiel-auth"><div class="auth-layout">
+<aside class="auth-brand">
+<a href="{% url 'login' %}" class="auth-logo" aria-label="Galiel by Wardenclyffe"><img src="{% static 'portal/galiel-signature-light.svg' %}" alt="Galiel"><span>by WARDENCLYFFE</span></a>
+<div class="auth-brand-content"><div class="auth-eyebrow">{% translate "YOUR CLIENT SPACE" %}</div><h2>{% ui "Everything in its right place." %}</h2><p>{% translate "A private home for your services, documents, and updates. Organized, secure, and made for you." %}</p></div>
+<ol class="auth-journey"><li>{% translate "Choose a service" %}</li><li>{% translate "Upload your documents" %}</li><li>{% translate "Track every step" %}</li></ol>
+<small>Galiel · Wardenclyffe Inc.</small>
+</aside>
+<section class="auth-content">{% with current=gl_lang %}<nav class="auth-languages" aria-label="{% translate 'Language' %}"><a href="?lang=en" lang="en" {% if current == 'en' %}aria-current="page"{% endif %}>EN</a><a href="?lang=es" lang="es" {% if current == 'es' %}aria-current="page"{% endif %}>ES</a><a href="?lang=fr" lang="fr" {% if current == 'fr' %}aria-current="page"{% endif %}>FR</a></nav>{% endwith %}
+<div class="auth-form-content">{% if messages %}{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% endif %}{% block content %}{% endblock %}</div>
+</section></div><script>
+document.querySelectorAll('.auth-languages a').forEach(link => {
+  const url = new URL(window.location.href);
+  url.searchParams.set('lang', link.lang);
+  link.href = url.pathname + url.search + url.hash;
+  link.addEventListener('click', () => {document.cookie = 'galiel_lang='+link.lang+'; Path=/; Max-Age=31536000; Secure; SameSite=Lax';});
+});
+</script><script src="{% static 'portal/galiel-locale.js' %}" defer></script></body></html>

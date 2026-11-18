@@ -1,16 +1,7 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Messages · Galiel</title>
-<style>
-:root{--dark:#211c19;--border:#e9dbcf;--muted:#74685f}*{box-sizing:border-box}
-body{margin:0;background:#f6f1ea;color:#211c19;font-family:system-ui,-apple-system,sans-serif}
-main{max-width:930px;margin:5vh auto;padding:20px}h1{font:normal clamp(32px,5vw,48px) Georgia,serif}
-a{color:var(--dark)}.back{font-size:14px}.card{background:white;border:1px solid var(--border);border-radius:17px;padding:25px;margin:17px 0}
-label{display:block;font-weight:600;margin:15px 0 7px}input,textarea{width:100%;padding:12px;border:1px solid #bbc8c0;border-radius:9px;font:inherit}
-button{background:var(--dark);border:0;border-radius:24px;color:white;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer}
-.errorlist{color:#a52820}.muted{color:var(--muted)}.item{display:block;padding:17px 0;border-top:1px solid var(--border);text-decoration:none}
-.item strong{display:block}.item small{color:var(--muted)}.item:hover{text-decoration:underline}
-</style></head><body><main><a class="back" href="{% url 'dashboard' %}#messages">← Back to workspace</a>
+{% extends "portal/workspace_base.html" %}
+{% block title %}messages · Galiel{% endblock %}
+{% block content %}
+<a class="back" href="{% url 'dashboard' %}#messages">← Back to workspace</a>
 <h1>{% if user.is_staff %}Client conversations{% else %}Messages · {{ user.get_full_name|default:user.email }}{% endif %}</h1>
 <p class="muted">Messages are saved in Galiel so you can return to your conversation at any time.</p>
 {% if messages %}{% for notice in messages %}<p role="status">{{ notice }}</p>{% endfor %}{% endif %}
@@ -26,4 +17,6 @@ button{background:var(--dark);border:0;border-radius:24px;color:white;padding:12
 <a class="item" href="{% url 'conversation_detail' conversation.pk %}"><strong>{{ conversation.subject }}</strong>{% if conversation.application %}<small>Process {{ conversation.application.number }}</small>{% endif %}
 <small>{% if user.is_staff %}{{ conversation.client.get_full_name|default:conversation.client.email }} ({{ conversation.client.email }}) · {% endif %}Updated {{ conversation.updated_at|date:"M j, Y, g:i A" }}</small></a>
 {% empty %}<p class="muted">No conversations yet.</p>{% endfor %}
-</section></main></body></html>
+</section>
+
+{% endblock %}

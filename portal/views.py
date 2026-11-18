@@ -21,6 +21,9 @@ from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCo
 from .document_forms import ClientDocumentForm
 from .message_forms import NewConversationForm, ReplyForm
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 SERVICE_LABELS = {
@@ -159,6 +162,7 @@ def register(request):
                     profile.save()
                     send_activation_email(request, user)
             except Exception:
+                logger.exception("Galiel account registration or activation email failed")
                 form.add_error(None, "We couldn't send your confirmation email. Please try again later.")
             else:
                 request.session["registered_email"] = user.email
@@ -231,6 +235,7 @@ def resend_activation(request):
         try:
             send_activation_email(request, user)
         except Exception:
+            logger.exception("Galiel activation email resend failed")
             messages.error(request, "Email delivery is unavailable. Please try again later.")
             return redirect("registration_complete")
     messages.info(request, "If this email has an unverified account, a new link has been sent.")
@@ -402,7 +407,7 @@ def conversation_detail(request, conversation_id):
 @login_required
 def service_catalog(request):
     """Published services only, filtered in country -> region -> municipality order."""
-    locale = request.GET.get("lang", "")
+    locale = request.GET.get("lang") or request.COOKIES.get("galiel_lang", "")
     if locale not in ("en", "es", "fr"):
         try:
             locale = request.user.profile.preferred_language
@@ -438,7 +443,7 @@ def service_catalog(request):
 
 
 def _catalog_locale(request):
-    lang = request.GET.get("lang", "")
+    lang = request.GET.get("lang") or request.COOKIES.get("galiel_lang", "")
     if lang not in ("en", "es", "fr") and request.user.is_authenticated:
         lang = getattr(getattr(request.user, "profile", None), "preferred_language", "en")
     return lang if lang in ("en", "es", "fr") else "en"
@@ -516,3 +521,18 @@ def service_intake(request, offering_id):
         "offering": offering, "locale": _catalog_locale(request),
     })
 
+
+
+def galiel_signature_png(request):
+    """Email-compatible PNG served from the exact canonical homepage signature."""
+    import base64
+    from django.conf import settings
+    from django.http import HttpResponse
+    from django.views.decorators.cache import cache_control
+    from pathlib import Path
+    svg = (Path(settings.BASE_DIR) / "portal" / "static" / "portal" / "galiel-signature.svg").read_text(encoding="utf-8")
+    png = base64.b64decode(svg.split("base64,", 1)[1].split('"', 1)[0])
+    response = HttpResponse(png, content_type="image/png")
+    response["Cache-Control"] = "public, max-age=604800"
+    response["X-Content-Type-Options"] = "nosniff"
+    return response
