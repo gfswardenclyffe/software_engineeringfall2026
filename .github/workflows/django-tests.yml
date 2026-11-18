@@ -21,6 +21,8 @@ jobs:
           .venv/bin/python -m pip install -r requirements.txt
       - name: Generate ephemeral CI-only secret
         run: echo "DJANGO_SECRET_KEY=$(python3 -c 'from secrets import token_urlsafe; print(token_urlsafe(48))')" >> "$GITHUB_ENV"
+      - name: Audit tracked files for private data and known credentials
+        run: python3 scripts/audit_public_tree.py
       - name: Django check
         run: .venv/bin/python manage.py check
       - name: Verify no pricing migration
