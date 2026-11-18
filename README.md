@@ -56,7 +56,7 @@ python manage.py test portal galiel_ops
 
 The operations tests cover client ownership boundaries, draft deletion, alerts, published announcements, account requests and backup allowlists. The real production checkout remains on hold. Before grading, run the entire suite in a fresh isolated environment and retain the complete sanitized output.
 
-The operator reported a production-compatible HostGator run of **95 tests OK** on November 18, 2026; see [testing evidence](docs/testing/README.md) for provenance and instructions. This statement is not a claim that GitHub CI has independently reproduced that run.
+**Verified GitHub Actions:** [99 tests OK](docs/testing/github-actions-99-tests-20261118.md) on November 18, 2026. Separately, the operator reported 95 tests OK on HostGator; see [testing evidence](docs/testing/README.md) for provenance.
 
 ## Documentation
 
@@ -67,6 +67,7 @@ The operator reported a production-compatible HostGator run of **95 tests OK** o
 - [Approved design mockups](docs/mockups/README.md)
 - [EN/ES screenshot index](docs/screenshots/README.md)
 - [Testing and HostGator results](docs/testing/README.md)
+- [Verified GitHub Actions: 99 tests OK](docs/testing/github-actions-99-tests-20261118.md)
 - [Operations and security deployment review](docs/deployment-review.md)
 - [Scoped backup design](docs/daily-backup-scope.md)
 
