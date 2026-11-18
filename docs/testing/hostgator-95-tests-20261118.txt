@@ -1,0 +1,45 @@
+# Galiel - production-compatible test run on HostGator (Python 3.9.25, Django 4.2)
+# Date: 2026-11-18 14:36 UTC - isolated copy of production code + galiel_ops release be87797
+# Command: python manage.py test portal galiel_ops --noinput (isolated test database, no production writes)
+
+Portal migrations: 0001_profile, 0002_profile_client_fields, 0003_profile_safe_defaults, 0004_clientdocument, 0005_messaging, 0006_profile_structured_address, 0007_catalog, 0008_seed_countries, 0009_seed_homepage_catalog, 0010_service_checkout, 0011_contact_leads
+
+Test run: production portal source + isolated schema + clean candidate ops app
+TEST-ONLY: Updated four payment-hold assertions in isolated portal/tests_checkout.py
+Traceback (most recent call last):
+  File "~/galiel-tools/Galiel_Ops_0011_Clean_20261117/.isolated-test-zo3NvHl6/portal/contact_views.py", line 200, in _record_and_notify
+    _send_mail(lead, visitor)
+  File "/usr/lib64/python3.9/unittest/mock.py", line 1092, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/usr/lib64/python3.9/unittest/mock.py", line 1096, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/usr/lib64/python3.9/unittest/mock.py", line 1151, in _execute_mock_call
+    raise effect
+OSError: SMTP offline
+Galiel lead 1: email delivery failure for team_notified
+Traceback (most recent call last):
+  File "~/galiel-tools/Galiel_Ops_0011_Clean_20261117/.isolated-test-zo3NvHl6/portal/contact_views.py", line 200, in _record_and_notify
+    _send_mail(lead, visitor)
+  File "/usr/lib64/python3.9/unittest/mock.py", line 1092, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/usr/lib64/python3.9/unittest/mock.py", line 1096, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/usr/lib64/python3.9/unittest/mock.py", line 1151, in _execute_mock_call
+    raise effect
+  File "~/galiel-tools/Galiel_Ops_0011_Clean_20261117/.isolated-test-zo3NvHl6/portal/contact_views.py", line 200, in _record_and_notify
+    _send_mail(lead, visitor)
+  File "/usr/lib64/python3.9/unittest/mock.py", line 1092, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/usr/lib64/python3.9/unittest/mock.py", line 1096, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/usr/lib64/python3.9/unittest/mock.py", line 1151, in _execute_mock_call
+    raise effect
+OSError: SMTP offline
+.......................................
+----------------------------------------------------------------------
+Ran 95 tests in 7.164s
+
+OK
+Destroying test database for alias 'default'...
+
+# Note: the 'SMTP offline' tracebacks come from a test that simulates an email outage on purpose; that test passes.
