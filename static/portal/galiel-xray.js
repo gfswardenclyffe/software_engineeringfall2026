@@ -53,7 +53,7 @@ const back=btn("← Back",()=>transition(idx-1));back.disabled=idx===0;buttons.a
 const nextAtEnd=idx===data.stops.length-1;const partEnd=idx===currentStops[currentStops.length-1].id-1;
 buttons.append(btn(nextAtEnd?"Finish tour →":partEnd?"Next part →":"Next →",()=>{if(nextAtEnd)render("end");else if(partEnd){transition(idx+1);if(slug(location.pathname)===slug(pageOf(data.stops[idx])||""))render("intro")}else transition(idx+1)},"primary"))}
 buttons.append(btn("× Exit",exit));card.append(buttons);root.append(card);
-document.body.append(root);position(card,rect);if(innerWidth<768){const mobile=h("div","mobile","X-Ray tour is designed for a large screen");mobile.append(btn("× Exit",exit));document.body.append(mobile);root.append(mobile)}
+document.body.append(root);position(card,rect);if(innerWidth<768){const mobile=h("div","mobile","X-Ray tour is designed for a large screen");mobile.append(btn("× Exit",exit));root.append(mobile)}
 const focus=card.querySelector("button:not(:disabled)");focus?.focus();
 }
 function mount(){if(param==="1"&&get(STEP)===null){trigger=btn("Switch on X-Ray",start,"trigger");document.body.append(trigger);return}let n=Number(get(STEP));idx=Number.isInteger(n)&&n>=0&&n<28?n:0;ready=true;render(get(STEP)===null?"intro":"stop");document.addEventListener("keydown",keyboard)}
