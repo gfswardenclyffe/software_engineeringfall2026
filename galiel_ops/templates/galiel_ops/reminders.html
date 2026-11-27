@@ -2,7 +2,7 @@
 {% block title %}Alerts · Galiel{% endblock %}
 {% block content %}
 <div class="eyebrow">Galiel / {% if lang == 'es' %}Avisos{% elif lang == 'fr' %}Alertes{% else %}Alerts{% endif %}</div>
-<h1>{% if lang == 'es' %}Mis avisos{% elif lang == 'fr' %}Mes alertes{% else %}My alerts{% endif %}</h1>
+<h1 data-xray="22">{% if lang == 'es' %}Mis avisos{% elif lang == 'fr' %}Mes alertes{% else %}My alerts{% endif %}</h1>
 <p class="subtitle">{% if lang == 'es' %}Pendientes: {{ unread_count }}{% elif lang == 'fr' %}Non lues : {{ unread_count }}{% else %}Unread: {{ unread_count }}{% endif %}</p>
 {% for alert in items %}
 <article class="galiel-ops-card">
