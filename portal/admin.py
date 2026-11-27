@@ -90,7 +90,7 @@ class ServiceRequirementInline(admin.TabularInline):
 
 @admin.register(ServiceOffering)
 class ServiceOfferingAdmin(admin.ModelAdmin):
-    list_display = ("service", "country", "region", "municipality", "price_type", "price", "currency", "is_published")
+    list_display = ("service", "country", "region", "municipality", "price_type", "base_fee", "price", "currency", "is_published")
     list_filter = ("is_published", "country", "price_type", "currency")
     search_fields = ("service__title_en", "municipality__name_en", "region__name_en")
     list_select_related = ("service", "country", "region", "municipality")
