@@ -5,6 +5,7 @@ requested after a clean dry run. Any unmatched, duplicate, or invalid row
 aborts the entire write transaction.
 """
 import unicodedata
+import hashlib
 from decimal import Decimal, InvalidOperation
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
@@ -13,6 +14,7 @@ from portal.models import ServiceOffering
 HEADERS = ("ID", "Country", "State / region", "Municipality", "Service",
            "Base fee", "Currency", "Pricing", "Included m²", "Per extra m²", "Fee covers")
 COUNTRIES = {"mexico": "MX", "united states": "US", "france": "FR"}
+APPROVED_SHA256 = "24c954415dafdd20b17a012f6d8cc5e12a011f753729bcfc9672e8adb9d20629"
 
 
 def norm(value):
@@ -54,6 +56,13 @@ class Command(BaseCommand):
         parser.add_argument("--expected-rows", type=int, default=107)
 
     def handle(self, *args, **opts):
+        digest = hashlib.sha256()
+        with open(opts["workbook"], "rb") as source:
+            for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(chunk)
+        self.stdout.write(f"WORKBOOK_SHA256={digest.hexdigest()}")
+        if opts["apply"] and digest.hexdigest() != APPROVED_SHA256:
+            raise CommandError("Workbook SHA256 differs from the approved spreadsheet; no writes made.")
         try:
             from openpyxl import load_workbook
         except ImportError as exc:
