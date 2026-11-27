@@ -59,7 +59,7 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 {% if messages %}{% for message in messages %}<div role="status" style="background:#e7f3ea;padding:14px 18px;border-radius:12px;margin-bottom:20px">{{ message }}</div>{% endfor %}{% endif %}
 <section id="overview" class="page active"><div class="eyebrow">Galiel / Client workspace</div><h1>Welcome, {{ user.first_name|default:"there" }}.</h1><p class="subtitle">Your private place to manage services with Wardenclyffe.</p>
 <div data-xray="13" class="stats"><div class="stat"><strong>{{ active_count|stringformat:"02d" }}</strong><span>Active processes</span></div><div class="stat"><strong>{{ document_count|stringformat:"02d" }}</strong><span>Documents</span></div><div class="stat"><strong>{{ payment_count|stringformat:"02d" }}</strong><span>Payments</span></div></div>
-<div class="grid"><article class="card"><h2>Your processes</h2>
+<div class="grid"><article class="card" data-xray="14"><h2>Your processes</h2>
 {% for app in applications|slice:":4" %}
 <p style="padding:13px 0;border-bottom:1px solid var(--line)">
 <a href="{% url 'application_track' app.pk %}"><strong>{{ app.number }} · {{ app.service_title }}</strong></a><br>
@@ -71,7 +71,7 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 {% endfor %}</article>
 <article class="card"><h2>Account & assistance</h2><p class="contact">Your profile stores the contact details you provided when registering. You can review or update them at any time.</p><a class="secondary" href="{% url 'profile' %}">Open my profile →</a><div style="height:1px;background:var(--line);margin:25px 0"></div><h2>Need help?</h2><p class="contact">Contact Wardenclyffe at <a href="mailto:info@wardenclyffefirm.com">info@wardenclyffefirm.com</a>.</p></article></div>
 </section>
-<section data-xray="14" id="processes" class="page">
+<section id="processes" class="page">
 <div class="eyebrow">Your activity</div><h1>My processes</h1>
 <p class="subtitle">Resume a saved draft, respond to a quotation, or follow an active process.</p>
 <div class="card">{% for app in applications %}
