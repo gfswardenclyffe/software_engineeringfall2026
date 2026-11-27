@@ -1,0 +1,389 @@
+{
+  "version": 1,
+  "settings": {
+    "demo_process_id": null,
+    "github_repository": "https://github.com/gfswardenclyffe/software_engineeringfall2026/blob/main/"
+  },
+  "parts": [
+    {
+      "id": 1,
+      "name": "Homepage",
+      "intro": "How Galiel works, in 28 stops",
+      "description": "We follow one visitor from the homepage, into the client portal, down to the database and over to the staff side. Each number marks a part of the page; colors show which layer of the software it belongs to.",
+      "route": "/"
+    },
+    {
+      "id": 2,
+      "name": "Accounts",
+      "intro": "Part 2: Accounts",
+      "description": "How a visitor becomes a client: registration, email confirmation and signing in.",
+      "route": "/register/"
+    },
+    {
+      "id": 3,
+      "name": "Client dashboard",
+      "intro": "Part 3: The client dashboard",
+      "description": "What a signed-in client sees first, and how the page makes sure each client only ever sees their own data.",
+      "route": "/dashboard/"
+    },
+    {
+      "id": 4,
+      "name": "A process",
+      "intro": "Part 4: A process, step by step",
+      "description": "What happens when a client starts a service and uploads documents: the core of Galiel.",
+      "route": "/services/applications/{demo_process_id}/step/3/"
+    },
+    {
+      "id": 5,
+      "name": "Alerts and news",
+      "intro": "Part 5: Alerts and news",
+      "description": "How Galiel keeps clients informed without anyone sending messages by hand.",
+      "route": "/alerts/"
+    },
+    {
+      "id": 6,
+      "name": "The staff side",
+      "intro": "Part 6: The staff side",
+      "description": "The other half of Galiel: how the team manages every process from one back office.",
+      "route": "/admin/portal/serviceapplication/{demo_process_id}/change/"
+    }
+  ],
+  "stops": [
+    {
+      "id": 1,
+      "part": 1,
+      "layer": "infra",
+      "title": "A ready-made homepage",
+      "body": "The public homepage is a finished HTML file. The web server sends it as is, so it loads instantly and needs no database.",
+      "tech": "index.html · served directly by Apache",
+      "github_path": "portal/templates/portal/home.html",
+      "target": "header",
+      "page": "/",
+      "panel": false
+    },
+    {
+      "id": 2,
+      "part": 1,
+      "layer": "template",
+      "title": "Three languages",
+      "body": "Every label exists in English, Spanish and French. A small script swaps the words in the browser, without reloading the page.",
+      "tech": "portal/static/portal/galiel-locale.js",
+      "github_path": "portal/static/portal/galiel-locale.js",
+      "target": "[data-lang], .language-switcher",
+      "page": "/",
+      "panel": false
+    },
+    {
+      "id": 3,
+      "part": 1,
+      "layer": "view",
+      "title": "Routing: one address, one function",
+      "body": "Each web address points to one Python function. \"Find a service\" opens /services/, which runs the catalog view and decides what this visitor may see.",
+      "tech": "portal/urls.py → views.service_catalog",
+      "github_path": "portal/urls.py",
+      "target": "a[href*='services']",
+      "page": "/",
+      "panel": false
+    },
+    {
+      "id": 4,
+      "part": 1,
+      "layer": "model",
+      "title": "How the catalog is stored",
+      "body": "Locations are a hierarchy: country → state → city. Each service is offered in a specific place, with its own requirements and documents.",
+      "tech": "CatalogCountry → CatalogRegion → CatalogMunicipality → ServiceOffering",
+      "github_path": "portal/models.py",
+      "target": ".countries, .country-grid",
+      "page": "/",
+      "panel": false
+    },
+    {
+      "id": 5,
+      "part": 1,
+      "layer": "view",
+      "title": "Sign in and security",
+      "body": "Passwords are stored hashed, never as plain text. New accounts must confirm their email, and every private page checks who is signed in before showing anything.",
+      "tech": "Django auth · @login_required · portal/verification.py",
+      "github_path": "portal/verification.py",
+      "target": "a[href*='login']",
+      "page": "/",
+      "panel": false
+    },
+    {
+      "id": 6,
+      "part": 1,
+      "layer": "template",
+      "title": "The design layer",
+      "body": "Pages are HTML templates styled with CSS. The signature is a vector drawing animated stroke by stroke, and the moving banner stops for people who prefer less motion.",
+      "tech": "Django templates · SVG · CSS animation",
+      "github_path": "portal/templates/portal/home.html",
+      "target": ".galiel-signature, .signature",
+      "page": "/",
+      "panel": false
+    },
+    {
+      "id": 7,
+      "part": 1,
+      "layer": "infra",
+      "title": "The trip of one click",
+      "body": "The browser asks Apache. Apache hands the request to Django through FastCGI. Django reads SQLite, fills a template and sends the finished page back.",
+      "tech": "HostGator Linux · Apache · FastCGI · Django 4.2 · SQLite",
+      "github_path": "manage.py",
+      "target": null,
+      "page": "/",
+      "panel": true
+    },
+    {
+      "id": 8,
+      "part": 1,
+      "layer": "process",
+      "title": "How it was built",
+      "body": "Agile: short rounds, each ending in a working release. 99 automated tests run on every change, and every release had a backup and a one-command undo.",
+      "tech": "GitHub Actions · 99 tests · dry-run, backup, rollback",
+      "github_path": ".github/workflows/django-tests.yml",
+      "target": null,
+      "page": "/",
+      "panel": true
+    },
+    {
+      "id": 9,
+      "part": 2,
+      "layer": "model",
+      "title": "Registration creates two records",
+      "body": "Submitting the form creates a User (login and hashed password) and, automatically, a Profile with phone, company and language. The account starts inactive.",
+      "tech": "views.register · Profile created by portal/signals.py",
+      "github_path": "portal/views.py",
+      "target": "form",
+      "page": "/register/",
+      "panel": false
+    },
+    {
+      "id": 10,
+      "part": 2,
+      "layer": "infra",
+      "title": "Email activation",
+      "body": "Galiel emails a one-use link with a signed token. Clicking it activates the account; an old or altered link is rejected.",
+      "tech": "portal/verification.py · default_token_generator · views.activate_account",
+      "github_path": "portal/verification.py",
+      "target": null,
+      "page": "/register/",
+      "panel": true
+    },
+    {
+      "id": 11,
+      "part": 2,
+      "layer": "view",
+      "title": "Sign in remembers what you wanted",
+      "body": "If a visitor picked a service before signing in, the login view remembers it and continues there; otherwise it opens the dashboard.",
+      "tech": "ServiceAwareLoginView · _capture_pending_service",
+      "github_path": "portal/views.py",
+      "target": "form",
+      "page": "/login/",
+      "panel": false
+    },
+    {
+      "id": 12,
+      "part": 3,
+      "layer": "template",
+      "title": "One shared workspace frame",
+      "body": "Every portal page reuses the same header, draft banner and 01–09 tabs from one base template, so a change is made once and appears everywhere. On phones the tabs become a swipeable row.",
+      "tech": "workspace_base.html · _workspace_header.html · galiel-workspace.css",
+      "github_path": "portal/templates/portal/workspace_base.html",
+      "target": ".ws-header",
+      "page": "/dashboard/",
+      "panel": false
+    },
+    {
+      "id": 13,
+      "part": 3,
+      "layer": "model",
+      "title": "Counts that only see your data",
+      "body": "Each number is a database query filtered by the signed-in client. A client can never count, or see, another client’s processes or files.",
+      "tech": "ServiceApplication.objects.filter(client=request.user)",
+      "github_path": "portal/views.py",
+      "target": ".stats, .ws-stats",
+      "page": "/dashboard/",
+      "panel": false
+    },
+    {
+      "id": 14,
+      "part": 3,
+      "layer": "view",
+      "title": "Processes and the GAL number",
+      "body": "Each process gets a readable number (GAL-000006) and a status. The banner on top always points to the next unfinished step.",
+      "tech": "views.dashboard · ServiceApplication.status",
+      "github_path": "portal/views.py",
+      "target": "#processes",
+      "page": "/dashboard/",
+      "panel": false
+    },
+    {
+      "id": 15,
+      "part": 3,
+      "layer": "view",
+      "title": "A scripted help assistant (no AI)",
+      "body": "The ? button offers fixed questions. Answers come from the catalog and from this client’s own processes, never from anyone else’s.",
+      "tech": "galiel_ops/static/galiel_ops/help.js · views.help_my_processes",
+      "github_path": "galiel_ops/static/galiel_ops/help.js",
+      "target": ".galiel-help",
+      "page": "/dashboard/",
+      "panel": false
+    },
+    {
+      "id": 16,
+      "part": 4,
+      "layer": "view",
+      "title": "Starting a process",
+      "body": "Choosing a service creates a ServiceApplication in Draft and logs its first event. The process then moves through six numbered steps.",
+      "tech": "workflow_views.application_start · ApplicationEvent",
+      "github_path": "portal/workflow_views.py",
+      "target": "h1",
+      "page": "/services/applications/{demo_process_id}/step/3/",
+      "panel": false
+    },
+    {
+      "id": 17,
+      "part": 4,
+      "layer": "view",
+      "title": "Six steps with autosave",
+      "body": "Answers are saved in the background as the client types, so nothing is lost. Once staff send a quote, the answers lock and can no longer change.",
+      "tech": "application_step · application_autosave",
+      "github_path": "portal/workflow_views.py",
+      "target": ".galiel-flow-panel",
+      "page": "/services/applications/{demo_process_id}/step/3/",
+      "panel": false
+    },
+    {
+      "id": 18,
+      "part": 4,
+      "layer": "view",
+      "title": "Every upload is checked",
+      "body": "The server reads the first bytes of each file to confirm it is really a PDF, JPG or PNG, and rejects anything over 10 MB, even if the name says .pdf.",
+      "tech": "workflow_views._verify_file · application_upload",
+      "github_path": "portal/workflow_views.py",
+      "target": ".galiel-upload",
+      "page": "/services/applications/{demo_process_id}/step/3/",
+      "panel": false
+    },
+    {
+      "id": 19,
+      "part": 4,
+      "layer": "infra",
+      "title": "Files kept outside the website",
+      "body": "Uploaded files are saved in a private folder that the web server cannot publish. They download only through a view that checks login and ownership.",
+      "tech": "DJANGO_PRIVATE_MEDIA_ROOT · application_download",
+      "github_path": "portal/workflow_views.py",
+      "target": ".galiel-doc-row",
+      "page": "/services/applications/{demo_process_id}/step/3/",
+      "panel": false
+    },
+    {
+      "id": 20,
+      "part": 4,
+      "layer": "model",
+      "title": "A status with a history",
+      "body": "A process moves from Draft to Ready through 11 statuses. Every change is recorded with who and when, so clients and staff see the same timeline.",
+      "tech": "ServiceApplication.STATUS · ApplicationEvent",
+      "github_path": "portal/models.py",
+      "target": ".eyebrow",
+      "page": "/services/applications/{demo_process_id}/step/3/",
+      "panel": false
+    },
+    {
+      "id": 21,
+      "part": 5,
+      "layer": "view",
+      "title": "The bell",
+      "body": "The bell asks the server for the number of unread alerts and shows it as a small count. It is a tiny view that returns only that number.",
+      "tech": "galiel_ops.views.unread_count · /alerts/count/",
+      "github_path": "galiel_ops/views.py",
+      "target": ".ws-bell, .ws-header-bell",
+      "page": "/alerts/",
+      "panel": false
+    },
+    {
+      "id": 22,
+      "part": 5,
+      "layer": "model",
+      "title": "Alerts create themselves",
+      "body": "When staff change a process to “Missing documents” or “Quote ready”, a signal creates an alert for that client in three languages. Nobody writes it by hand.",
+      "tech": "galiel_ops/signals.py · Reminder",
+      "github_path": "galiel_ops/signals.py",
+      "target": "main",
+      "page": "/alerts/",
+      "panel": false
+    },
+    {
+      "id": 23,
+      "part": 5,
+      "layer": "infra",
+      "title": "Daily jobs on the server",
+      "body": "Every morning a scheduled job sends email copies for due dates; every night another backs up the database and client files, keeping 14 days.",
+      "tech": "cron · galiel_due_alerts · galiel_daily_backup --keep 14",
+      "github_path": "galiel_ops/management/commands/galiel_due_alerts.py",
+      "target": null,
+      "page": "/alerts/",
+      "panel": true
+    },
+    {
+      "id": 24,
+      "part": 5,
+      "layer": "model",
+      "title": "News & updates",
+      "body": "Staff post announcements with titles in English, Spanish and French, a publish date and an expiry date. Expired or future news never shows.",
+      "tech": "Announcement · announcement_list",
+      "github_path": "galiel_ops/models.py",
+      "target": "main",
+      "page": "/updates/",
+      "panel": false
+    },
+    {
+      "id": 25,
+      "part": 6,
+      "layer": "view",
+      "title": "The staff back office",
+      "body": "Staff manage clients, services, prices and processes from Django’s built-in admin, customized for Galiel. Clients can never open it.",
+      "tech": "portal/admin.py · galiel_ops/admin.py · /admin/",
+      "github_path": "portal/admin.py",
+      "target": "#content-main",
+      "page": "/admin/portal/serviceapplication/{demo_process_id}/change/",
+      "panel": false
+    },
+    {
+      "id": 26,
+      "part": 6,
+      "layer": "model",
+      "title": "One change, three effects",
+      "body": "Setting the status to “Missing documents” and saving creates the client’s alert, emails a copy, and re-opens uploads for that client.",
+      "tech": "galiel_ops/signals.py · Reminder · application_upload",
+      "github_path": "galiel_ops/signals.py",
+      "target": "select[name='status']",
+      "page": "/admin/portal/serviceapplication/{demo_process_id}/change/",
+      "panel": false
+    },
+    {
+      "id": 27,
+      "part": 6,
+      "layer": "view",
+      "title": "Clear roles",
+      "body": "Staff and clients are separate roles. Staff cannot create client applications, and clients cannot see staff pages or other clients’ data.",
+      "tech": "is_staff checks · @login_required · client=request.user",
+      "github_path": "portal/workflow_views.py",
+      "target": ".inline-group",
+      "page": "/admin/portal/serviceapplication/{demo_process_id}/change/",
+      "panel": false
+    },
+    {
+      "id": 28,
+      "part": 6,
+      "layer": "model",
+      "title": "Conversations",
+      "body": "Each process can have one conversation thread between the client and staff, so every question stays attached to its case.",
+      "tech": "ClientConversation · ClientMessage",
+      "github_path": "portal/models.py",
+      "target": ".inline-group",
+      "page": "/admin/portal/serviceapplication/{demo_process_id}/change/",
+      "panel": false
+    }
+  ]
+}

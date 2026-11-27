@@ -3,7 +3,7 @@
 {% block title %}Galiel · {{ application.number }}{% endblock %}
 {% block content %}
 {% galiel_locale as gl_lang %}
-<div class="eyebrow">{{ application.number }} · {{ application.get_status_display }}</div>
+<div data-xray="16" class="eyebrow">{{ application.number }} · {{ application.get_status_display }}</div>
 <h1>{{ service_name }}</h1>
 <p class="muted">{{ place_name }} · {{ application.currency }}</p>
 <nav class="galiel-steps" aria-label="Application progress">
@@ -16,7 +16,7 @@
 </nav>
 {% for notice in messages %}<p class="notice" role="status">{{ notice }}</p>{% endfor %}
 {% if step == 1 %}
-<section class="panel galiel-flow-panel">
+<section data-xray="17" class="panel galiel-flow-panel">
   <h2>{% ui "Your service" %}</h2>
   <p>{{ place_name }}</p>
   <p>{% if gl_lang == 'es' %}{{ offering.service.description_es }}{% elif gl_lang == 'fr' %}{{ offering.service.description_fr }}{% else %}{{ offering.service.description_en }}{% endif %}</p>
@@ -53,10 +53,10 @@
   <h2>{% ui "Required documents" %}</h2>
   <p class="muted">{% ui "Upload a PDF, JPG or PNG (maximum 10 MB)." %}</p>
   {% for requirement,document in requirements %}
-    <div class="galiel-doc-row">
+    <div data-xray="19" class="galiel-doc-row">
       <div><strong>{% if gl_lang == 'es' %}{{ requirement.label_es }}{% elif gl_lang == 'fr' %}{{ requirement.label_fr }}{% else %}{{ requirement.label_en }}{% endif %}{% if requirement.is_required %} *{% endif %}</strong>
       {% if document %}<small>{{ document.original_filename }} · {{ document.get_review_status_display }}</small>{% else %}<small>{% if gl_lang == 'es' %}Pendiente{% elif gl_lang == 'fr' %}En attente{% else %}Not uploaded{% endif %}</small>{% endif %}</div>
-      <form method="post" enctype="multipart/form-data" action="{% url 'application_upload' application.pk requirement.pk %}" class="galiel-upload">{% csrf_token %}
+      <form data-xray="18" method="post" enctype="multipart/form-data" action="{% url 'application_upload' application.pk requirement.pk %}" class="galiel-upload">{% csrf_token %}
       <input name="file" aria-label="Choose document" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required>
       <button class="galiel-secondary" type="submit">{% ui "Upload file" %} →</button></form>
       {% if document %}<a href="{% url 'application_download' application.pk document.pk %}" class="galiel-secondary">{% ui "Download" %}</a>{% endif %}

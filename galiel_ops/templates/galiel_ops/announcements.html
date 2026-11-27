@@ -2,7 +2,7 @@
 {% block title %}News & updates · Galiel{% endblock %}
 {% block content %}
 <div class="eyebrow">Galiel / {% if lang == "es" %}Novedades{% elif lang == "fr" %}Actualités{% else %}News{% endif %}</div>
-<h1>{% if lang == "es" %}Noticias y actualizaciones{% elif lang == "fr" %}Actualités et mises à jour{% else %}News & updates{% endif %}</h1>
+<h1 data-xray="24">{% if lang == "es" %}Noticias y actualizaciones{% elif lang == "fr" %}Actualités et mises à jour{% else %}News & updates{% endif %}</h1>
 <p class="subtitle">{% if lang == "es" %}Información vigente sobre nuestros servicios administrativos.{% elif lang == "fr" %}Informations à jour sur nos services administratifs.{% else %}Current information about our administrative services.{% endif %}</p>
 <nav class="galiel-ops-filters" aria-label="Filter by category">
 <a href="{% url 'galiel_announcements' %}" {% if not category %}aria-current="page"{% endif %}>{% if lang == "es" %}Todas{% elif lang == "fr" %}Toutes{% else %}All{% endif %}</a>

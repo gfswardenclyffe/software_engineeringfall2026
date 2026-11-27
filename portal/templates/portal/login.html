@@ -1,7 +1,7 @@
 {% extends "portal/auth_base.html" %}{% block title %}Sign in · Galiel{% endblock %}{% block content %}
 <div class="eyebrow">Your client space / Sign in</div><h1>Welcome back.</h1><p class="sub">Sign in to access your account, documents, and service updates.</p>
 {% if pending_service_label %}<div class="notice"><strong>Selected service:</strong> {{ pending_service_label }}</div>{% endif %}
-<form method="post" autocomplete="on">{% csrf_token %}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}{% if pending_service %}<input type="hidden" name="service" value="{{ pending_service }}">{% endif %}{{ form.as_p }}
+<form data-xray="11" method="post" autocomplete="on">{% csrf_token %}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}{% if pending_service %}<input type="hidden" name="service" value="{{ pending_service }}">{% endif %}{{ form.as_p }}
 <button class="action" type="submit">Sign in →</button></form>
 <p class="links"><a href="{% url 'password_reset' %}">Forgot your password?</a><br>
 New to Galiel? <a href="{% url 'register' %}{% if pending_service %}?service={{ pending_service|urlencode }}{% endif %}">Create an account</a><br>

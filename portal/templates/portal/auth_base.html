@@ -2,7 +2,7 @@
 {% galiel_locale as gl_lang %}
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}Galiel · Account{% endblock %}</title>
 <link rel="stylesheet" href="{% static 'portal/galiel-pages.css' %}">
-<link rel="icon" href="{% static 'portal/galiel-signature-dark.svg' %}" type="image/svg+xml"></head>
+<link rel="icon" href="{% static 'portal/galiel-signature-dark.svg' %}" type="image/svg+xml"><link rel="stylesheet" href="{% static 'portal/galiel-xray.css' %}"></head>
 <body class="galiel-auth"><div class="auth-layout">
 <aside class="auth-brand">
 <a href="{% url 'login' %}" class="auth-logo" aria-label="Galiel by Wardenclyffe"><img src="{% static 'portal/galiel-signature-light.svg' %}" alt="Galiel"><span>by WARDENCLYFFE</span></a>
@@ -19,4 +19,4 @@ document.querySelectorAll('.auth-languages a').forEach(link => {
   link.href = url.pathname + url.search + url.hash;
   link.addEventListener('click', () => {document.cookie = 'galiel_lang='+link.lang+'; Path=/; Max-Age=31536000; Secure; SameSite=Lax';});
 });
-</script><script src="{% static 'portal/galiel-locale.js' %}" defer></script></body></html>
+</script><script src="{% static 'portal/galiel-locale.js' %}" defer></script><script src="{% static 'portal/galiel-xray.js' %}" defer></script></body></html>
