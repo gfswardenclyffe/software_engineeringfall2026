@@ -1,55 +1,62 @@
-/* Galiel X-Ray: opt-in, read-only walkthrough of real application pages.
-   No customer data is collected or transmitted. */
+/* Galiel X-Ray presenter mode. Vanilla JS; silent and inert without opt-in. */
 (()=>{"use strict";
-const stops=[
-["Homepage","Ready-made homepage","The public page is served by Apache without a database query.","INFRASTRUCTURE","/","header"],
-["Homepage","Three languages","The language switcher makes the interface available in English, Spanish and French.","TEMPLATE","/","header"],
-["Homepage","Routing","Services opens the Django catalog and applies the visitor's access rules.","VIEW","/","a[href*='services']"],
-["Homepage","Catalog hierarchy","Country, region, municipality and service determine each offering.","MODEL","/services/","#country"],
-["Homepage","Sign-in security","Django stores hashed passwords and protects private views.","VIEW","/login/","form"],
-["Homepage","Real Galiel design","The actual page uses the Galiel signature and its shared styling; no placeholder wordmark is inserted.","TEMPLATE","/","header"],
-["Homepage","Request journey","Browser → Apache → FastCGI → Django → SQLite.","INFRASTRUCTURE","/","main"],
-["Homepage","Agile releases","Changes are tested, reviewed and deployed with a database backup and rollback plan.","PROCESS","/","main"],
-["Accounts","Registration records","A registration creates a User and an associated Profile.","MODEL","/register/","form"],
-["Accounts","Email activation","Activation uses a signed, expiring token.","INFRASTRUCTURE","/register/","form"],
-["Accounts","Service-aware login","After authentication the client resumes a chosen service or enters their workspace.","VIEW","/login/","form"],
-["Client dashboard","Shared workspace","The same header, navigation and visual system appear throughout the portal.","TEMPLATE","/dashboard/","header"],
-["Client dashboard","Private counts","Dashboard totals are filtered by the authenticated client.","MODEL","/dashboard/","main"],
-["Client dashboard","GAL process number","Cases have a readable GAL reference, status and next step.","VIEW","/dashboard/","main"],
-["Client dashboard","Scripted assistance","Help follows predefined choices, without accessing other clients' cases.","VIEW","/dashboard/","[data-help], #galiel-help, main"],
-["A process","Create a draft","Starting a service creates a draft application and an initial event.","VIEW","/services/","main"],
-["A process","Six-stage workflow","The application guides the client through details, questions, documents and review.","VIEW","/services/","main"],
-["A process","File validation","Uploads check file content and enforce a 10 MB limit.","VIEW","/documents/upload/","main"],
-["A process","Private file storage","Client documents remain outside public static files and require authorization to download.","INFRASTRUCTURE","/documents/upload/","main"],
-["A process","Process status history","Status changes are represented as application events.","MODEL","/dashboard/","main"],
-["Alerts and news","Unread bell","Only the signed-in client's unread reminder count is returned.","VIEW","/alerts/","main"],
-["Alerts and news","Automatic alerts","Eligible status transitions produce client reminders.","MODEL","/alerts/","main"],
-["Alerts and news","Scheduled jobs","Scheduled tasks can deliver reminders and create private backups.","INFRASTRUCTURE","/alerts/","main"],
-["Alerts and news","Announcements","Publishing windows control the visibility of staff-authored announcements.","MODEL","/updates/","main"],
-["The staff side","Django administration","Authorized employees manage services, applications and records through Django Admin.","VIEW","/admin/","main"],
-["The staff side","Status changes","Staff updates can create an event, notification and next action.","MODEL","/admin/","main"],
-["The staff side","Access control","Clients cannot access Django Admin, and staff permissions are checked on the server.","VIEW","/admin/","main"],
-["The staff side","Conversations","Client conversations keep correspondence attached to the right process.","MODEL","/messages/","main"]
-];
-const colors={MODEL:"#5b8def",VIEW:"#e8875a",TEMPLATE:"#4cc08a",INFRASTRUCTURE:"#a98be6",PROCESS:"#e3c35a"};
-const key="galiel-xray-step";let active=false,index=0,backdrop=null,anchor=null;
-const norm=p=>p.replace(/\/+$/,"")||"/";
-function findTarget(s){for(const selector of s.split(", ")){const el=document.querySelector(selector);if(el)return el;}return document.body;}
-function ui(){if(backdrop)return;const style=document.createElement("style");style.textContent=`
-.gx-trigger{position:fixed;right:18px;bottom:18px;z-index:9990;background:#06121c;color:#fff;border:2px solid #7fe3ff;padding:12px 17px;border-radius:24px;font:700 14px system-ui;cursor:pointer;box-shadow:0 0 20px #7fe3ff77}
-.gx-layer{position:fixed;inset:0;z-index:9991;background:rgba(5,13,24,.78);backdrop-filter:grayscale(1) contrast(1.2);color:#fff;font-family:Inter,system-ui,sans-serif}
-.gx-layer:before{content:"";position:absolute;inset:0;border-top:3px solid #7fe3ff;animation:gx-scan 1.3s ease-out both;pointer-events:none}
-@keyframes gx-scan{from{top:0}to{top:100%}}@media(prefers-reduced-motion:reduce){.gx-layer:before{animation:none}}
-.gx-target{position:fixed;z-index:9992;border:3px solid #7fe3ff;box-shadow:0 0 0 9999px #06121c33,0 0 25px #7fe3ff88;pointer-events:none;border-radius:8px}
-.gx-card{position:fixed;z-index:9993;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;padding:23px;background:#101012;border:1px solid #dc7444;border-radius:12px;box-sizing:border-box}
-.gx-meta{font:700 12px system-ui;letter-spacing:.1em;color:#9edffe}.gx-card h2{font:800 22px system-ui;margin:12px 0}.gx-card p{line-height:1.55;color:#e9e9ec}.gx-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.gx-actions button{font:700 14px system-ui;padding:11px 16px;border:1px solid #777;border-radius:24px;cursor:pointer;background:#dc7444;color:#111}.gx-actions button.secondary{background:transparent;color:white}.gx-card button:focus-visible,.gx-trigger:focus-visible{outline:3px solid #7fe3ff;outline-offset:3px}
-`;document.head.append(style);const trigger=document.createElement("button");trigger.type="button";trigger.className="gx-trigger";trigger.textContent="Switch on X-Ray";trigger.setAttribute("aria-label","Switch on X-Ray presentation tour");trigger.addEventListener("click",()=>start(0));document.body.append(trigger);}
-function close(){active=false;sessionStorage.removeItem("galiel-xray-enabled");sessionStorage.removeItem(key);backdrop?.remove();anchor?.remove();backdrop=anchor=null;document.querySelector(".gx-trigger").hidden=false;document.removeEventListener("keydown",keys);}
-function start(n){index=n;active=true;document.querySelector(".gx-trigger").hidden=true;document.addEventListener("keydown",keys);show();}
-function go(n){if(n>=stops.length){close();return;}if(n<0)n=0;index=n;const next=stops[n];sessionStorage.setItem(key,String(n));show();}
-function keys(e){if(e.key==="Escape")close();else if(e.key==="ArrowRight"){e.preventDefault();go(index+1);}else if(e.key==="ArrowLeft"){e.preventDefault();go(index-1);}}
-function show(){backdrop?.remove();anchor?.remove();const [part,title,body,kind,path,selector]=stops[index];backdrop=document.createElement("div");backdrop.className="gx-layer";backdrop.setAttribute("role","presentation");document.body.append(backdrop);const samePage=norm(location.pathname)===norm(path);const t=samePage?findTarget(selector):null;const r=t?t.getBoundingClientRect():{top:0,left:0,width:0,height:0};anchor=document.createElement("div");anchor.className="gx-target";if(!samePage)anchor.hidden=true;anchor.style.cssText=`top:${Math.max(0,r.top-5)}px;left:${Math.max(0,r.left-5)}px;width:${Math.min(innerWidth-r.left,Math.max(20,r.width+10))}px;height:${Math.min(innerHeight-r.top,Math.max(20,r.height+10))}px`;document.body.append(anchor);
-const card=document.createElement("section");card.className="gx-card";card.setAttribute("role","dialog");card.setAttribute("aria-modal","true");card.setAttribute("aria-labelledby","gx-title");const meta=document.createElement("div");meta.className="gx-meta";meta.style.color=colors[kind];meta.textContent=`X-RAY TOUR · ${part} · ${kind} · ${index+1} / 28`;const h=document.createElement("h2");h.id="gx-title";h.textContent=title;const p=document.createElement("p");p.textContent=body;const nav=document.createElement("div");nav.className="gx-actions";function button(label,fn,secondary=false){const b=document.createElement("button");b.type="button";b.textContent=label;b.className=secondary?"secondary":"";b.onclick=fn;nav.append(b);return b;}button("← Back",()=>go(index-1),true).disabled=index===0;button(index===27?"Finish tour":"Next →",()=>go(index+1));button("× Exit",close,true);if(!samePage){const note=document.createElement("p");note.textContent="This stop describes "+path+". Open the actual page separately to inspect it; the tour stays here.";const link=document.createElement("a");link.href=path;link.target="_blank";link.rel="noopener";link.textContent="Open corresponding Galiel page";link.style.color="#7fe3ff";card.append(note,link);}card.append(meta,h,p,nav);backdrop.append(card);card.querySelector("button:not([disabled])").focus();}
-document.addEventListener("DOMContentLoaded",()=>{if(new URLSearchParams(location.search).get("xray")!=="1"&&sessionStorage.getItem("galiel-xray-enabled")!=="1")return;sessionStorage.setItem("galiel-xray-enabled","1");ui();const stored=sessionStorage.getItem(key);if(stored!==null){const n=Number(stored);if(Number.isInteger(n)&&n>=0&&n<28)start(n);}});
+const KEY="galiel:xray", STEP="galiel:xray:step";
+const COLORS={model:"#5b8def",view:"#e8875a",template:"#4cc08a",infra:"#a98be6",process:"#e3c35a"};
+const NAMES={model:"Model",view:"View",template:"Template",infra:"Infrastructure",process:"Process"};
+const ROOT="/static/portal/";const GITHUB="https://github.com/gfswardenclyffe/software_engineeringfall2026/blob/main/";
+const get=(k)=>{try{return sessionStorage.getItem(k)}catch(_){return null}};
+const put=(k,v)=>{try{sessionStorage.setItem(k,v)}catch(_){}};
+const del=k=>{try{sessionStorage.removeItem(k)}catch(_){}};
+const param=new URLSearchParams(location.search).get("xray");
+if(param==="0"){del(KEY);del(STEP);return}
+if(param!=="1"&&get(KEY)!=="1")return;
+put(KEY,"1");
+let data=null,idx=0,root=null,trigger=null,card=null,anchor=null,timer=null,ready=false;
+const h=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className="gx-"+cls;if(text!==undefined)x.textContent=text;return x};
+const btn=(label,fn,cls)=>{const x=h("button",cls||"",label);x.type="button";x.addEventListener("click",fn);return x};
+const slug=p=>p.replace(/\/+$/,"")||"/";
+const targetOf=s=>{const exact=document.querySelector('[data-xray="'+s.id+'"]');if(exact)return exact;try{return s.target?document.querySelector(s.target):null}catch(_){return null}};
+const pageOf=s=>{let url=s.page;if(url.includes("{demo_process_id}")){const id=data.settings.demo_process_id;if(!id)return null;url=url.replace("{demo_process_id}",String(id))}return url};
+function remove(){if(timer){clearTimeout(timer);timer=null}root?.remove();root=null;anchor=null;card=null}
+function exit(){del(KEY);del(STEP);if(root){root.classList.add("gx-scanning-up");const duration=matchMedia("(prefers-reduced-motion: reduce)").matches?0:1100;setTimeout(()=>{remove();trigger?.remove();trigger=null},duration)}else{trigger?.remove();trigger=null}document.removeEventListener("keydown",keyboard)}
+function position(el,rect){const w=innerWidth,hh=innerHeight,cw=Math.min(400,w-32),height=el.offsetHeight||260;
+const right=rect?rect.right+24:Math.round((w-cw)/2);
+const left=rect?(right+cw<w-14?right:rect.left-cw-24>10?rect.left-cw-24:Math.round((w-cw)/2)):Math.round((w-cw)/2);
+let top=rect?rect.top:Math.round((hh-height)/2);top=Math.min(Math.max(70,top),Math.max(70,hh-height-10));
+el.style.left=left+"px";el.style.top=top+"px"}
+function currentPart(){return data.parts.find(p=>p.id===data.stops[idx].part)}
+function transition(next){if(next<0)next=0;if(next>=data.stops.length){idx=27;render("end");return}
+const dest=data.stops[next],route=pageOf(dest);idx=next;put(STEP,String(idx));
+if(route&&slug(location.pathname)!==slug(route)){location.href=route+(route.includes("?")?"&":"?")+"xray=1";return}
+render("stop")}
+function keyboard(e){if(!ready)return;if(e.key==="Escape"){e.preventDefault();exit()}else if(e.key==="ArrowRight"){e.preventDefault();transition(idx+1)}else if(e.key==="ArrowLeft"){e.preventDefault();transition(idx-1)}}
+function start(){trigger?.remove();trigger=null;ready=true;render("intro");document.addEventListener("keydown",keyboard)}
+function render(mode){
+remove();
+const s=data.stops[idx],p=currentPart(),path=pageOf(s),onPage=!!path&&slug(path)===slug(location.pathname),el=onPage?targetOf(s):null;
+if(el&&typeof el.scrollIntoView==="function")el.scrollIntoView({behavior:"instant",block:"center"});
+root=h("div","shell");root.setAttribute("aria-label","X-Ray presentation tour");const wash=h("div","wash");root.append(wash);
+root.append(h("div","scan"));const top=h("header","bar");const label=h("strong","brand","X-RAY TOUR · PART "+p.id+" OF 6 · "+p.name.toUpperCase());top.append(label);
+const legend=h("div","key");for(const layer of ["model","view","template","infra","process"]){const t=h("span","key-item");const dot=h("i","dot");dot.style.background=COLORS[layer];t.append(dot,document.createTextNode(NAMES[layer]));legend.append(t)}top.append(legend);
+const end=h("div","end");end.append(h("span","counter","Stop "+s.id+" of 28"));end.append(btn("×",exit,"exit"));top.append(end);root.append(top);
+const bones=h("div","bones");const currentStops=data.stops.filter(x=>x.part===p.id);for(const x of currentStops){const route=pageOf(x);if(!route||slug(location.pathname)!==slug(route))continue;const t=targetOf(x);if(!t)continue;const r=t.getBoundingClientRect();if(r.width<1||r.height<1)continue;const bone=h("div","bone");Object.assign(bone.style,{left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px"});const tech=h("small","",x.tech.split(" · ")[0].split(" → ")[0]);bone.append(tech);bones.append(bone);
+const marker=btn(String(x.id),()=>transition(x.id-1),"marker");marker.style.setProperty("--gx-color",COLORS[x.layer]);marker.setAttribute("aria-label","Jump to stop "+x.id+": "+x.title);marker.setAttribute("aria-current",String(x.id===s.id));Object.assign(marker.style,{left:Math.max(8,r.left-16)+"px",top:Math.max(60,r.top-16)+"px"});root.append(marker)}
+root.append(bones);
+let rect=null;if(el&&mode==="stop"){rect=el.getBoundingClientRect();if(rect.width>0&&rect.height>0){anchor=h("div","ring");anchor.style.setProperty("--gx-color",COLORS[s.layer]);Object.assign(anchor.style,{left:Math.max(0,rect.left-4)+"px",top:Math.max(55,rect.top-4)+"px",width:rect.width+8+"px",height:rect.height+8+"px"});root.append(anchor)}}
+card=h("section","card");card.setAttribute("role","dialog");card.setAttribute("aria-modal","true");card.setAttribute("aria-labelledby","gx-title");card.style.setProperty("--gx-color",COLORS[s.layer]);const buttons=h("div","actions");
+if(mode==="intro"){card.append(h("div","kicker","PART "+p.id+" OF 6"),h("h2","",p.intro),h("p","",p.description));buttons.append(btn("Start →",()=>render("stop"),"primary"))}
+else if(mode==="end"){card.append(h("div","kicker","END OF TOUR"),h("h2","","That is the whole of Galiel"),h("p","","28 stops, six parts, one working system."));buttons.append(btn("← Back",()=>transition(27)),btn("Restart",()=>{idx=0;transition(0);render("intro")},"primary"))}
+else{card.append(h("div","kicker",s.id+" · "+NAMES[s.layer].toUpperCase()),h("h2","",s.title),h("p","",s.body),h("div","tech",s.tech));if(s.github_path&&!s.github_path.startsWith("stop")){const link=h("a","","View on GitHub ↗");link.href=GITHUB+s.github_path;link.target="_blank";link.rel="noopener noreferrer";card.append(link)}
+if(!onPage){const warning=h("p","","This stop belongs to "+(path||"a demo process that has not been configured")+".");card.append(warning)}
+if(s.panel){const panel=h("div","panel");panel.textContent=s.id===7?"Browser → Apache → FastCGI → Django → SQLite":s.id===8?"Agile · automated tests · dry-run · backup · rollback":s.id===10?"Registration → signed email link → activation": "Scheduled reminder email + private daily backup";root.append(panel)}
+const back=btn("← Back",()=>transition(idx-1));back.disabled=idx===0;buttons.append(back);
+const nextAtEnd=idx===data.stops.length-1;const partEnd=idx===currentStops[currentStops.length-1].id-1;
+buttons.append(btn(nextAtEnd?"Finish tour →":partEnd?"Next part →":"Next →",()=>{if(nextAtEnd)render("end");else if(partEnd){transition(idx+1);if(slug(location.pathname)===slug(pageOf(data.stops[idx])||""))render("intro")}else transition(idx+1)},"primary"))}
+buttons.append(btn("× Exit",exit));card.append(buttons);root.append(card);
+document.body.append(root);position(card,rect);if(innerWidth<768){const mobile=h("div","mobile","X-Ray tour is designed for a large screen");mobile.append(btn("× Exit",exit));document.body.append(mobile);root.append(mobile)}
+const focus=card.querySelector("button:not(:disabled)");focus?.focus();
+}
+function mount(){if(param==="1"&&get(STEP)===null){trigger=btn("Switch on X-Ray",start,"trigger");document.body.append(trigger);return}let n=Number(get(STEP));idx=Number.isInteger(n)&&n>=0&&n<28?n:0;ready=true;render(get(STEP)===null?"intro":"stop");document.addEventListener("keydown",keyboard)}
+function init(){fetch(ROOT+"galiel-xray-stops.json",{credentials:"same-origin"}).then(r=>{if(!r.ok)throw Error("stop data unavailable");return r.json()}).then(payload=>{if(payload.stops?.length!==28||payload.parts?.length!==6)return;data=payload;mount()}).catch(()=>{/* no messages in normal page */})}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
