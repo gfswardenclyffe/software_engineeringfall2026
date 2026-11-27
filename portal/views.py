@@ -17,6 +17,7 @@ from django.conf import settings
 
 from .forms import EmailAuthenticationForm, GalielRegistrationForm, UserProfileForm
 from .verification import send_activation_email
+from .pricing import fee_note
 from .models import ClientDocument, ClientConversation, ClientMessage, CatalogCountry, CatalogRegion, CatalogMunicipality, ServiceOffering, ServiceApplication, ApplicationDocument, CatalogService
 from .document_forms import ClientDocumentForm
 from .message_forms import NewConversationForm, ReplyForm
@@ -500,7 +501,7 @@ def catalog_api(request):
             "base_fee": str(item.base_fee) if item.base_fee is not None else None,
             "included_m2": str(item.included_m2) if item.included_m2 is not None else None,
             "per_extra_m2": str(item.per_extra_m2) if item.per_extra_m2 is not None else None,
-            "fee_covers": __import__("portal.pricing", fromlist=["fee_note"]).fee_note(item, locale),
+            "fee_covers": fee_note(item, locale),
             "currency": item.currency,
             "estimated_min_business_days": item.estimated_min_business_days,
             "estimated_max_business_days": item.estimated_max_business_days,
