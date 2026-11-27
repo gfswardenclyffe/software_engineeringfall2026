@@ -38,7 +38,7 @@ python manage.py import_approved_fees \
   --expected-rows 107 > /tmp/galiel-fees-dry-run.txt
 cat /tmp/galiel-fees-dry-run.txt
 ```
-Review every row. No service is created, and no missing or ambiguous match can be guessed. Import is **blocked until the output is 107 MATCH / 0 blockers**. There is no need to continue to backup/migrate if the match report is incomplete.
+Review every row. The approved XLSX has SHA256 `24c954415dafdd20b17a012f6d8cc5e12a011f753729bcfc9672e8adb9d20629`; the importer refuses `--apply` for any other workbook bytes. No service is created, and no missing or ambiguous match can be guessed. Import is **blocked until the output is 107 MATCH / 0 blockers**. There is no need to continue to backup/migrate if the match report is incomplete.
 
 ## Safe backup
 Use SQLite online backup API rather than copying a potentially live DB. Obtain `DATABASES['default']['NAME']` from the production settings without printing credentials. Write a timestamped backup under a private, non-web-served folder with permissions 0600. Verify integrity and perform an isolated restore drill. Back up the relevant code, static files, .htaccess, FastCGI entry, and private upload references as well. Never store a private DB in GitHub.
