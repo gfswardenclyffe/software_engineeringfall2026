@@ -87,6 +87,10 @@ def _price_for(app):
     offer = app.offering
     if app.quoted_amount is not None and app.status in ("quoted", "awaiting_payment"):
         return app.quoted_amount.quantize(CENT), Decimal("0.00"), app.quoted_amount.quantize(CENT)
+    # Approved schedule is display-only, even where a legacy payable price exists.
+    # Staff-approved quotations are handled by the override above.
+    if offer.base_fee is not None:
+        return None, None, None
     if offer.price_type == "quote" or offer.price is None:
         return None, None, None
     if offer.price_type == "starting":
