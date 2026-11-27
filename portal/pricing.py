@@ -1,5 +1,6 @@
 """Display-only approved Galiel estimates. No charge or payment is initiated."""
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from .fee_note_translations import TRANSLATIONS
 
 CENT = Decimal("0.01")
 MAX_AREA = Decimal("100000000")
@@ -34,15 +35,10 @@ def estimate(offering, area=None):
 
 
 def fee_note(offering, language="en"):
-    """Conservative localization of approved fee treatment; retain original notes."""
+    """Return the exact approved note, or its reviewed EN/ES/FR translation."""
     note = (offering.fee_covers or "").strip()
-    if not note:
-        return ""
-    # Approved wording is stored verbatim; translate only recognized agency-fee terms.
-    lower = note.casefold()
-    if "derechos" in lower or "authority" in lower:
-        if language == "es":
-            return "Honorarios + IVA cuando corresponda. Los derechos se pagan directamente a la autoridad. " + note
-        if language == "fr":
-            return "Honoraires et TVA, le cas échéant. Frais administratifs payables directement à l'autorité. " + note
+    if language == "es" and note in TRANSLATIONS:
+        return TRANSLATIONS[note][0]
+    if language == "fr" and note in TRANSLATIONS:
+        return TRANSLATIONS[note][1]
     return note
