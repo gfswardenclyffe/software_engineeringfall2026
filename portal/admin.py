@@ -97,7 +97,7 @@ class ServiceOfferingAdmin(admin.ModelAdmin):
     inlines = [ServiceRequirementInline]
     fieldsets = (
         ("Service & location", {"fields": ("service", "country", "region", "municipality")}),
-        ("Commercial details", {"fields": ("price_type", "price", "deposit_amount", "tax_rate", "currency", "estimated_min_business_days", "estimated_max_business_days")}),
+        ("Commercial details", {"fields": ("price_type", "base_fee", "included_m2", "per_extra_m2", "fee_covers", "price", "deposit_amount", "tax_rate", "currency", "estimated_min_business_days", "estimated_max_business_days")}),
         ("Visibility & internal notes", {"fields": ("is_published", "manager_notes")}),
     )
 
