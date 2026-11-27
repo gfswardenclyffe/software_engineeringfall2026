@@ -41,7 +41,7 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 @media(max-width:600px){.top{height:64px}.brand{font-size:26px}.account{display:none}.stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat{padding:13px}.stat strong{font-size:30px}.stat span{font-size:11px}.card{border-radius:15px}.empty{padding:15px 0}.subtitle{font-size:14px}}
 </style><link rel="stylesheet" href="{% static 'portal/galiel-design.css' %}">
 <link rel="stylesheet" href="{% static 'portal/galiel-workspace.css' %}"><link rel="icon" type="image/svg+xml" href="{% static 'portal/galiel-signature.svg' %}">
-</head><body class="workspace-redesign">
+<link rel="stylesheet" href="{% static 'portal/galiel-xray.css' %}"></head><body class="workspace-redesign">
 {% include 'portal/_workspace_header.html' %}
 {% with next_app=applications.first %}{% if next_app %}<div class="ws-current"><span><strong>{{ next_app.number }}</strong> · {{ next_app.service_title }} · {{ next_app.get_status_display }}</span><a href="{% url 'application_track' next_app.pk %}">Continue →</a></div>{% else %}<div class="ws-current"><span>Your workspace · No active process yet</span><a href="{% url 'service_catalog' %}">Explore services →</a></div>{% endif %}{% endwith %}
 <div class="layout"><aside><div class="mini">Your workspace</div><div class="user-name">{{ user.get_full_name|default:user.email }}</div><nav aria-label="Workspace navigation">
@@ -110,4 +110,4 @@ h1{font:400 clamp(34px,4.5vw,58px)/1.08 Georgia,serif;letter-spacing:-.04em;marg
 </main></div>
 <script>
 function showPage(){const id=location.hash.slice(1)||"overview";const safe=document.getElementById(id)?.classList.contains("page")?id:"overview";document.querySelectorAll(".page").forEach(el=>el.classList.toggle("active",el.id===safe));document.querySelectorAll("nav [data-page]").forEach(el=>{const active=el.dataset.page===safe;el.classList.toggle("active",active);active?el.setAttribute("aria-current","page"):el.removeAttribute("aria-current")})}addEventListener("hashchange",showPage);showPage();
-</script>{% include 'galiel_ops/_help.html' %}<script src="{% static 'portal/galiel-locale.js' %}" defer></script></body></html>
+</script>{% include 'galiel_ops/_help.html' %}<script src="{% static 'portal/galiel-locale.js' %}" defer></script><script src="{% static 'portal/galiel-xray.js' %}" defer></script></body></html>
