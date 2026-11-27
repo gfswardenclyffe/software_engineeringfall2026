@@ -31,5 +31,10 @@ jobs:
           .venv/bin/python manage.py makemigrations --check --dry-run
       - name: Validate X-Ray JavaScript syntax
         run: node --check portal/static/portal/galiel-xray.js
+      - name: Verify mirrored Apache static assets
+        run: |
+          cmp portal/static/portal/galiel-xray.js static/portal/galiel-xray.js
+          cmp portal/static/portal/galiel-xray.css static/portal/galiel-xray.css
+          cmp portal/static/portal/galiel-xray-stops.json static/portal/galiel-xray-stops.json
       - name: Run all portal and operations tests
         run: .venv/bin/python manage.py test portal galiel_ops --noinput --verbosity 2
