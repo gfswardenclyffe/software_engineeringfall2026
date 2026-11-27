@@ -63,7 +63,13 @@ h1{font:normal 44px Georgia,serif;margin:12px 0}.sub{color:#74675d}
 <p>Location: {{ application.location_label }}</p>
 <p>Status: {{ application.get_status_display }}</p>
 <p>Estimated delivery: {{ application.estimated_delivery|default:"To be confirmed" }}</p>
-<div class="ws-payment-box"><h3>Payment</h3>
+<div class="ws-payment-box"><h3>{% if display_language == 'es' %}Honorarios y pagos{% elif display_language == 'fr' %}Honoraires et paiements{% else %}Fees and payments{% endif %}</h3>
+{% if application.offering.base_fee != None %}
+<p><strong>{% if display_language == 'es' %}Honorarios estimados{% elif display_language == 'fr' %}Honoraires estimés{% else %}Estimated service fee{% endif %}:
+{% if application.quoted_amount != None %}{{ application.quoted_amount }} {{ application.currency }} (staff quotation)
+{% elif display_fee != None %}{{ display_fee }} {{ application.currency }}{% else %}{% if display_language == 'es' %}Desde{% elif display_language == 'fr' %}À partir de{% else %}From{% endif %} {{ application.offering.base_fee }} {{ application.currency }}{% endif %}</strong></p>
+{% if fee_note %}<p>{{ fee_note }}</p>{% endif %}
+{% endif %}<p class="ws-placeholder">{% if display_language == 'es' %}Los pagos están suspendidos.{% elif display_language == 'fr' %}Les paiements sont suspendus.{% else %}Payments are currently on hold.{% endif %}</p>
 {% if application.payment_confirmed_at %}
 <p>Payment confirmed: {{ application.payment_confirmed_at|date:"M j, Y" }}</p><p>{{ application.currency }} {{ application.total }}</p>
 {% if application.stripe_receipt_url %}<a href="{{ application.stripe_receipt_url }}" rel="noopener noreferrer" target="_blank">Payment receipt →</a>{% endif %}
@@ -74,7 +80,7 @@ h1{font:normal 44px Georgia,serif;margin:12px 0}.sub{color:#74675d}
 <p>Complete the application and upload the requested files before payment.</p>
 <a class="secondary" href="{% url 'application_step' application.pk 1 %}">Continue application →</a>
 {% else %}<p>Payment details will appear here once available.</p>{% endif %}
-<p class="ws-placeholder">Fees and per-service document lists are pending confirmation.</p></div>
+</div>
 </section>
 <section class="panel"><h2>Messages</h2>
 {% if application.conversation_id %}<a class="secondary" href="{% url 'conversation_detail' application.conversation_id %}">View case conversation →</a>
