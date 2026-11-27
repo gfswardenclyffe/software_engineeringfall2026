@@ -4,3 +4,6 @@ sqlparse>=0.3.1
 
 # Stripe-hosted PCI-reducing Checkout; Python 3.9 compatible
 stripe==17.0.0
+
+# Approved pricing sheet reader (Python 3.9+)
+openpyxl==3.1.5
