@@ -1,7 +1,7 @@
 {% extends "portal/auth_base.html" %}{% block title %}Create an account · Galiel{% endblock %}{% block content %}
 <div class="eyebrow">New account / Step 1 of 2</div><h1>Let's get started.</h1><p class="sub">Create your client account. We'll email you a confirmation link before you can access your private workspace.</p>
 {% if pending_service_label %}<div class="notice"><strong>Your selected service:</strong> {{ pending_service_label }}</div>{% endif %}
-<form method="post" autocomplete="on">{% csrf_token %}{% if pending_service %}<input type="hidden" name="service" value="{{ pending_service }}">{% endif %}
+<form data-xray="9" method="post" autocomplete="on">{% csrf_token %}{% if pending_service %}<input type="hidden" name="service" value="{{ pending_service }}">{% endif %}
 {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
 <div class="fields-two"><p>{{ form.first_name.label_tag }}{{ form.first_name }}{{ form.first_name.errors }}</p><p>{{ form.last_name.label_tag }}{{ form.last_name }}{{ form.last_name.errors }}</p></div>
 <p>{{ form.email.label_tag }}{{ form.email }}{{ form.email.errors }}</p><p>{{ form.phone.label_tag }}{{ form.phone }}{{ form.phone.errors }}</p>
