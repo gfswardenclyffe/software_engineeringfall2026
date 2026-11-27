@@ -3,7 +3,7 @@
 {% block title %}Galiel · {{ application.number }}{% endblock %}
 {% block content %}
 {% galiel_locale as gl_lang %}
-<div class="eyebrow">{{ application.number }} · {{ application.get_status_display }}</div>
+<div data-xray="16" class="eyebrow">{{ application.number }} · {{ application.get_status_display }}</div>
 <h1>{{ service_name }}</h1>
 <p class="muted">{{ place_name }} · {{ application.currency }}</p>
 <nav class="galiel-steps" aria-label="Application progress">
@@ -16,7 +16,7 @@
 </nav>
 {% for notice in messages %}<p class="notice" role="status">{{ notice }}</p>{% endfor %}
 {% if step == 1 %}
-<section class="panel galiel-flow-panel">
+<section data-xray="17" class="panel galiel-flow-panel">
   <h2>{% ui "Your service" %}</h2>
   <p>{{ place_name }}</p>
   <p>{% if gl_lang == 'es' %}{{ offering.service.description_es }}{% elif gl_lang == 'fr' %}{{ offering.service.description_fr }}{% else %}{{ offering.service.description_en }}{% endif %}</p>
