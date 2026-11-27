@@ -29,5 +29,7 @@ jobs:
         run: |
           test ! -f portal/migrations/0012_pricing_research.py
           .venv/bin/python manage.py makemigrations --check --dry-run
+      - name: Validate pricing source compilation
+        run: .venv/bin/python -m compileall -q portal
       - name: Run all portal and operations tests
         run: .venv/bin/python manage.py test portal galiel_ops --noinput --verbosity 2
