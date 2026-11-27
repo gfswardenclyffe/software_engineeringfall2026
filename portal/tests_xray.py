@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from portal.models import ServiceApplication, ServiceOffering
 
 
 class XRayPresenterTest(TestCase):
@@ -23,6 +24,12 @@ class XRayPresenterTest(TestCase):
         self.assertContains(page, "portal/galiel-xray.css")
         self.client.force_login(self.staff)
         page = self.client.get(reverse("admin:index"))
+        self.assertEqual(page.status_code, 200)
+        offering = ServiceOffering.objects.first()
+        case = ServiceApplication.objects.create(
+            client=self.client_user, offering=offering, status="draft", step=3,
+            currency="MXN", service_title=offering.service.title_en)
+        page = self.client.get(reverse("admin:portal_serviceapplication_change", args=[case.pk]))
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "portal/galiel-xray.js")
         self.assertContains(page, "portal/galiel-xray.css")
