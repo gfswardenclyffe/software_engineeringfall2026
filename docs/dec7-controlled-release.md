@@ -52,7 +52,7 @@ python manage.py import_approved_fees \
 python manage.py test portal galiel_ops --noinput
 python manage.py check
 ```
-The import runs in a single database transaction. The new base_fee fields are display-only; `price` is left NULL for imported fees and `application_checkout` remains hard-blocked.
+The import runs in a single database transaction. The new base_fee fields are display-only; the legacy `price` is preserved and `application_checkout` remains hard-blocked.
 
 ## FastCGI and live checks
 After the approved code swap, refresh the production FastCGI process using the site's **existing, verified** refresh mechanism. Inspect .htaccess route allowlisting before adding any X-Ray route. Confirm health and content with a browser User-Agent:
