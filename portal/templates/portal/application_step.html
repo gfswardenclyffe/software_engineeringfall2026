@@ -20,7 +20,8 @@
   <h2>{% ui "Your service" %}</h2>
   <p>{{ place_name }}</p>
   <p>{% if gl_lang == 'es' %}{{ offering.service.description_es }}{% elif gl_lang == 'fr' %}{{ offering.service.description_fr }}{% else %}{{ offering.service.description_en }}{% endif %}</p>
-  <div class="galiel-info-row"><span>{% ui "Price" %}</span><strong>{% if offering.price_type == 'quote' %}{% ui "Quote required" %}{% else %}{{ offering.currency }} {{ offering.price }}{% endif %}</strong></div>
+  <div class="galiel-info-row"><span>{% ui "Price" %}</span><strong>{% if offering.base_fee != None %}{% if offering.price_type == 'per_m2' %}{% if gl_lang == 'es' %}Desde{% elif gl_lang == 'fr' %}À partir de{% else %}From{% endif %} {% endif %}{{ offering.base_fee }} {{ offering.currency }}{% if offering.currency == 'MXN' %} + IVA{% endif %}{% elif offering.price_type == 'quote' %}{% ui "Quote required" %}{% else %}{{ offering.currency }} {{ offering.price }}{% endif %}</strong></div>
+  {% if fee_note %}<p class="muted">{{ fee_note }}</p>{% endif %}
   <div class="galiel-info-row"><span>{% ui "Estimated timeline" %}</span><strong>{% if offering.estimated_min_business_days != None and offering.estimated_max_business_days != None %}{{ offering.estimated_min_business_days }}–{{ offering.estimated_max_business_days }} {% if gl_lang == 'es' %}días hábiles{% elif gl_lang == 'fr' %}jours ouvrés{% else %}business days{% endif %}{% else %}{% ui "To be confirmed" %}{% endif %}</strong></div>
   <div class="galiel-flow-size"><label for="business-size">{% if gl_lang == 'es' %}Superficie del negocio{% elif gl_lang == 'fr' %}Surface du local{% else %}Business size{% endif %}</label>
     <div class="ws-size-field"><input data-locale="{{ gl_lang }}" id="business-size" type="number" min="0" step="0.01" placeholder="{% if gl_lang == 'en' %}e.g. 1200{% else %}p. ej. 100{% endif %}" aria-describedby="size-note">
@@ -85,6 +86,10 @@
   <div class="galiel-info-row"><strong>{% ui "Documents uploaded" %}</strong><a class="galiel-secondary" href="{% url 'application_step' application.pk 3 %}">{% ui "Edit" %}</a></div>
   {% for req, doc in requirements %}<div class="galiel-info-row"><span>{% if gl_lang == 'es' %}{{ req.label_es }}{% elif gl_lang == 'fr' %}{{ req.label_fr }}{% else %}{{ req.label_en }}{% endif %}</span><strong>{% if doc %}✓ {{ doc.original_filename }}{% else %}—{% endif %}</strong></div>{% endfor %}
   {% for doc in optional_documents %}<div class="galiel-info-row"><span>{% ui "Optional documents" %}</span><strong>{{ doc.original_filename }}</strong></div>{% endfor %}
+  {% if offering.base_fee != None %}
+  <div class="galiel-info-row"><span>{% if gl_lang == 'es' %}Honorarios estimados (sin impuestos){% elif gl_lang == 'fr' %}Honoraires estimés (hors taxes){% else %}Estimated service fee (before tax){% endif %}</span><strong>{% if display_fee != None %}{{ display_fee }} {{ offering.currency }}{% else %}{% if gl_lang == 'es' %}Indique la superficie para calcular{% elif gl_lang == 'fr' %}Indiquez la surface pour calculer{% else %}Enter area to calculate{% endif %}{% endif %}</strong></div>
+  {% if fee_note %}<p class="muted">{{ fee_note }}</p>{% endif %}
+  {% endif %}
   <div class="galiel-info-row"><span>{% ui "Subtotal" %}</span><strong>{% if base != None %}{{ application.currency }} {{ base }}{% else %}{% ui "Quote required" %}{% endif %}</strong></div>
   <div class="galiel-info-row"><span>{% ui "Applicable tax" %}</span><strong>{% if tax != None %}{{ application.currency }} {{ tax }}{% else %}—{% endif %}</strong></div>
   <div class="galiel-info-row"><span>{% ui "Total" %}</span><strong>{% if total != None %}{{ application.currency }} {{ total }}{% else %}{% ui "Quote required" %}{% endif %}</strong></div>
