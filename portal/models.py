@@ -136,6 +136,7 @@ class CatalogService(models.Model):
 class ServiceOffering(models.Model):
     PRICE_TYPES = [
         ("fixed", "Fixed price"),
+        ("per_m2", "Area-based fee"),
         ("starting", "Starting at"),
         ("quote", "Quotation required"),
     ]
@@ -147,6 +148,10 @@ class ServiceOffering(models.Model):
     municipality = models.ForeignKey(CatalogMunicipality, null=True, blank=True, on_delete=models.PROTECT, related_name="offerings")
     price_type = models.CharField(max_length=12, choices=PRICE_TYPES, default="quote")
     price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    base_fee = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    included_m2 = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    per_extra_m2 = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    fee_covers = models.TextField(blank=True)
     currency = models.CharField(max_length=3, choices=CURRENCIES, default="MXN")
     estimated_min_business_days = models.PositiveSmallIntegerField(null=True, blank=True)
     estimated_max_business_days = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -180,8 +185,13 @@ class ServiceOffering(models.Model):
                 errors["municipality"] = "Choose a region before a municipality."
             elif self.municipality.region_id != self.region_id:
                 errors["municipality"] = "Municipality must belong to the selected region."
-        if self.price_type in ("fixed", "starting") and self.price is None:
+        if self.price_type in ("fixed", "starting") and (self.price is None and self.base_fee is None):
             errors["price"] = "A published price requires an amount."
+        if self.price_type == "per_m2" and (self.base_fee is None or self.included_m2 is None or self.per_extra_m2 is None):
+            errors["base_fee"] = "Area-based prices require base_fee, included_m2 and per_extra_m2."
+        for field in ("base_fee", "included_m2", "per_extra_m2"):
+            if getattr(self, field) is not None and getattr(self, field) < 0:
+                errors[field] = "Must be nonnegative."
         if (
             self.estimated_min_business_days is not None
             and self.estimated_max_business_days is not None
