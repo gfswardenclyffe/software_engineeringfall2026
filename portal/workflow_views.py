@@ -24,6 +24,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from .pricing import estimate, fee_note
 from .models import (
     ServiceOffering, ServiceApplication, ServiceRequirement, ApplicationDocument,
     ApplicationEvent, ClientConversation, ClientMessage,
@@ -73,6 +74,11 @@ def _form_for(app, request):
             initial=app.answers.get(str(req.pk), ""),
             widget=forms.TextInput(attrs={"autocomplete": "off"}),
         )
+    if app.offering.price_type == "per_m2" and app.offering.base_fee is not None:
+        form.fields["area_m2"] = forms.DecimalField(
+            label={"es": "Superficie en m²", "fr": "Surface en m²", "en": "Area in m²"}[_language(request)],
+            min_value=Decimal("0.01"), max_value=Decimal("100000000"), decimal_places=2,
+            initial=app.answers.get("area_m2", ""), required=True)
     return form
 
 
@@ -211,7 +217,9 @@ def application_step(request, application_id, step):
         if step == 2:
             form = _form_for(app, request)
             if form.is_valid():
-                app.answers = {key[7:]: val for key, val in form.cleaned_data.items()}
+                app.answers = {key[7:]: val for key, val in form.cleaned_data.items() if key.startswith("answer_")}
+                if "area_m2" in form.cleaned_data:
+                    app.answers["area_m2"] = str(form.cleaned_data["area_m2"])
                 app.notes = request.POST.get("notes", app.notes)[:5000]
                 app.step = max(app.step, 3)
                 app.save(update_fields=["answers", "notes", "step", "updated_at"])
@@ -243,6 +251,7 @@ def application_step(request, application_id, step):
             return redirect("application_track", application_id=app.pk)
     form = _form_for(app, request) if step == 2 else None
     base, tax, total = _price_for(app)
+    display_fee = estimate(offer, app.answers.get("area_m2"))
     uploaded = {doc.requirement_id: doc for doc in app.documents.filter(requirement__isnull=False)}
     requirements = [(req, uploaded.get(req.pk)) for req in _requirements(app, "document")]
     questions = [(req, app.answers.get(str(req.pk), "")) for req in _requirements(app, "question")]
@@ -253,6 +262,8 @@ def application_step(request, application_id, step):
         "requirements": requirements, "questions": questions,
         "optional_documents": app.documents.filter(requirement__isnull=True, is_deliverable=False),
         "base": base, "tax": tax, "total": total,
+        "display_fee": display_fee,
+        "fee_note": fee_note(offer, lang),
         "checkout_cancelled": request.GET.get("canceled") == "1",
         "is_quote": total is None, "stripe_configured": bool(
             os.getenv("GALIEL_STRIPE_SECRET_KEY") and os.getenv("GALIEL_STRIPE_WEBHOOK_SECRET")
@@ -373,8 +384,12 @@ def application_track(request, application_id):
     app = _application(request, application_id)
     requirements = [(req, app.documents.filter(requirement=req).first())
                     for req in _requirements(app, "document")]
+    lang = _language(request)
     return render(request, "portal/application_track.html", {
         "application": app, "events": app.events.all(), "requirements": requirements,
+        "display_fee": estimate(app.offering, app.answers.get("area_m2")),
+        "fee_note": fee_note(app.offering, lang),
+        "display_language": lang,
     })
 
 
