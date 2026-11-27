@@ -122,8 +122,7 @@ class Command(BaseCommand):
                 target.per_extra_m2 = parse_money(row[9], "Per extra m²") if row[7] == "per_m2" else None
                 target.fee_covers = str(row[10] or "")
                 target.currency = row[6]
-                # Keep payment price NULL: approved fees are DISPLAY ONLY.
-                target.price = None
+                # Preserve legacy price field; checkout is independently hard-blocked.
                 target.save(update_fields=["base_fee", "price_type", "included_m2",
-                                           "per_extra_m2", "fee_covers", "currency", "price", "updated_at"])
+                                           "per_extra_m2", "fee_covers", "currency", "updated_at"])
         self.stdout.write(self.style.SUCCESS(f"APPLIED {len(review)} approved fees; checkout remains on hold."))
