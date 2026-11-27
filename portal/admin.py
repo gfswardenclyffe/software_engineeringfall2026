@@ -182,6 +182,7 @@ class ApplicationEventInline(admin.TabularInline):
 
 @admin.register(ServiceApplication)
 class ServiceApplicationAdmin(admin.ModelAdmin):
+    change_form_template = 'portal/admin/service_application_change.html'
     form = ApplicationAdminForm
     list_display = ("number_display", "client_name", "client_email", "service_title", "status", "currency", "total", "assigned_to", "estimated_delivery")
     list_filter = ("status", "currency", "offering__country")
